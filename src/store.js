@@ -3,6 +3,8 @@ const throttle = require("lodash.throttle");
 const fs = require("fs");
 const { createStore, applyMiddleware } = require("redux");
 
+const { dataStoreFilename } = require("./constant");
+
 const pick = (o, keys) =>
   keys.reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {});
 
@@ -95,10 +97,6 @@ const articlesWithoutContent = state => {
   );
 };
 
-const cwd = process.cwd();
-
-const dataStoreFilename = path.join(cwd, "data", "store.json");
-
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
     ensureDir(path.dirname(filepath));
@@ -113,7 +111,7 @@ ensureDir(dataStoreFilename);
 //   return next(action);
 // };
 
-const throttledWriteSync = throttle(fs.writeFileSync(...args), 30000);
+const throttledWriteSync = throttle(fs.writeFileSync, 30000);
 
 const saveContentMiddleware = ({ dispatch, getState }) => next => action => {
   const result = next(action);

@@ -119,7 +119,7 @@ const articlePageContent = async page => {
   };
 };
 
-puppeteer.launch({ devtools: true }).then(async browser => {
+puppeteer.launch().then(async browser => {
   const page = await browser.newPage();
   await discoverAllHomepageArticles(page);
   const state = store.getState();
