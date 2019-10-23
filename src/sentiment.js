@@ -68,6 +68,7 @@ const splitIntoWords = text => text.split(/\s|---?/);
 
 const cleanWord = word =>
   word
+    .replace("—", "---")
     .replace(/’/g, "'")
     .replace(/'s$/, "")
     .replace(/'$/g, "")
