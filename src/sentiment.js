@@ -12,16 +12,25 @@ const range = n =>
     .map((_, i) => i);
 
 const commonWords = [
+  "---",
   "a",
+  "about",
+  "after",
   "and",
   "are",
+  "as",
+  "asked",
   "at",
   "be",
   "but",
   "by",
+  "could",
   "for",
+  "from",
   "go",
   "going",
+  "has",
+  "have",
   "he",
   "her",
   "his",
@@ -29,6 +38,7 @@ const commonWords = [
   "in",
   "is",
   "it",
+  "its",
   "may",
   "most",
   "new",
@@ -38,9 +48,11 @@ const commonWords = [
   "of",
   "on",
   "or",
+  "other",
   "our",
   "said",
   "she",
+  "take",
   "that",
   "the",
   "their",
@@ -50,10 +62,15 @@ const commonWords = [
   "us",
   "was",
   "we",
+  "were",
   "what",
+  "while",
   "who",
   "will",
-  "with"
+  "with",
+  "would",
+  "you",
+  "your"
 ];
 
 const isNonPhrase = phrase => {
@@ -72,7 +89,7 @@ const cleanWord = word =>
     .replace(/’/g, "'")
     .replace(/'s$/, "")
     .replace(/'$/g, "")
-    .replace(/[;…!?.,:"“”]/g, "")
+    .replace(/[–;…!?.,:"“”]/g, "")
     .toLowerCase();
 
 const cleanText = text => text.replace(/&amp;/g, "&").replace(/&nbsp;/g, " ");
@@ -105,11 +122,20 @@ const collectKeyPhrases = (text, count = 10) => {
 
 const sentiment = new Sentiment();
 
-Object.values(storeData).forEach(article => {
+const newsSource = process.argv[2];
+
+if (!Object.keys(storeData).some(key => newsSource === key)) {
+  console.error(`News source ${newsSource} not found in data`);
+  console.error("Possible values:\n ", Object.keys(storeData).join("\n  "));
+  console.log();
+  throw new Error();
+}
+
+Object.values(storeData[newsSource]).forEach(article => {
   if (!article.content) return;
   const articleText = removeHtmlTags(article.content);
   const cleanedArticleText = cleanText(articleText);
-  const articleKeywords = collectKeyPhrases(cleanedArticleText, 5);
+  const articleKeywords = collectKeyPhrases(cleanedArticleText, 6);
   const { score, comparative } = sentiment.analyze(cleanedArticleText);
   console.log();
   console.log(article.title);

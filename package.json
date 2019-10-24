@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-fox-news-article-collection": "node src/index.js",
-    "log-article-keywords-sentiment": "node src/sentiment.js"
+    "article-collection": "node src/index.js",
+    "article-sentiment": "node src/sentiment.js"
   },
   "author": "jsasz <justenrickert@gmail.com>",
   "license": "MIT",

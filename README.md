@@ -9,14 +9,18 @@ cd read-the-news
 npm i
 ```
 
-Then run the script to collect and store Fox News articles
+Then run the script to collect and store articles from one of the supported news sources
 ```
-npm run start-fox-news-article-collection
+npm run article-collection npr
+# or
+npm run article-collection fox-news
 ```
 
 Wait for some time to collect results...
 
-Then run the sentiment analysis tool to log the results to the console
+Then run the sentiment analysis tool on the collected data
 ```
-npm run log-article-keywords-sentiment
+npm run article-sentiment fox-news
+# or
+npm run article-sentiment npr
 ```
