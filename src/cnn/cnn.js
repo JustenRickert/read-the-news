@@ -66,22 +66,16 @@ puppeteer.launch({ devtools: true }).then(async browser => {
   await page.goto(CNN_URL);
   const articles = await discoverAllHomepageLinks(page);
   store.dispatch(addArticles(articles));
-  const [videoArticles, normalArticles] = partition(
-    articlesWithoutContent(store.getState()),
-    a => a.isVideoContent
+  const articlesNeedingContent = articlesWithoutContent(store.getState());
+  await articlesNeedingContent.reduce(
+    (p, a) =>
+      p.then(async () => {
+        await page.goto(a.href);
+        const article = await articleContentUpdates(page);
+        store.dispatch(updateArticle({ href: a.href, ...article }));
+      }),
+    Promise.resolve(null)
   );
-  videoArticles.forEach(a => {
-    store.dispatch(updateArticleVideoContent(a));
-  });
-  await normalArticles
-    .filter(a => !a.isVideoContent)
-    .reduce(
-      (p, a) =>
-        p.then(async () => {
-          await page.goto(a.href);
-          const article = await articleContentUpdates(page);
-          store.dispatch(updateArticle({ href: a.href, ...article }));
-        }),
-      Promise.resolve(null)
-    );
+  saveStore(store);
+  process.exit(0);
 });
