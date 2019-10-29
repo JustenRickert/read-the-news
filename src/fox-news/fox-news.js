@@ -1,16 +1,17 @@
 const puppeteer = require("puppeteer");
 
-const { makeArticlesWithoutContentSelector } = require("./store/selectors");
+const { makeArticlesWithoutContentSelector } = require("../store/selectors");
 const {
   makeAddArticlesAction,
   makeUpdateArticleNormalContentAction,
   makeUpdateArticleVideoContentAction
-} = require("./store/actions");
-const { store, saveStore } = require("./store/index");
+} = require("../store/actions");
+const { store, saveStore } = require("../store/index");
 
-const { FOX_NEWS } = require("./constant");
+const { FOX_NEWS } = require("../constant");
+const { zip, sample, range } = require("../utils");
+
 const { isFoxVideoArticle } = require("./fox-news-utils");
-const { zip, sample, range } = require("./utils");
 
 const addArticles = makeAddArticlesAction(FOX_NEWS);
 const updateArticleNormalContent = makeUpdateArticleNormalContentAction(

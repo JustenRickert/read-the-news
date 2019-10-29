@@ -19,7 +19,12 @@ const makeNewsSourceReducer = newsSource => (state = {}, action) => {
               "images",
               "timestamp",
               "twitterContent"
-            ])
+            ]),
+            {
+              // Some sites (CNN) have titles that differ between the article
+              // and the homepage
+              title: action.title || state[action.href].title
+            }
           )
         });
       }

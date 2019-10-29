@@ -1,3 +1,12 @@
+const partition = (xs, predicate) =>
+  xs.reduce(
+    ([lhs, rhs], x, i) => {
+      if (predicate(x, i, xs)) return [lhs.concat(x), rhs];
+      else return [lhs, rhs.concat(x)];
+    },
+    [[], []]
+  );
+
 const and = (...predicates) => (...args) =>
   predicates.every(predicate => predicate(...args));
 
@@ -25,6 +34,7 @@ module.exports = {
   and,
   or,
   complement,
+  partition,
   pick,
   sample,
   range,

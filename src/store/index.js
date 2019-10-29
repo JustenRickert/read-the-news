@@ -5,7 +5,7 @@ const { createStore, applyMiddleware, combineReducers } = require("redux");
 
 const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
 
-const { dataStoreFilename, FOX_NEWS, NPR } = require("../constant");
+const { dataStoreFilename, CNN, FOX_NEWS, NPR } = require("../constant");
 
 const { makeNewsSourceReducer } = require("./newsSourceReducer");
 
@@ -25,12 +25,13 @@ ensureDir(dataStoreFilename);
 
 const throttledWriteSync = throttle(
   (...args) => (
-    console.log("saving to file"), defer(fs.writeFileSync, ...args)
+    console.log("saving store data"), defer(fs.writeFileSync, ...args)
   ),
   30000
 );
 
 const saveStore = ({ getState }) => {
+  console.log("Saving store data");
   fs.writeFileSync(
     dataStoreFilename,
     JSON.stringify(getState(), null, 2),
@@ -56,6 +57,7 @@ const initialState = () => {
 };
 
 const reducer = combineReducers({
+  [CNN]: makeNewsSourceReducer(CNN),
   [FOX_NEWS]: makeNewsSourceReducer(FOX_NEWS),
   [NPR]: makeNewsSourceReducer(NPR)
 });
