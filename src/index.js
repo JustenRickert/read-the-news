@@ -1,10 +1,10 @@
-const { FOX_NEWS, NPR, CNN, dataStoreFilename } = require("./constant");
+const { FOX_NEWS, NPR, CNN, NBC, dataStoreFilename } = require("./constant");
 
 const storeData = require(dataStoreFilename);
 
 const newsSource = process.argv[2];
 
-if (![CNN, FOX_NEWS, NPR].some(key => newsSource === key)) {
+if (![CNN, FOX_NEWS, NBC, NPR].some(key => newsSource === key)) {
   console.error(`News source ${newsSource} not found in data`);
   console.error("Possible values:\n ", Object.keys(storeData).join("\n  "));
   console.log();
@@ -12,6 +12,9 @@ if (![CNN, FOX_NEWS, NPR].some(key => newsSource === key)) {
 }
 
 switch (newsSource) {
+  case NBC:
+    require("./nbc/nbc");
+    break;
   case CNN:
     require("./cnn/cnn");
     break;

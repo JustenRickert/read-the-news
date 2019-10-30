@@ -5,7 +5,7 @@ const { createStore, applyMiddleware, combineReducers } = require("redux");
 
 const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
 
-const { dataStoreFilename, CNN, FOX_NEWS, NPR } = require("../constant");
+const { dataStoreFilename, CNN, FOX_NEWS, NPR, NBC } = require("../constant");
 
 const { makeNewsSourceReducer } = require("./newsSourceReducer");
 
@@ -57,6 +57,7 @@ const initialState = () => {
 };
 
 const reducer = combineReducers({
+  [NBC]: makeNewsSourceReducer(NBC),
   [CNN]: makeNewsSourceReducer(CNN),
   [FOX_NEWS]: makeNewsSourceReducer(FOX_NEWS),
   [NPR]: makeNewsSourceReducer(NPR)
