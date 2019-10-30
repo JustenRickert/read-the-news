@@ -17,5 +17,8 @@
     "puppeteer": "^1.20.0",
     "redux": "^4.0.4",
     "sentiment": "^5.0.2"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
   }
 }
