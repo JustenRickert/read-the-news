@@ -1,3 +1,11 @@
+const map = (xs, fn) => xs.map(fn);
+
+const sequentiallyMap = async (xs, fn) =>
+  (await xs).reduce(
+    (p, x) => p.then(async ys => ys.concat(await fn(x))),
+    Promise.resolve([])
+  );
+
 const partition = (xs, predicate) =>
   xs.reduce(
     ([lhs, rhs], x, i) => {
@@ -38,5 +46,6 @@ module.exports = {
   pick,
   sample,
   range,
+  sequentiallyMap,
   zip
 };

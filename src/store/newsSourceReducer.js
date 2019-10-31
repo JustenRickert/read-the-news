@@ -44,6 +44,7 @@ const makeNewsSourceReducer = newsSource => (state = {}, action) => {
       }
       break;
     }
+    case "ADD_HEADLINES":
     case "ADD_ARTICLES":
       newState = Object.assign({}, state);
       Object.assign(

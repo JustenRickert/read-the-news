@@ -1,4 +1,4 @@
-const isNprSectionHref = ({ href }) =>
+const isNprSectionsHref = ({ href }) =>
   /^https?:\/\/www\.npr\.org\/sections\/[\w\-]+\/$/.test(href);
 
 const isNprMusicVideosHref = ({ href }) =>
@@ -13,7 +13,7 @@ const isNprSeriesHref = ({ href }) =>
 const isNprHref = ({ href }) => /^https?:\/\/www\.npr\.org/.test(href);
 
 module.exports = {
-  isNprSectionHref,
+  isNprSectionsHref,
   isNprSeriesHref,
   isNprPodcastsHref,
   isNprMusicVideosHref,

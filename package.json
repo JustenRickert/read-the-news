@@ -16,6 +16,7 @@
     "prettier": "^1.18.2",
     "puppeteer": "^1.20.0",
     "redux": "^4.0.4",
+    "redux-starter-kit": "^1.0.0",
     "sentiment": "^5.0.2"
   },
   "devDependencies": {
