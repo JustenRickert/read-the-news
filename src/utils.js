@@ -1,3 +1,11 @@
+const map = (xs, fn) => xs.map(fn);
+
+const sequentiallyMap = async (xs, fn) =>
+  (await xs).reduce(
+    (p, x) => p.then(async ys => ys.concat(await fn(x))),
+    Promise.resolve([])
+  );
+
 const partition = (xs, predicate) =>
   xs.reduce(
     ([lhs, rhs], x, i) => {
@@ -25,6 +33,15 @@ const range = n =>
     .fill(undefined)
     .map((_, i) => i);
 
+const unique = (xs, idFn) =>
+  xs.reduce(
+    (uniqueXs, x) =>
+      uniqueXs.some(ux => idFn(ux) === idFn(xs))
+        ? uniqueXs
+        : uniqueXs.concat(x),
+    []
+  );
+
 const zip = xss => {
   const minLength = Math.min(...xss.map(xs => xs.length));
   return range(minLength).map(i => xss.map(xs => xs[i]));
@@ -38,5 +55,7 @@ module.exports = {
   pick,
   sample,
   range,
+  sequentiallyMap,
+  unique,
   zip
 };

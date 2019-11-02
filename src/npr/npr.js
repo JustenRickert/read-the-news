@@ -1,120 +1,160 @@
+const assert = require("assert");
 const puppeteer = require("puppeteer");
 
-const {
-  makeAddArticlesAction,
-  makeUpdateArticleNormalContentAction
-} = require("../store/actions");
-const { makeArticlesWithoutContentSelector } = require("../store/selectors");
-const { store, saveStore } = require("../store/index");
+const { store, saveStore, npr } = require("../store");
 const { NPR } = require("../constant");
-const { or, complement } = require("../utils");
+const {
+  complement,
+  or,
+  partition,
+  sequentiallyMap,
+  unique,
+  sample
+} = require("../utils");
 
 const {
-  isNprSectionHref,
+  isNprHealthIncHref,
+  isNprHealthShotsHref,
   isNprHref,
-  isNprSeriesHref,
+  isNprMovieInterviewHref,
   isNprMusicVideosHref,
-  isNprPodcastsHref
+  isNprPodcastsHref,
+  isNprPoliticsHref,
+  isNprSectionsHref,
+  isNprSeriesHref
 } = require("./npr-utils");
-
-const addArticles = makeAddArticlesAction(NPR);
-const updateArticles = makeUpdateArticleNormalContentAction(NPR);
-const articlesWithoutContent = makeArticlesWithoutContentSelector(NPR);
 
 const NPR_URL = "https://www.npr.org/";
 
-const updateArticleContent = async page => {
+const parseTimestamp = (date, time) => {
+  date = /(\w+) (\w+), (\w+)/.exec(date);
+  time = /(\w+):(\w+) (AM|PM) ET/.exec(time);
+  assert(date && time, "datetime must be invalid :(");
+  const [, month, day, year] = date;
+  let [, hour, minute, amOrPm] = time;
+  if (amOrPm === "PM" && hour !== "12") hour = String(Number(hour) + 12);
+  else if (amOrPm === "AM" && hour === "12") hour = String(Number(hour) - 12);
+  return new Date(
+    `${day} ${month} ${year} ${hour.padStart(2, "0")}:${minute}:00 EST`
+  ).toString();
+};
+
+const articleContents = async page => {
   const authors = await page.$$eval('div[aria-label="Byline"]', bylines => {
     const authors = bylines.map(byline => {
       const author = byline.querySelector("p a") || byline.querySelector("p");
       return {
-        href: author.href,
-        name: author.innerHTML.trim()
+        href: author.href || null,
+        name: author.innerText
       };
     });
     return authors;
   });
   const ps = await page.$$eval("#storytext > p", ps => {
+    // TODO(maybe) use this updateTimestamp somehow
     const updateTimestamp = ps[0].querySelector("strong");
-    const paragraphs = ps.map(p => p.innerHTML.trim().replace(/&amp;/g, "&"));
+    const paragraphs = ps.map(p => p.innerText);
     return {
-      updateTimestamp: updateTimestamp && updateTimestamp.innerHTML,
       paragraphs: updateTimestamp ? paragraphs.slice(1) : paragraphs
     };
   });
-  const timestampDate = await page.$eval("time .date", date => date.innerHTML);
-  const timestampTime = await page.$eval("time .time", date => date.innerHTML);
+  const timestampDate = await page.$eval("time .date", date => date.innerText);
+  const timestampTime = await page.$eval("time .time", date => date.innerText);
   return {
-    timestamp: {
-      date: timestampDate,
-      time: timestampTime,
-      updated: ps.updateTimestamp,
-      scrapeDate: Date()
-    },
+    href: page.url(),
+    timestamp: parseTimestamp(timestampDate, timestampTime),
     content: ps.paragraphs.join("\n"),
     authors
   };
 };
 
-const gotoSectionAndDiscoverAllArticles = async (page, sectionHref) => {
-  await page.goto(sectionHref);
-  // TODO
+const articleSelector = url => {
+  if (isNprMusicVideosHref({ href: url }))
+    return "article.item.event-more-article";
+  if (
+    or(isNprPoliticsHref, isNprHealthShotsHref, isNprMovieInterviewHref)({
+      href: url
+    })
+  )
+    return ".item";
+  return ".story-wrap";
 };
 
-const discoverAllHomepageLinks = async page => {
-  return await page
-    .$$eval(".story-wrap", articles =>
+const discoverNpr = async page => {
+  const homepageHeadlines = await page
+    .$$eval(articleSelector(page.url()), articles =>
       articles.map(article => {
         const link = article.querySelector("a");
-        const title = article.querySelector("h3.title");
+        const title = article.querySelector(".title");
         return {
           href: link ? link.href : article.href,
-          title: title && title.innerHTML.replace(/&amp;/g, "&")
+          title: title && title.innerText
         };
       })
     )
-    .then(articles => articles.filter(isNprHref));
-};
-
-const discoverAllHomepageArticles = async page => {
-  const immediateArticles = await discoverAllHomepageLinks(page).then(
-    articles =>
-      articles.filter(
-        complement(
-          // TODO These hrefs may lead to articles that can have their content
-          // scraped.
-          or(
-            isNprSectionHref,
-            isNprSeriesHref,
-            isNprMusicVideosHref,
-            isNprPodcastsHref
-          )
-        )
+    .then(headlines =>
+      headlines.filter(
+        // Don't want ads...
+        isNprHref
       )
+    );
+  const [sections, headlines] = partition(
+    homepageHeadlines,
+    or(
+      isNprSectionsHref,
+      isNprSeriesHref,
+      isNprMusicVideosHref,
+      isNprPodcastsHref
+    )
   );
-  return immediateArticles;
+  return { headlines, sections };
 };
 
-puppeteer.launch({ devtools: true }).then(async browser => {
-  const page = await browser.newPage();
-  await page.goto(NPR_URL);
-  const articles = await discoverAllHomepageArticles(page);
-  store.dispatch(addArticles(articles));
-  await articlesWithoutContent(store.getState()).reduce(
-    (p, article) =>
-      p.then(async () => {
-        await page.goto(article.href);
-        const articleContent = await updateArticleContent(page);
-        store.dispatch(
-          updateArticles({
-            href: article.href,
-            title: article.title,
-            ...articleContent
-          })
-        );
-      }),
-    Promise.resolve(null)
-  );
-  saveStore(store);
-  process.exit(0);
-});
+const articlesWithoutContent = state =>
+  Object.values(state[NPR]).filter(article => !article.content);
+
+const run = () =>
+  puppeteer.launch({ devtools: true }).then(async browser => {
+    const page = await browser.newPage();
+
+    const { headlines, sections } = await page
+      .goto(NPR_URL)
+      .then(() => discoverNpr(page));
+    const secondPassHeadlines = await sequentiallyMap(
+      unique(sections, ({ href }) => href),
+      async ({ href }) => {
+        const { headlines, sections } = await page
+          .goto(href)
+          .then(() => discoverNpr(page));
+        return headlines;
+      }
+    );
+
+    const uniqueHeadlines = unique(
+      headlines.concat(secondPassHeadlines),
+      ({ href }) => href
+    ).filter(complement(isNprHealthIncHref));
+    console.log(
+      "total headlines found",
+      headlines.length + secondPassHeadlines.length
+    );
+    console.log("total unique headlines found", uniqueHeadlines.length);
+    store.dispatch(npr.addHeadline(uniqueHeadlines));
+
+    const articlesToSearch = articlesWithoutContent(store.getState());
+    console.log("New searches needed:", articlesToSearch.length);
+    const updates = await sequentiallyMap(articlesToSearch, article =>
+      page.goto(article.href).then(() => articleContents(page))
+    );
+
+    store.dispatch(npr.updateArticle(updates));
+    saveStore(store);
+    process.exit(0);
+  });
+
+module.exports = {
+  __impl: {
+    parseTimestamp
+  },
+  run
+};

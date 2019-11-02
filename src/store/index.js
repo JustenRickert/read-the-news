@@ -7,7 +7,7 @@ const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
 
 const { dataStoreFilename, CNN, FOX_NEWS, NPR, NBC } = require("../constant");
 
-const { makeNewsSourceReducer } = require("./newsSourceReducer");
+const { createNewsSourceSlice } = require("./rsk-reducer");
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
@@ -23,13 +23,6 @@ ensureDir(dataStoreFilename);
 //   return next(action);
 // };
 
-const throttledWriteSync = throttle(
-  (...args) => (
-    console.log("saving store data"), defer(fs.writeFileSync, ...args)
-  ),
-  30000
-);
-
 const saveStore = ({ getState }) => {
   console.log("Saving store data");
   fs.writeFileSync(
@@ -39,16 +32,22 @@ const saveStore = ({ getState }) => {
   );
 };
 
-const saveContentMiddleware = ({ dispatch, getState }) => next => action => {
-  const result = next(action);
-  if (action.meta.save)
-    throttledWriteSync(
-      dataStoreFilename,
-      JSON.stringify(getState(), null, 2),
-      "utf-8"
-    );
-  return result;
-};
+// const throttledWriteSync = throttle(
+//   (...args) => (
+//     console.log("saving store data"), defer(fs.writeFileSync, ...args)
+//   ),
+//   30000
+// );
+
+// const saveContentMiddleware = ({ dispatch, getState }) => next => action => {
+//   const result = next(action);
+//   throttledWriteSync(
+//     dataStoreFilename,
+//     JSON.stringify(getState(), null, 2),
+//     "utf-8"
+//   );
+//   return result;
+// };
 
 const initialState = () => {
   if (!fs.existsSync(dataStoreFilename)) return undefined;
@@ -56,20 +55,20 @@ const initialState = () => {
   return JSON.parse(result);
 };
 
+const npr = createNewsSourceSlice(NPR);
+
 const reducer = combineReducers({
-  [NBC]: makeNewsSourceReducer(NBC),
-  [CNN]: makeNewsSourceReducer(CNN),
-  [FOX_NEWS]: makeNewsSourceReducer(FOX_NEWS),
-  [NPR]: makeNewsSourceReducer(NPR)
+  [NPR]: npr.reducer
 });
 
 const store = createStore(
   reducer,
-  initialState(),
-  applyMiddleware(saveContentMiddleware)
+  initialState()
+  // applyMiddleware(saveContentMiddleware, logAction)
 );
 
 module.exports = {
   store,
-  saveStore
+  saveStore,
+  npr: npr.actions
 };
