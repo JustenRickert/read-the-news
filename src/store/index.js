@@ -55,13 +55,14 @@ const initialState = () => {
   return JSON.parse(result)
 }
 
+const cnn = createNewsSourceSlice(CNN)
+const fox = createNewsSourceSlice(FOX)
 const npr = createNewsSourceSlice(NPR)
 
-const fox = createNewsSourceSlice(FOX)
-
 const reducer = combineReducers({
-  [NPR]: npr.reducer,
+  [CNN]: cnn.reducer,
   [FOX]: fox.reducer,
+  [NPR]: npr.reducer,
 })
 
 const store = createStore(
@@ -73,6 +74,7 @@ const store = createStore(
 module.exports = {
   store,
   saveStore,
-  npr: npr.actions,
+  cnn: cnn.actions,
   fox: fox.actions,
+  npr: npr.actions,
 }

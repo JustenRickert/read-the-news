@@ -16,10 +16,10 @@ switch (newsSource) {
     require('./nbc/nbc')
     break
   case CNN:
-    require('./cnn/cnn')
+    require('./cnn/cnn').run()
     break
   case FOX:
-    require('./fox-news/fox-news').run()
+    require('./fox/fox').run()
     break
   case NPR:
     require('./npr/npr').run()
