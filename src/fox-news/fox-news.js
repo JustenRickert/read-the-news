@@ -137,7 +137,7 @@ const articlesWithoutContent = state =>
   Object.values(state[FOX]).filter(article => !article.content)
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
     await page.goto(FOX_NEWS_URL)
     const { headlines, usSection } = await discover(page)
@@ -158,7 +158,9 @@ const run = () =>
     console.log('Searching', articlesToSearch.length, 'articles for updates')
     const updates = await sequentiallyMap(articlesToSearch, async article => {
       await page.goto(article.href)
-      return articleContent(page)
+      return articleContent(page).catch(
+        e => (console.error(article.href, e), { error: true })
+      )
     })
     store.dispatch(fox.updateArticle(updates))
     saveStore(store)

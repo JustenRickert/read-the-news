@@ -55,6 +55,8 @@ const updateArticle = (state, action) => {
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
     const slice = state[update.href]
+    // TODO more error logging?
+    if (update.error) return
     try {
       assertValidArticle(update, slice)
     } catch (e) {

@@ -114,7 +114,7 @@ const articlesWithoutContent = state =>
   Object.values(state[NPR]).filter(article => !article.content)
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
 
     const { headlines, sections } = await page
