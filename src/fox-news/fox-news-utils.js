@@ -8,8 +8,11 @@ const isFoxPoliticsArticleHref = ({ href }) =>
 const isFoxUsSectionHref = ({ href }) =>
   /^https:\/\/www.foxnews\.com\/us\/?$/.test(href)
 
+const isFoxCrimeSectionHref = ({ href }) =>
+  /^https:\/\/www.foxnews\.com\/category\/us\/crime\/?$/.test(href)
+
 const isFoxHealthArticleHref = ({ href }) =>
-  /^https:\/\/www.foxnews\.com\/health\/.*\/?$/.test(href)
+  /^https:\/\/www.foxnews\.com\/health\/[\w\-]+\/?$/.test(href)
 
 const isFoxLifestyleArticleHref = ({ href }) =>
   /^https:\/\/www.foxnews\.com\/lifestyle\/[\w\-]+\/?$/.test(href)
@@ -24,13 +27,16 @@ const isFoxEntertainmentArticleHref = ({ href }) =>
   /^https:\/\/www.foxnews\.com\/entertainment\/[\w\-]+\/?$/.test(href)
 
 const isFoxUsArticleHref = ({ href }) =>
-  /^https:\/\/www.foxnews\.com\/(category\/)?us\/[\w\-]+\/?$/.test(href)
+  /^https:\/\/www.foxnews\.com\/(category\/)?us\/^(crime|military|education|terror|immigration|economy|personal-freedoms)+\/?$/.test(
+    href
+  )
 
 module.exports = {
   isFoxVideoArticle,
   isFox,
   isFoxPoliticsArticleHref,
   isFoxOpinionArticleHref,
+  isFoxCrimeSectionHref,
   isFoxMediaArticleHref,
   isFoxEntertainmentArticleHref,
   isFoxHealthArticleHref,

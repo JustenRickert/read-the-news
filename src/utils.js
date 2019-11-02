@@ -51,9 +51,7 @@ const range = n =>
 const unique = (xs, idFn) =>
   xs.reduce(
     (uniqueXs, x) =>
-      uniqueXs.some(ux => idFn(ux) === idFn(xs))
-        ? uniqueXs
-        : uniqueXs.concat(x),
+      uniqueXs.some(ux => idFn(ux) === idFn(x)) ? uniqueXs : uniqueXs.concat(x),
     []
   )
 
