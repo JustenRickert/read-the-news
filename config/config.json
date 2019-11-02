@@ -1,0 +1,13 @@
+{
+	"development": {
+		"username": "news",
+		"password": "room",
+		"database": "news",
+		"host": "localhost",
+		"dialect": "postgres"
+	},
+	"production": {
+		"use_env_variable": "JAWSDB_URL",
+		"dialect": "postgres"
+	}
+}
