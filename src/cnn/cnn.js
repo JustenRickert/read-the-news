@@ -51,7 +51,7 @@ const parsePublicationDateInformation = timestamp => {
   assert(false, 'Could not get publicationDate information')
 }
 
-const pageFunctionBodyParagraphs = body => {
+const articleContentsBodyParagraphsEvalFunction = body => {
   const ps = body.querySelectorAll('.zn-body__paragraph')
   return (
     Array.from(ps)
@@ -75,7 +75,7 @@ const articleContentUpdates = async page => {
     .then(parsePublicationDateInformation)
   const content = await page.$eval(
     '[data-zn-id="body-text"]',
-    pageFunctionBodyParagraphs
+    articleContentsBodyParagraphsEvalFunction
   )
   // TODO more content!
   // console.log(content)
