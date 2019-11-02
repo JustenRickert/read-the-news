@@ -33,6 +33,15 @@ const range = n =>
     .fill(undefined)
     .map((_, i) => i);
 
+const unique = (xs, idFn) =>
+  xs.reduce(
+    (uniqueXs, x) =>
+      uniqueXs.some(ux => idFn(ux) === idFn(xs))
+        ? uniqueXs
+        : uniqueXs.concat(x),
+    []
+  );
+
 const zip = xss => {
   const minLength = Math.min(...xss.map(xs => xs.length));
   return range(minLength).map(i => xss.map(xs => xs[i]));
@@ -47,5 +56,6 @@ module.exports = {
   sample,
   range,
   sequentiallyMap,
+  unique,
   zip
 };

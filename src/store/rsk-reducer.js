@@ -1,23 +1,25 @@
 const assert = require("assert");
 const { createSlice } = require("redux-starter-kit");
-const { pick } = require("../utils");
+const { pick, unique } = require("../utils");
 
 const initialState = {};
 
 const addHeadline = (state, action) => {
   let { payload } = action;
   if (!Array.isArray(payload)) payload = [payload];
-  payload.forEach(update => {
-    assert(update.href, "Update must contain `href`");
-    // TODO consider getting rid of early return
-    if (state[update.href]) return;
-    assert(
-      !state[update.href],
-      "Article cannot be overwritten by a new headline"
-    );
-    state[update.href] = pick(update, ["href", "title"]);
-    console.log("Headline found:", update.title || update.href);
-  });
+  const uniqueActions = unique(payload, ({ href }) => href);
+  return Object.assign(
+    {},
+    state,
+    uniqueActions.reduce((updates, u) => {
+      assert(u.href, "Update must contain `href`");
+      // TODO consider getting rid of early return
+      if (state[u.href]) return updates;
+      assert(!state[u.href], "Article cannot be overwritten by a new headline");
+      Object.assign(updates, { [u.href]: pick(u, ["href", "title"]) });
+      return updates;
+    }, {})
+  );
 };
 
 const assertValidArticle = (update, article) => {
@@ -29,17 +31,17 @@ const assertValidArticle = (update, article) => {
   );
   assert("timestamp" in update, 'Article updates require "timestamp" key');
   assert(
-    typeof timestamp === "string",
+    typeof update.timestamp === "string",
     'Article timestamp must be of type "string"'
   );
   assert("authors" in update, 'Article updates require "authors" key');
   assert(
-    Array.isArray(authors) &&
-      authors.every(author => "href" in author && "name" in author),
+    Array.isArray(update.authors) &&
+      update.authors.every(author => "href" in author && "name" in author),
     "Article authors must have name and href (may be `null`)"
   );
   assert(
-    update[key] || article[key],
+    update.title || article.title,
     "`title` needs to be given in either an `updateArticle` action or `addHeadline` action"
   );
 };
@@ -48,12 +50,18 @@ const updateArticle = (state, action) => {
   let { payload } = action;
   if (!Array.isArray(payload)) payload = [payload];
   payload.forEach(update => {
-    assertValidArticle(update);
     const slice = state[update.href];
-    state.content = update.content;
-    state.timestamp = update.timestamp;
-    state.authors = update.timestamp;
-    if (update.title) state.title = update.title;
+    try {
+      assertValidArticle(update, slice);
+    } catch (e) {
+      console.error(e);
+      console.log(update);
+      return;
+    }
+    slice.content = update.content;
+    slice.timestamp = update.timestamp;
+    slice.authors = update.timestamp;
+    if (update.title) slice.title = update.title;
     console.log("Updated article", update.title || slice.title || update.href);
   });
 };
