@@ -120,7 +120,8 @@ const discover = async page => {
     usArticles: isFoxUsArticleHref,
     usSections: isFoxUsSectionHref,
   })
-  console.log({ rest })
+  // TODO there's probably more in here to look thru
+  // console.log({ rest })
   return {
     headlines: politics
       .concat(usArticles)
