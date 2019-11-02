@@ -34,8 +34,9 @@ const parseTimestamp = (date, time) => {
   let [, hour, minute, amOrPm] = time;
   if (amOrPm === "PM" && hour !== "12") hour = String(Number(hour) + 12);
   else if (amOrPm === "AM" && hour === "12") hour = String(Number(hour) - 12);
-  // This format is serializable by `new Date(...).toString()`
-  return `${day} ${month} ${year} ${hour.padStart(2, "0")}:${minute}:00 EST`;
+  return new Date(
+    `${day} ${month} ${year} ${hour.padStart(2, "0")}:${minute}:00 EST`
+  ).toString();
 };
 
 const articleContents = async page => {
