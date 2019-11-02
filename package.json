@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "article-collection": "node src/index.js",
