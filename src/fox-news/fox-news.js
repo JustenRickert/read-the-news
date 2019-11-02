@@ -62,6 +62,7 @@ const parseHoursAgo = relativeDate => {
 const parseRelativeDate = relativeDate => {
   const date = new Date()
   const hoursAgo = parseHoursAgo(relativeDate)
+  // TODO need other relative date formats
   assert(hoursAgo, 'Cannot parse relative date')
   if (hoursAgo) {
     date.setHours(date.getHours() - Number(hoursAgo))
