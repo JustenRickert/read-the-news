@@ -1,3 +1,4 @@
+const assert = require('assert')
 const puppeteer = require('puppeteer')
 
 const { store, saveStore, cnn } = require('../store/index')
@@ -7,6 +8,7 @@ const {
   partition,
   partitionGroups,
   sample,
+  sequentiallyMap,
   or,
 } = require('../utils')
 
@@ -22,30 +24,70 @@ const {
 const CNN_URL = 'https://www.cnn.com'
 const SITE_MAP_URL = 'https://www.cnn.com/sitemap.html'
 
+const parseAuthorInformation = authors => {
+  const author = authors[0]
+  let result = /Opinion by ([\w\-. ]+)/.exec(author)
+  if (result) {
+    const [, name] = result
+    return [{ href: null, name }]
+  }
+  result = /By ([\w\- ]+),?[\w\- ]*/.exec(author)
+  if (result) {
+    let [, name] = result
+    if (/\w+ and \w+/.test(name)) {
+      return name.split(' and ').map(name => ({ href: null, name }))
+    }
+    return [{ href: null, name }]
+  }
+  assert(false, 'Could not get authors information')
+}
+
+const parsePublicationDateInformation = timestamp => {
+  const result = /Updated ([\w: ]+), ([\w ,]+)/.exec(timestamp)
+  if (result) {
+    const [, hourStamp, dateStamp] = result
+    return new Date(dateStamp).toString()
+  }
+  assert(false, 'Could not get publicationDate information')
+}
+
+const pageFunctionBodyParagraphs = body => {
+  const ps = body.querySelectorAll('.zn-body__paragraph')
+  return (
+    Array.from(ps)
+      // This is an advertisement...
+      .filter(p => !/^<a href=.*<\/a>$/.test(p.innerHTML))
+      .filter(p => !/^<q class="el-editorial-note">.*<\/q>$/.test(p.innerHTML))
+      .filter(p => !p.classList.contains('zn-body__footer'))
+      .map(p => p.innerText.replace(/^[\w ]*\(CNN\)/, ''))
+  )
+}
+
 const articleContentUpdates = async page => {
   const title = await page.$eval('h1.pg-headline', title => title.innerHTML)
-  const authors = await page.$eval(
-    '.metadata .metadata__byline__author',
-    authors => authors.innerHTML
-  )
-  const timestamp = await page.$eval(
-    '.metadata .update-time',
-    timestamp => timestamp.innerText
-  )
-  const content = await page.$eval('[data-zn-id="body-text"]', body => {
-    const ps = body.querySelectorAll('.zn-body__paragraph')
-    return (
-      Array.from(ps)
-        // This is an advertisement...
-        .filter(p => !/^<a href=.*<\/a>$/.test(p.innerHTML))
-        .map(p => p.innerText)
+  const authors = await page
+    .$$eval('.metadata__byline__author', authors =>
+      authors.map(author => author.innerText)
     )
-  })
+    .then(parseAuthorInformation)
+  const publicationDate = await page
+    .$eval('.update-time', timestamp => timestamp.innerText)
+    .then(parsePublicationDateInformation)
+  const content = await page.$eval(
+    '[data-zn-id="body-text"]',
+    pageFunctionBodyParagraphs
+  )
+  // TODO more content!
+  // console.log(content)
+  // console.log(authors)
+  // console.log(publicationDate)
+  // console.log(title)
   return {
+    href: page.url(),
     title,
     authors,
-    timestamp,
-    content: [content[0].slice(5)].concat(content.slice(1)).join('\n'),
+    publicationDate,
+    content: content.join('\n'),
   }
 }
 
@@ -67,20 +109,37 @@ const discoverThruSitemap = async page => {
     )
 }
 
+const articlesWithoutContent = state =>
+  Object.values(state[CNN]).filter(({ content }) => !content)
+
 const run = () =>
   puppeteer.launch({ devtools: true }).then(async browser => {
     const page = await browser.newPage()
     // CNN is really slow... TODO(maybe) skip hrefs that take a really long
     // time.
-    await page.setDefaultTimeout(100e3)
+    await page.setDefaultTimeout(130e3)
     const articleHeadlines = await discoverThruSitemap(page)
     store.dispatch(cnn.addHeadline(articleHeadlines))
-    const randomArticle = sample(articleHeadlines)
     // TODO start collecting article content
+    await sequentiallyMap(
+      articlesWithoutContent(store.getState()),
+      async article => {
+        console.log(article.href)
+        await page.goto(article.href)
+        return await articleContentUpdates(page)
+          .catch(e => (console.log(e), { error: true }))
+          .then(cnn.updateArticle)
+          .then(action => (store.dispatch(action), saveStore(store)))
+      }
+    )
     saveStore(store)
     process.exit(0)
   })
 
 module.exports = {
+  __impl: {
+    parsePublicationDateInformation,
+    parseAuthorInformation,
+  },
   run,
 }
