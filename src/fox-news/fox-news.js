@@ -52,20 +52,29 @@ const articleParagraphs = async page =>
       .map(article => article.innerText)
   )
 
-const parseHoursAgo = relativeDate => {
-  const result = /(\w+) hours? ago/.exec(relativeDate)
-  if (!result) return null
-  const [, hours] = result
-  return hours
+const parseTimeAgo = relativeDate => {
+  const hoursResult = /(\w+) (day|min|hour)s? ago/.exec(relativeDate)
+  if (hoursResult) {
+    const [, units, type] = hoursResult
+    return { units, type }
+  }
+  return null
 }
 
 const parseRelativeDate = relativeDate => {
   const date = new Date()
-  const hoursAgo = parseHoursAgo(relativeDate)
-  // TODO need other relative date formats
-  assert(hoursAgo, 'Cannot parse relative date')
-  if (hoursAgo) {
-    date.setHours(date.getHours() - Number(hoursAgo))
+  const ago = parseTimeAgo(relativeDate)
+  assert(ago, 'Cannot parse relative date')
+  switch (ago.type) {
+    case 'day':
+      date.setHours(date.getHours() - 24 * Number(ago.units))
+      break
+    case 'min':
+      date.setMinutes(date.getMinutes() - 60 * Number(ago.units))
+      break
+    case 'hour':
+      date.setHours(date.getHours() - Number(ago.units))
+      break
   }
   return date.toString()
 }
@@ -137,7 +146,7 @@ const articlesWithoutContent = state =>
   Object.values(state[FOX]).filter(article => !article.content)
 
 const run = () =>
-  puppeteer.launch().then(async browser => {
+  puppeteer.launch({ devtools: true }).then(async browser => {
     const page = await browser.newPage()
     await page.goto(FOX_NEWS_URL)
     const { headlines, usSection } = await discover(page)
@@ -159,7 +168,7 @@ const run = () =>
     const updates = await sequentiallyMap(articlesToSearch, async article => {
       await page.goto(article.href)
       return articleContent(page).catch(
-        e => (console.error(article.href, e), { error: true })
+        e => (console.error(article.href), console.error(e), { error: true })
       )
     })
     store.dispatch(fox.updateArticle(updates))
