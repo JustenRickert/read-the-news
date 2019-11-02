@@ -64,7 +64,7 @@ const pageFunctionBodyParagraphs = body => {
 }
 
 const articleContentUpdates = async page => {
-  const title = await page.$eval('h1.pg-headline', title => title.innerHTML)
+  const title = await page.$eval('h1.pg-headline', title => title.innerText)
   const authors = await page
     .$$eval('.metadata__byline__author', authors =>
       authors.map(author => author.innerText)
