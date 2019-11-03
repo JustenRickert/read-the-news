@@ -1,7 +1,4 @@
-/data/
-/**/package-lock.json
+node_modules/
 .env
-/node_modules
-node_modules
-/node_modules/
-**/node_modules/
+data/
+package-lock.json
