@@ -23,15 +23,6 @@ ensureDir(dataStoreFilename)
 //   return next(action);
 // };
 
-const saveStore = ({ getState }) => {
-  console.log('Saving store data')
-  fs.writeFileSync(
-    dataStoreFilename,
-    JSON.stringify(getState(), null, 2),
-    'utf-8'
-  )
-}
-
 // const throttledWriteSync = throttle(
 //   (...args) => (
 //     console.log("saving store data"), defer(fs.writeFileSync, ...args)
@@ -70,6 +61,15 @@ const store = createStore(
   initialState()
   // applyMiddleware(saveContentMiddleware, logAction)
 )
+
+const saveStore = () => {
+  console.log('Saving store data')
+  fs.writeFileSync(
+    dataStoreFilename,
+    JSON.stringify(store.getState(), null, 2),
+    'utf-8'
+  )
+}
 
 module.exports = {
   store,

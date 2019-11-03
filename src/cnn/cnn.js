@@ -57,7 +57,9 @@ const articleContentsBodyParagraphsEvalFunction = body => {
     Array.from(ps)
       // This is an advertisement...
       .filter(p => !/^<a href=.*<\/a>$/.test(p.innerHTML))
+      // preceding editor's not unrelated to the content
       .filter(p => !/^<q class="el-editorial-note">.*<\/q>$/.test(p.innerHTML))
+      // footer is on some pages, unrelated content
       .filter(p => !p.classList.contains('zn-body__footer'))
       .map(p => p.innerText.replace(/^[\w ]*\(CNN\)/, ''))
   )
@@ -113,26 +115,28 @@ const articlesWithoutContent = state =>
   Object.values(state[CNN]).filter(({ content }) => !content)
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
     // CNN is really slow... TODO(maybe) skip hrefs that take a really long
     // time.
     await page.setDefaultTimeout(130e3)
     const articleHeadlines = await discoverThruSitemap(page)
     store.dispatch(cnn.addHeadline(articleHeadlines))
-    // TODO start collecting article content
     await sequentiallyMap(
       articlesWithoutContent(store.getState()),
       async article => {
         console.log(article.href)
-        await page.goto(article.href)
-        return await articleContentUpdates(page)
-          .catch(e => (console.log(e), { error: true }))
-          .then(cnn.updateArticle)
-          .then(action => (store.dispatch(action), saveStore(store)))
+        await page.goto(article.href).then(() =>
+          articleContentUpdates(page)
+            .catch(e => (console.error(e), { error: true }))
+            .then(cnn.updateArticle)
+            .then(
+              action => (store.dispatch(action), saveStore(), console.log())
+            )
+        )
       }
     )
-    saveStore(store)
+    saveStore()
     process.exit(0)
   })
 
