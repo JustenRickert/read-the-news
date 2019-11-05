@@ -7,7 +7,7 @@ const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
 
 const { dataStoreFilename, CNN, FOX, NPR, NBC } = require('../constant')
 
-const { createNewsSourceSlice } = require('./rsk-reducer')
+const { createNewsSourceSlice } = require('./reducer')
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
@@ -22,15 +22,6 @@ ensureDir(dataStoreFilename)
 //   console.log(action);
 //   return next(action);
 // };
-
-const saveStore = ({ getState }) => {
-  console.log('Saving store data')
-  fs.writeFileSync(
-    dataStoreFilename,
-    JSON.stringify(getState(), null, 2),
-    'utf-8'
-  )
-}
 
 // const throttledWriteSync = throttle(
 //   (...args) => (
@@ -55,13 +46,16 @@ const initialState = () => {
   return JSON.parse(result)
 }
 
+const cnn = createNewsSourceSlice(CNN)
+const fox = createNewsSourceSlice(FOX)
+const nbc = createNewsSourceSlice(NBC)
 const npr = createNewsSourceSlice(NPR)
 
-const fox = createNewsSourceSlice(FOX)
-
 const reducer = combineReducers({
-  [NPR]: npr.reducer,
+  [CNN]: cnn.reducer,
   [FOX]: fox.reducer,
+  [NBC]: nbc.reducer,
+  [NPR]: npr.reducer,
 })
 
 const store = createStore(
@@ -70,9 +64,20 @@ const store = createStore(
   // applyMiddleware(saveContentMiddleware, logAction)
 )
 
+const saveStore = () => {
+  console.log('Saving store data')
+  fs.writeFileSync(
+    dataStoreFilename,
+    JSON.stringify(store.getState(), null, 2),
+    'utf-8'
+  )
+}
+
 module.exports = {
   store,
   saveStore,
-  npr: npr.actions,
+  cnn: cnn.actions,
   fox: fox.actions,
+  nbc: nbc.actions,
+  npr: npr.actions,
 }

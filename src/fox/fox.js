@@ -26,7 +26,7 @@ const {
   isFoxHealthArticleHref,
   isFoxUsSectionHref,
   isFoxUsArticleHref,
-} = require('./fox-news-utils')
+} = require('./fox-utils')
 
 const FOX_NEWS_URL = 'https://www.foxnews.com/'
 
