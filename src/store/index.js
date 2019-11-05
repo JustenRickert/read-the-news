@@ -7,7 +7,7 @@ const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
 
 const { dataStoreFilename, CNN, FOX, NPR, NBC } = require('../constant')
 
-const { createNewsSourceSlice } = require('./rsk-reducer')
+const { createNewsSourceSlice } = require('./reducer')
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {

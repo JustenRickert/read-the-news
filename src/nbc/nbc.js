@@ -74,31 +74,6 @@ const discoverThruSitemap = async page => {
 const maybeReplaceLocation = (str, replacement) =>
   str.replace(/^[\w, ]+—/, replacement)
 
-const articleContent = async page => {
-  const title = await page.$eval(
-    '[data-test="article-hero__headline"]',
-    el => el.innerText
-  )
-  const authors = await page
-    .$eval('[data-test="byline"]', el => el.innerText)
-    .then(parseAuthors)
-  const timestamp = await page
-    .$eval('[data-test="timestamp__datePublished"]', el => el.dateTime)
-    .then(datetime => new Date(datetime).toString())
-  const content = await page
-    .$$eval('.endmarkEnabled', els => els.map(el => el.innerText))
-    .then(paragraphs =>
-      [maybeReplaceLocation(paragraphs[0], '')].concat(paragraphs.slice(1))
-    )
-  return {
-    href: headline.href,
-    title,
-    authors,
-    timestamp,
-    content,
-  }
-}
-
 const parseAuthors = text => {
   let result = /^By ([\w\- ]+) and ([\w\- ]+)/.exec(text)
   if (result) {
@@ -108,9 +83,35 @@ const parseAuthors = text => {
   result = /^By ([\w\- ]+)/.exec(text)
   if (result) {
     const authorName = result[1]
-    return { name: authorName, href: null }
+    return [{ name: authorName, href: null }]
   }
   assert(result, 'Cannot parse author')
+}
+
+const articleContent = async page => {
+  const title = await page.$eval(
+    '[data-test="article-hero__headline"]',
+    el => el.innerText
+  )
+  const authors = await page
+    .$eval('[data-test="byline"]', el => el.innerText)
+    .then(parseAuthors)
+  const publicationDate = await page
+    .$eval('[data-test="timestamp__datePublished"]', el => el.dateTime)
+    .then(datetime => new Date(datetime).toString())
+  const content = await page
+    .$$eval('.endmarkEnabled', els => els.map(el => el.innerText))
+    .then(paragraphs =>
+      [maybeReplaceLocation(paragraphs[0], '')].concat(paragraphs.slice(1))
+    )
+    .then(content => content.join('\n'))
+  return {
+    href: page.url(),
+    title,
+    authors,
+    publicationDate,
+    content,
+  }
 }
 
 const articlesWithoutContent = state =>
@@ -130,10 +131,11 @@ puppeteer.launch({ devtools: true }).then(async browser => {
   console.log('searching thru', needsContent.length)
   sequentiallyReduce(needsContent, async (_, headline) => {
     await page.goto(headline.href)
+    console.log('Looking at', headline.href)
     return articleContent(page)
       .catch(e => ({ error: true, message: e.stack }))
       .then(nbc.updateArticle)
-      .then(update => store.dispatch(update))
+      .then(update => (store.dispatch(update), saveStore()))
       .catch(e => console.error(e))
   })
 })
