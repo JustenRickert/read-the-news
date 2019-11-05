@@ -1,22 +1,22 @@
-const path = require("path");
-const fs = require("fs");
-const throttle = require("lodash.throttle");
-const { createStore, applyMiddleware, combineReducers } = require("redux");
+const path = require('path')
+const fs = require('fs')
+const throttle = require('lodash.throttle')
+const { createStore, applyMiddleware, combineReducers } = require('redux')
 
-const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
+const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
 
-const { dataStoreFilename, CNN, FOX_NEWS, NPR, NBC } = require("../constant");
+const { dataStoreFilename, CNN, FOX, NPR, NBC } = require('../constant')
 
-const { createNewsSourceSlice } = require("./rsk-reducer");
+const { createNewsSourceSlice } = require('./rsk-reducer')
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
-    ensureDir(path.dirname(filepath));
-    fs.mkdirSync(path.dirname(filepath));
+    ensureDir(path.dirname(filepath))
+    fs.mkdirSync(path.dirname(filepath))
   }
-};
+}
 
-ensureDir(dataStoreFilename);
+ensureDir(dataStoreFilename)
 
 // const logAction = () => next => action => {
 //   console.log(action);
@@ -24,13 +24,13 @@ ensureDir(dataStoreFilename);
 // };
 
 const saveStore = ({ getState }) => {
-  console.log("Saving store data");
+  console.log('Saving store data')
   fs.writeFileSync(
     dataStoreFilename,
     JSON.stringify(getState(), null, 2),
-    "utf-8"
-  );
-};
+    'utf-8'
+  )
+}
 
 // const throttledWriteSync = throttle(
 //   (...args) => (
@@ -50,25 +50,29 @@ const saveStore = ({ getState }) => {
 // };
 
 const initialState = () => {
-  if (!fs.existsSync(dataStoreFilename)) return undefined;
-  const result = fs.readFileSync(dataStoreFilename, "utf-8");
-  return JSON.parse(result);
-};
+  if (!fs.existsSync(dataStoreFilename)) return undefined
+  const result = fs.readFileSync(dataStoreFilename, 'utf-8')
+  return JSON.parse(result)
+}
 
-const npr = createNewsSourceSlice(NPR);
+const npr = createNewsSourceSlice(NPR)
+
+const fox = createNewsSourceSlice(FOX)
 
 const reducer = combineReducers({
-  [NPR]: npr.reducer
-});
+  [NPR]: npr.reducer,
+  [FOX]: fox.reducer,
+})
 
 const store = createStore(
   reducer,
   initialState()
   // applyMiddleware(saveContentMiddleware, logAction)
-);
+)
 
 module.exports = {
   store,
   saveStore,
-  npr: npr.actions
-};
+  npr: npr.actions,
+  fox: fox.actions,
+}
