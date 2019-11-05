@@ -1,103 +1,146 @@
-const puppeteer = require("puppeteer");
+const assert = require('assert')
+const puppeteer = require('puppeteer')
 
+const { store, saveStore, nbc } = require('../store/index')
+const { NBC } = require('../constant')
 const {
-  makeAddArticlesAction,
-  makeUpdateArticleNormalContentAction,
-  makeUpdateArticleVideoContentAction
-} = require("../store/actions");
-const { makeArticlesWithoutContentSelector } = require("../store/selectors");
-const { store, saveStore } = require("../store/index");
-const { NBC } = require("../constant");
-const { complement, partition, or } = require("../utils");
+  complement,
+  difference,
+  partition,
+  and,
+  or,
+  sequentiallyReduce,
+  tap,
+  unique,
+} = require('../utils')
 
 const {
   isNbcTextArticleLink,
   isNbcBetterHref,
-  isNbcFeatureNbcOutHref
-} = require("./nbc-utils");
+  isNbcFeatureNbcOutHref,
+  isNbcHref,
+} = require('./nbc-utils')
 
-const addArticles = makeAddArticlesAction(NBC);
-const updateArticle = makeUpdateArticleNormalContentAction(NBC);
-const articlesWithoutContent = makeArticlesWithoutContentSelector(NBC);
+const NBC_URL = 'https://www.nbcnews.com'
 
-const NBC_URL = "https://www.nbcnews.com";
+const NBC_SITEMAP_URL = 'https://www.nbcnews.com/sitemap'
 
-const articleContentUpdate = async page => {
+const discoverThruSitemap = async page => {
+  await page.goto(NBC_SITEMAP_URL)
+
+  const sections = await page
+    .$$eval('.sitemap-list a[href]', links =>
+      links.map(l => ({ href: l.href }))
+    )
+    .then(links => links.filter(isNbcHref))
+
+  const headlines = await sequentiallyReduce(
+    sections,
+    async (headlines, section) =>
+      page
+        .goto(section.href)
+        .then(
+          () =>
+            page
+              .$$eval('a[href]', links => links.map(l => ({ href: l.href })))
+              .then(
+                hs => (
+                  console.log('Found', hs.length, 'on', section.href),
+                  headlines.concat(hs)
+                )
+              ),
+          e => (console.error(e), headlines)
+        ),
+    []
+  )
+
+  const foundHeadlines = unique(
+    headlines.filter(and(isNbcHref, ({ href }) => /n\d+$/.test(href))),
+    ({ href }) => href
+  )
+
+  console.log(foundHeadlines.map(({ href }) => href))
+  console.log(
+    'Found',
+    headlines.length,
+    'headlines total, and',
+    foundHeadlines.length,
+    'headlines to search thru'
+  )
+
+  return { headlines: foundHeadlines }
+}
+
+const maybeReplaceLocation = (str, replacement) =>
+  str.replace(/^[\w, ]+—/, replacement)
+
+const parseAuthors = text => {
+  let result = /^By ([\w\- ]+) and ([\w\- ]+)/.exec(text)
+  if (result) {
+    const authorNames = result.slice(1)
+    return authorNames.map(name => ({ name, href: null }))
+  }
+  result = /^By ([\w\- ]+)/.exec(text)
+  if (result) {
+    const authorName = result[1]
+    return [{ name: authorName, href: null }]
+  }
+  assert(result, 'Cannot parse author')
+}
+
+const articleContent = async page => {
   const title = await page.$eval(
     '[data-test="article-hero__headline"]',
-    title => title.innerText
-  );
-  const timestamp = await page
-    .$eval("time", timestamp => timestamp.innerText)
-    .then(datetime => ({
-      scrapeDate: Date(),
-      datetime
-    }));
-  const authors = await page.$eval(
-    '[data-test="byline"]',
-    byline => byline.innerText
-  );
-  const shouldExcludeAdditionalTrailingParagraph = or(
-    isNbcBetterHref,
-    isNbcFeatureNbcOutHref
-  )(page.url());
-  const content = await page.$$eval(
-    "p",
-    (ps, shouldExcludeAdditionalTrailingParagraph) => {
-      ps = Array.from(ps);
-      const shouldExcludeFirstParagraph = ps[0].innerText[0] === "©";
-      return (
-        ps
-          // I really hope this works for all articles lol... The first `p` tag
-          // is sometimes an nbc copyright, the remaining are a tips article
-          // that sometimes appears, an "about the author", and some random
-          // thing
-          .slice(
-            shouldExcludeFirstParagraph ? 1 : 0,
-            shouldExcludeAdditionalTrailingParagraph ? -3 : -2
-          )
-          .filter(
-            p =>
-              // I have no idea what this is. It's display:none and contains a
-              // bunch of unrelated content...
-              !p.querySelector('a[href="https://policies.google.com/terms"]') &&
-              // This is quoted text from a paragraph captured separately
-              !p.parentNode.classList.contains("liftOut")
-          )
-          .map(p => p.innerText)
-      );
-    },
-    shouldExcludeAdditionalTrailingParagraph
-  );
-  return {
-    title,
-    timestamp,
-    authors,
-    content
-  };
-};
-
-puppeteer.launch({ devtools: true }).then(async browser => {
-  const page = await browser.newPage();
-  // NBC is _sometimes_ slow... TODO(maybe) handle timeouts
-  await page.setDefaultTimeout(100e3);
-  await page.goto(NBC_URL);
-  const textArticleLinks = await page
-    .$$eval("a[href]", links =>
-      links.map(l => ({ href: l.href, title: l.innerText }))
+    el => el.innerText
+  )
+  const authors = await page
+    .$eval('[data-test="byline"]', el => el.innerText)
+    .then(parseAuthors)
+  const publicationDate = await page
+    .$eval('[data-test="timestamp__datePublished"]', el => el.dateTime)
+    .then(datetime => new Date(datetime).toString())
+  const content = await page
+    .$$eval('.endmarkEnabled', els => els.map(el => el.innerText))
+    .then(paragraphs =>
+      [maybeReplaceLocation(paragraphs[0], '')].concat(paragraphs.slice(1))
     )
-    .then(links => links.filter(isNbcTextArticleLink));
-  store.dispatch(addArticles(textArticleLinks));
-  await articlesWithoutContent(store.getState()).reduce(
-    (p, article) =>
-      p.then(async () => {
-        await page.goto(article.href);
-        const articleContent = await articleContentUpdate(page);
-        store.dispatch(
-          updateArticle({ href: article.href, ...articleContent })
-        );
-        saveStore(store);
-      }),
-    Promise.resolve(null)
-  );
-});
+    .then(content => content.join('\n'))
+  return {
+    href: page.url(),
+    title,
+    authors,
+    publicationDate,
+    content,
+  }
+}
+
+const articlesWithoutContent = state =>
+  Object.values(state[NBC]).filter(headline => !headline.content)
+
+const run = () =>
+  puppeteer.launch({ devtools: true }).then(async browser => {
+    const page = await browser.newPage()
+    // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
+    // timeouts better in the future?
+    await page.setDefaultTimeout(100e3)
+
+    const { headlines } = await discoverThruSitemap(page)
+    store.dispatch(nbc.addHeadline(headlines))
+    saveStore()
+
+    const needsContent = articlesWithoutContent(store.getState())
+    console.log('searching thru', needsContent.length)
+    sequentiallyReduce(needsContent, async (_, headline) => {
+      await page.goto(headline.href)
+      console.log('Looking at', headline.href)
+      return articleContent(page)
+        .catch(e => ({ error: true, message: e.stack }))
+        .then(nbc.updateArticle)
+        .then(update => (store.dispatch(update), saveStore()))
+        .catch(e => console.error(e))
+    })
+  })
+
+module.exports = {
+  run,
+}

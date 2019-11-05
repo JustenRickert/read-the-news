@@ -1,6 +1,6 @@
 {
 	"name": "read-the-news",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "## How to run me",
 	"main": "server.js",
 	"dependencies": {
@@ -21,6 +21,12 @@
 		]
 	},
 	"devDependencies": {},
+	"prettier": {
+		"trailingComma": "es5",
+		"tabWidth": 2,
+		"semi": false,
+		"singleQuote": true
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node server.js"

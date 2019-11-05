@@ -7,11 +7,11 @@ const makeUpdateArticleNormalContentAction = newsSource => (
     hasVideo,
     images,
     timestamp,
-    twitterContent
+    twitterContent,
   },
   { save = true } = {}
 ) => ({
-  type: "UPDATE_CONTENT",
+  type: 'UPDATE_CONTENT',
   newsSource,
   href,
   title,
@@ -21,33 +21,33 @@ const makeUpdateArticleNormalContentAction = newsSource => (
   images,
   timestamp,
   twitterContent,
-  meta: { save }
-});
+  meta: { save },
+})
 
 const makeUpdateArticleVideoContentAction = newsSource => (
   { href, title },
   { save = true } = {}
 ) => ({
   newsSource,
-  type: "UPDATE_CONTENT",
+  type: 'UPDATE_CONTENT',
   title,
   href,
   isVideoContent: true,
-  meta: { save }
-});
+  meta: { save },
+})
 
 const makeAddArticlesAction = newsSource => (
   articles,
   { save = true } = {}
 ) => ({
-  type: "ADD_ARTICLES",
+  type: 'ADD_ARTICLES',
   newsSource,
   articles,
-  meta: { save }
-});
+  meta: { save },
+})
 
 module.exports = {
   makeUpdateArticleVideoContentAction,
   makeUpdateArticleNormalContentAction,
-  makeAddArticlesAction
-};
+  makeAddArticlesAction,
+}
