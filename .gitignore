@@ -1,4 +1,4 @@
-./client/data/
+client/data/
 **/package-lock.json
 .env
 **/node_modules/
