@@ -1,3 +1,5 @@
+const tap = x => (console.log(x), x)
+
 const map = (xs, fn) => xs.map(fn)
 
 const sequentiallyMap = async (xs, fn) =>
@@ -5,6 +7,16 @@ const sequentiallyMap = async (xs, fn) =>
     (p, x) => p.then(async ys => ys.concat(await fn(x))),
     Promise.resolve([])
   )
+
+const sequentiallyReduce = async (xs, accumulatorFn, initialValue) =>
+  (await xs)
+    .slice(initialValue === undefined ? 1 : 0)
+    .reduce(
+      (p, x) => p.then(acc => accumulatorFn(acc, x)),
+      initialValue === undefined
+        ? Promise.resolve(await xs[0])
+        : Promise.resolve(initialValue)
+    )
 
 const partition = (xs, predicate) =>
   xs.reduce(
@@ -29,6 +41,9 @@ const partitionGroups = (xs, predicateMap) => {
     })
   }, stubArrayRecord)
 }
+
+const difference = (xs, ys, idFn = id => id) =>
+  xs.filter(x => !ys.some(y => idFn(x) === idFn(y)))
 
 const and = (...predicates) => (...args) =>
   predicates.every(predicate => predicate(...args))
@@ -62,14 +77,17 @@ const zip = xss => {
 
 module.exports = {
   and,
-  or,
   complement,
+  difference,
+  or,
   partition,
   partitionGroups,
   pick,
-  sample,
   range,
+  sample,
   sequentiallyMap,
+  sequentiallyReduce,
+  tap,
   unique,
   zip,
 }

@@ -1,5 +1,6 @@
 const assert = require('assert')
 const puppeteer = require('puppeteer')
+const shuffle = require('lodash.shuffle')
 
 const { store, saveStore, cnn } = require('../store/index')
 const { CNN } = require('../constant')
@@ -123,7 +124,7 @@ const run = () =>
     const articleHeadlines = await discoverThruSitemap(page)
     store.dispatch(cnn.addHeadline(articleHeadlines))
     await sequentiallyMap(
-      articlesWithoutContent(store.getState()),
+      shuffle(articlesWithoutContent(store.getState())),
       async article => {
         console.log(article.href)
         await page.goto(article.href).then(() =>

@@ -48,11 +48,13 @@ const initialState = () => {
 
 const cnn = createNewsSourceSlice(CNN)
 const fox = createNewsSourceSlice(FOX)
+const nbc = createNewsSourceSlice(NBC)
 const npr = createNewsSourceSlice(NPR)
 
 const reducer = combineReducers({
   [CNN]: cnn.reducer,
   [FOX]: fox.reducer,
+  [NBC]: nbc.reducer,
   [NPR]: npr.reducer,
 })
 
@@ -76,5 +78,6 @@ module.exports = {
   saveStore,
   cnn: cnn.actions,
   fox: fox.actions,
+  nbc: nbc.actions,
   npr: npr.actions,
 }

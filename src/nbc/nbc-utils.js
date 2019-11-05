@@ -1,5 +1,7 @@
 const { or } = require('../utils')
 
+const isNbcHref = ({ href }) => /^https?:\/\/www\.nbcnews\.com/.test(href)
+
 const isNbcBetterHref = href =>
   /^https?:\/\/www\.nbcnews\.com\/better/.test(href)
 
@@ -52,6 +54,7 @@ module.exports = {
   __impl: {
     isNbcBusinessArticleLink,
   },
+  isNbcHref,
   isNbcBetterHref,
   isNbcFeatureNbcOutHref,
   isNbcNewsArticleLink,
