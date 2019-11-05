@@ -1,5 +1,5 @@
-const isFoxVideoArticle = ({ href }) => /^https:\/\/video/.test(href);
+const isFoxVideoArticle = ({ href }) => /^https:\/\/video/.test(href)
 
 module.exports = {
-  isFoxVideoArticle
-};
+  isFoxVideoArticle,
+}

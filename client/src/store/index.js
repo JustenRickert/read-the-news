@@ -1,75 +1,83 @@
-const path = require("path");
-const fs = require("fs");
-const throttle = require("lodash.throttle");
-const { createStore, applyMiddleware, combineReducers } = require("redux");
+const path = require('path')
+const fs = require('fs')
+const throttle = require('lodash.throttle')
+const { createStore, applyMiddleware, combineReducers } = require('redux')
 
-const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
+const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
 
-const { dataStoreFilename, CNN, FOX_NEWS, NPR, NBC } = require("../constant");
+const { dataStoreFilename, CNN, FOX, NPR, NBC } = require('../constant')
 
-const { makeNewsSourceReducer } = require("./newsSourceReducer");
+const { createNewsSourceSlice } = require('./reducer')
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
-    ensureDir(path.dirname(filepath));
-    fs.mkdirSync(path.dirname(filepath));
+    ensureDir(path.dirname(filepath))
+    fs.mkdirSync(path.dirname(filepath))
   }
-};
+}
 
-ensureDir(dataStoreFilename);
+ensureDir(dataStoreFilename)
 
 // const logAction = () => next => action => {
 //   console.log(action);
 //   return next(action);
 // };
 
-const throttledWriteSync = throttle(
-  (...args) => (
-    console.log("saving store data"), defer(fs.writeFileSync, ...args)
-  ),
-  30000
-);
+// const throttledWriteSync = throttle(
+//   (...args) => (
+//     console.log("saving store data"), defer(fs.writeFileSync, ...args)
+//   ),
+//   30000
+// );
 
-const saveStore = ({ getState }) => {
-  console.log("Saving store data");
-  fs.writeFileSync(
-    dataStoreFilename,
-    JSON.stringify(getState(), null, 2),
-    "utf-8"
-  );
-};
-
-const saveContentMiddleware = ({ dispatch, getState }) => next => action => {
-  const result = next(action);
-  if (action.meta.save)
-    throttledWriteSync(
-      dataStoreFilename,
-      JSON.stringify(getState(), null, 2),
-      "utf-8"
-    );
-  return result;
-};
+// const saveContentMiddleware = ({ dispatch, getState }) => next => action => {
+//   const result = next(action);
+//   throttledWriteSync(
+//     dataStoreFilename,
+//     JSON.stringify(getState(), null, 2),
+//     "utf-8"
+//   );
+//   return result;
+// };
 
 const initialState = () => {
-  if (!fs.existsSync(dataStoreFilename)) return undefined;
-  const result = fs.readFileSync(dataStoreFilename, "utf-8");
-  return JSON.parse(result);
-};
+  if (!fs.existsSync(dataStoreFilename)) return undefined
+  const result = fs.readFileSync(dataStoreFilename, 'utf-8')
+  return JSON.parse(result)
+}
+
+const cnn = createNewsSourceSlice(CNN)
+const fox = createNewsSourceSlice(FOX)
+const nbc = createNewsSourceSlice(NBC)
+const npr = createNewsSourceSlice(NPR)
 
 const reducer = combineReducers({
-  [NBC]: makeNewsSourceReducer(NBC),
-  [CNN]: makeNewsSourceReducer(CNN),
-  [FOX_NEWS]: makeNewsSourceReducer(FOX_NEWS),
-  [NPR]: makeNewsSourceReducer(NPR)
-});
+  [CNN]: cnn.reducer,
+  [FOX]: fox.reducer,
+  [NBC]: nbc.reducer,
+  [NPR]: npr.reducer,
+})
 
 const store = createStore(
   reducer,
-  initialState(),
-  applyMiddleware(saveContentMiddleware)
-);
+  initialState()
+  // applyMiddleware(saveContentMiddleware, logAction)
+)
+
+const saveStore = () => {
+  console.log('Saving store data')
+  fs.writeFileSync(
+    dataStoreFilename,
+    JSON.stringify(store.getState(), null, 2),
+    'utf-8'
+  )
+}
 
 module.exports = {
   store,
-  saveStore
-};
+  saveStore,
+  cnn: cnn.actions,
+  fox: fox.actions,
+  nbc: nbc.actions,
+  npr: npr.actions,
+}
