@@ -13,7 +13,7 @@ if (!possibleArguments.some(key => newsSource === key)) {
 
 switch (newsSource) {
   case NBC:
-    require('./nbc/nbc')
+    require('./nbc/nbc').run()
     break
   case CNN:
     require('./cnn/cnn').run()

@@ -117,25 +117,30 @@ const articleContent = async page => {
 const articlesWithoutContent = state =>
   Object.values(state[NBC]).filter(headline => !headline.content)
 
-puppeteer.launch({ devtools: true }).then(async browser => {
-  const page = await browser.newPage()
-  // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
-  // timeouts better in the future?
-  await page.setDefaultTimeout(100e3)
+const run = () =>
+  puppeteer.launch({ devtools: true }).then(async browser => {
+    const page = await browser.newPage()
+    // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
+    // timeouts better in the future?
+    await page.setDefaultTimeout(100e3)
 
-  const { headlines } = await discoverThruSitemap(page)
-  store.dispatch(nbc.addHeadline(headlines))
-  saveStore()
+    const { headlines } = await discoverThruSitemap(page)
+    store.dispatch(nbc.addHeadline(headlines))
+    saveStore()
 
-  const needsContent = articlesWithoutContent(store.getState())
-  console.log('searching thru', needsContent.length)
-  sequentiallyReduce(needsContent, async (_, headline) => {
-    await page.goto(headline.href)
-    console.log('Looking at', headline.href)
-    return articleContent(page)
-      .catch(e => ({ error: true, message: e.stack }))
-      .then(nbc.updateArticle)
-      .then(update => (store.dispatch(update), saveStore()))
-      .catch(e => console.error(e))
+    const needsContent = articlesWithoutContent(store.getState())
+    console.log('searching thru', needsContent.length)
+    sequentiallyReduce(needsContent, async (_, headline) => {
+      await page.goto(headline.href)
+      console.log('Looking at', headline.href)
+      return articleContent(page)
+        .catch(e => ({ error: true, message: e.stack }))
+        .then(nbc.updateArticle)
+        .then(update => (store.dispatch(update), saveStore()))
+        .catch(e => console.error(e))
+    })
   })
-})
+
+module.exports = {
+  run,
+}
