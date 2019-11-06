@@ -57,7 +57,11 @@ const updateArticle = (state, action) => {
     const slice = state[update.href]
     // TODO more error logging?
     if (update.error) {
-      if (update.message) console.error(update.message)
+      slice.error = true
+      if (update.message) {
+        slice.errorMessage = update.message
+        console.error(update.message)
+      }
       return
     }
     try {

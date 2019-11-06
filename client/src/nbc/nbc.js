@@ -115,7 +115,9 @@ const articleContent = async page => {
 }
 
 const articlesWithoutContent = state =>
-  Object.values(state[NBC]).filter(headline => !headline.content)
+  Object.values(state[NBC]).filter(
+    headline => !headline.content && !headline.error
+  )
 
 const run = () =>
   puppeteer.launch({ devtools: true }).then(async browser => {

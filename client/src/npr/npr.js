@@ -111,7 +111,9 @@ const discoverNpr = async page => {
 }
 
 const articlesWithoutContent = state =>
-  Object.values(state[NPR]).filter(article => !article.content)
+  Object.values(state[NPR]).filter(
+    article => !article.content && !article.error
+  )
 
 const run = () =>
   puppeteer.launch().then(async browser => {

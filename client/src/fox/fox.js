@@ -1,13 +1,13 @@
 const assert = require('assert')
 const puppeteer = require('puppeteer')
 
-const { makeArticlesWithoutContentSelector } = require('../store/selectors')
 const { store, saveStore, fox } = require('../store')
 
 const { FOX } = require('../constant')
 const {
   and,
   zip,
+  partition,
   partitionGroups,
   sequentiallyMap,
   sample,
@@ -17,7 +17,7 @@ const {
 
 const {
   isFoxVideoArticle,
-  isFox,
+  isFoxHref,
   isFoxPoliticsArticleHref,
   isFoxMediaArticleHref,
   isFoxCrimeSectionHref,
@@ -28,7 +28,33 @@ const {
   isFoxUsArticleHref,
 } = require('./fox-utils')
 
-const FOX_NEWS_URL = 'https://www.foxnews.com/'
+const FOX_URL = 'https://www.foxnews.com/'
+
+const isHeadline = ({ href }) =>
+  /^https:\/\/www.foxnews\.com\/(travel|sports|us|world|media|politics|entertainment|opinion)\/[\w\-]+\/?$/.test(
+    href
+  )
+
+const discoverThruFooter = async page => {
+  const sections = await page
+    .$$eval('.footer-upper.section-nav a[href]', links =>
+      links.map(l => ({ href: l.href }))
+    )
+    .then(sections => sections.filter(isFoxHref))
+  const headlines = await sequentiallyMap(
+    sections.concat({ href: FOX_URL }),
+    async section => {
+      await page.goto(section.href)
+      const headlines = await page
+        .$$eval('a[href]', links => links.map(l => ({ href: l.href })))
+        .then(links => links.filter(isFoxHref))
+      const [validHeadlines, notHeadlines] = partition(headlines, isHeadline)
+      return validHeadlines
+    }
+  ).then(headlines => unique(headlines, ({ href }) => href))
+  console.log('Found', headlines.length, 'headlines')
+  return headlines
+}
 
 const articleParagraphs = async page =>
   page.$$eval('.article-body > p', articles =>
@@ -61,21 +87,37 @@ const parseTimeAgo = relativeDate => {
   return null
 }
 
-const parseRelativeDate = relativeDate => {
-  const date = new Date()
-  const ago = parseTimeAgo(relativeDate)
-  assert(ago, 'Cannot parse relative date')
-  switch (ago.type) {
-    case 'day':
-      date.setHours(date.getHours() - 24 * Number(ago.units))
-      break
-    case 'min':
-      date.setMinutes(date.getMinutes() - 60 * Number(ago.units))
-      break
-    case 'hour':
-      date.setHours(date.getHours() - Number(ago.units))
-      break
+const parseDatetime = datetime => {
+  if (/(\w+) (\d+)/.test(datetime)) {
+    const date = new Date(datetime)
+    const currentYear = 1900 + new Date().getYear()
+    date.setYear(currentYear)
+    return date
   }
+  return null
+}
+
+const parseRelativeDate = unknownTimeFormat => {
+  let date = new Date()
+  const ago = parseTimeAgo(unknownTimeFormat)
+  if (ago) {
+    switch (ago.type) {
+      case 'day':
+        date.setHours(date.getHours() - 24 * Number(ago.units))
+        break
+      case 'min':
+        date.setMinutes(date.getMinutes() - 60 * Number(ago.units))
+        break
+      case 'hour':
+        date.setHours(date.getHours() - Number(ago.units))
+        break
+    }
+  }
+  const datetime = parseDatetime(unknownTimeFormat)
+  if (datetime) {
+    date = datetime
+  }
+  assert(ago || datetime, 'publicationDate needs to be parsed for this article')
   return date.toString()
 }
 
@@ -105,73 +147,31 @@ const articleContent = async page => {
   }
 }
 
-const discover = async page => {
-  const headlines = await page
-    .$$eval('a[href]', links => links.map(l => ({ href: l.href })))
-    .then(headlines => headlines.filter(isFox))
-
-  const {
-    entertainmentArticles,
-    healthArticles,
-    mediaArticles,
-    opinionArticles,
-    politics,
-    usArticles,
-    usSections,
-
-    rest,
-  } = partitionGroups(headlines, {
-    entertainmentArticles: isFoxEntertainmentArticleHref,
-    healthArticles: isFoxHealthArticleHref,
-    mediaArticles: isFoxMediaArticleHref,
-    opinionArticles: isFoxOpinionArticleHref,
-    politics: isFoxPoliticsArticleHref,
-    usArticles: isFoxUsArticleHref,
-    usSections: isFoxUsSectionHref,
-  })
-  // TODO there's probably more in here to look thru
-  // console.log({ rest })
-  return {
-    headlines: politics
-      .concat(usArticles)
-      .concat(healthArticles)
-      .concat(opinionArticles)
-      .concat(mediaArticles)
-      .concat(entertainmentArticles),
-    usSection: usSections[0],
-  }
-}
-
 const articlesWithoutContent = state =>
-  Object.values(state[FOX]).filter(article => !article.content)
+  Object.values(state[FOX]).filter(
+    article => !article.content && !article.error
+  )
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch({ headless: false }).then(async browser => {
     const page = await browser.newPage()
-    await page.goto(FOX_NEWS_URL)
-    const { headlines, usSection } = await discover(page)
-    await page.goto(usSection.href)
-    const { headlines: usSectionHeadlines } = await discover(page)
-    const uniqueHeadlines = unique(
-      headlines.concat(usSectionHeadlines),
-      ({ href }) => href
-    )
-    console.log(
-      'unique headlines found',
-      uniqueHeadlines.length,
-      '/',
-      headlines.concat(usSectionHeadlines).length
-    )
-    store.dispatch(fox.addHeadline(uniqueHeadlines))
-    const articlesToSearch = articlesWithoutContent(store.getState())
-    console.log('Searching', articlesToSearch.length, 'articles for updates')
-    const updates = await sequentiallyMap(articlesToSearch, async article => {
+
+    // await page.goto(FOX_URL)
+    // const headlines = await discoverThruFooter(page)
+    // store.dispatch(fox.addHeadline(headlines))
+    // saveStore(store)
+
+    const needsContent = articlesWithoutContent(store.getState())
+    console.log('Searching thru', needsContent.length, 'articles')
+    const updates = await sequentiallyMap(needsContent, async article => {
       await page.goto(article.href)
-      return articleContent(page).catch(
-        e => (console.error(article.href), console.error(e), { error: true })
-      )
-    })
-    store.dispatch(fox.updateArticle(updates))
+      return articleContent(page)
+        .catch(
+          e => (console.error(article.href), console.error(e), { error: true })
+        )
+        .then(fox.updateArticle)
+        .then(store.dispatch)
+    }).catch(console.error)
     saveStore(store)
     process.exit(0)
   })

@@ -113,7 +113,7 @@ const discoverThruSitemap = async page => {
 }
 
 const articlesWithoutContent = state =>
-  Object.values(state[CNN]).filter(({ content }) => !content)
+  Object.values(state[CNN]).filter(({ content, error }) => !content && !error)
 
 const run = () =>
   puppeteer.launch().then(async browser => {
