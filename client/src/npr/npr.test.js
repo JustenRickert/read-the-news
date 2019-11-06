@@ -1,5 +1,5 @@
 const {
-  __impl: { parsePublicationDate },
+  __impl: { parsePublicationDate, isHeadline },
 } = require('./npr')
 
 describe('utils', () => {
@@ -15,5 +15,13 @@ describe('utils', () => {
     expect(times.map(time => parsePublicationDate(date, time))).toEqual(
       expected
     )
+  })
+
+  it('gets headlines from hrefs', () => {
+    const testHeadlines = [
+      'https://www.npr.org/2019/11/05/776331817/new-transcripts-of-closed-door-depositions-released-in-trump-impeachment-inquiry',
+      'https://www.npr.org/2019/11/05/776305627/mcdonalds-fired-ceo-is-getting-millions-putting-spotlight-on-pay-gap',
+    ]
+    expect(testHeadlines.map(href => ({ href })).every(isHeadline)).toBeTruthy()
   })
 })

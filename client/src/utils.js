@@ -1,6 +1,14 @@
 const tap = x => (console.log(x), x)
 
+const range = n =>
+  Array(n)
+    .fill(undefined)
+    .map((_, i) => i)
+
 const map = (xs, fn) => xs.map(fn)
+
+const sequentiallyDoTimes = async (n, fn) =>
+  range(n).reduce(p => p.then(fn), Promise.resolve(null))
 
 const sequentiallyMap = async (xs, fn) =>
   (await xs).reduce(
@@ -58,11 +66,6 @@ const pick = (o, keys) =>
 
 const sample = xs => xs[Math.floor(Math.random() * xs.length)]
 
-const range = n =>
-  Array(n)
-    .fill(undefined)
-    .map((_, i) => i)
-
 const unique = (xs, idFn) =>
   xs.reduce(
     (uniqueXs, x) =>
@@ -87,6 +90,7 @@ module.exports = {
   sample,
   sequentiallyMap,
   sequentiallyReduce,
+  sequentiallyDoTimes,
   tap,
   unique,
   zip,
