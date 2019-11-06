@@ -156,10 +156,10 @@ const run = () =>
   puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
 
-    // await page.goto(FOX_URL)
-    // const headlines = await discoverThruFooter(page)
-    // store.dispatch(fox.addHeadline(headlines))
-    // saveStore(store)
+    await page.goto(FOX_URL)
+    const headlines = await discoverThruFooter(page)
+    store.dispatch(fox.addHeadline(headlines))
+    saveStore(store)
 
     const needsContent = articlesWithoutContent(store.getState())
     console.log('Searching thru', needsContent.length, 'articles')
