@@ -58,10 +58,6 @@ const updateArticle = (state, action) => {
     // TODO more error logging?
     if (update.error) {
       slice.error = true
-      if (update.message) {
-        slice.errorMessage = update.message
-        console.error(update.message)
-      }
       return
     }
     try {

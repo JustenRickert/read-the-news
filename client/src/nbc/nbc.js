@@ -120,7 +120,7 @@ const articlesWithoutContent = state =>
   )
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
     // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
     // timeouts better in the future?
@@ -136,7 +136,13 @@ const run = () =>
       await page.goto(headline.href)
       console.log('Looking at', headline.href)
       return articleContent(page)
-        .catch(e => ({ error: true, message: e.stack }))
+        .catch(
+          e => (
+            console.error(headline.href),
+            console.error(e),
+            { href: headline.href, error: true }
+          )
+        )
         .then(nbc.updateArticle)
         .then(update => (store.dispatch(update), saveStore()))
         .catch(e => console.error(e))

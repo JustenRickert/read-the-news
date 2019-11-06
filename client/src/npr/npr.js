@@ -129,7 +129,7 @@ const articlesWithoutContent = state =>
   )
 
 const run = () =>
-  puppeteer.launch({ devtools: true }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
 
     const headlines = await discover(page)
@@ -141,7 +141,13 @@ const run = () =>
     const updates = await sequentiallyMap(articlesToSearch, article =>
       page.goto(article.href).then(() =>
         articleContents(page)
-          .catch(e => (article.href, console.error(e), { error: true }))
+          .catch(
+            e => (
+              console.error(article.href),
+              console.error(e),
+              { href: article.href, error: true }
+            )
+          )
           .then(npr.updateArticle)
           .then(store.dispatch)
       )

@@ -153,7 +153,7 @@ const articlesWithoutContent = state =>
   )
 
 const run = () =>
-  puppeteer.launch({ headless: false }).then(async browser => {
+  puppeteer.launch().then(async browser => {
     const page = await browser.newPage()
 
     // await page.goto(FOX_URL)
@@ -167,7 +167,11 @@ const run = () =>
       await page.goto(article.href)
       return articleContent(page)
         .catch(
-          e => (console.error(article.href), console.error(e), { error: true })
+          e => (
+            console.error(article.href),
+            console.error(e),
+            { href: article.href, error: true }
+          )
         )
         .then(fox.updateArticle)
         .then(store.dispatch)
