@@ -113,7 +113,7 @@ const discoverThruSitemap = async page => {
 }
 
 const articlesWithoutContent = state =>
-  Object.values(state[CNN]).filter(({ content }) => !content)
+  Object.values(state[CNN]).filter(({ content, error }) => !content && !error)
 
 const run = () =>
   puppeteer.launch().then(async browser => {
@@ -126,10 +126,15 @@ const run = () =>
     await sequentiallyMap(
       shuffle(articlesWithoutContent(store.getState())),
       async article => {
-        console.log(article.href)
         await page.goto(article.href).then(() =>
           articleContentUpdates(page)
-            .catch(e => (console.error(e), { error: true }))
+            .catch(
+              e => (
+                console.error(article.href),
+                console.error(e),
+                { href: article.href, error: true }
+              )
+            )
             .then(cnn.updateArticle)
             .then(
               action => (store.dispatch(action), saveStore(), console.log())

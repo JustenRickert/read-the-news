@@ -1,6 +1,6 @@
 const isFoxVideoArticle = ({ href }) => /^https:\/\/video/.test(href)
 
-const isFox = ({ href }) => /^https:\/\/www.foxnews\.com/.test(href)
+const isFoxHref = ({ href }) => /^https:\/\/www.foxnews\.com/.test(href)
 
 const isFoxPoliticsArticleHref = ({ href }) =>
   /^https:\/\/www.foxnews\.com\/politics\/.*/.test(href)
@@ -33,7 +33,7 @@ const isFoxUsArticleHref = ({ href }) =>
 
 module.exports = {
   isFoxVideoArticle,
-  isFox,
+  isFoxHref,
   isFoxPoliticsArticleHref,
   isFoxOpinionArticleHref,
   isFoxCrimeSectionHref,
