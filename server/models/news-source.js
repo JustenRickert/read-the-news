@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var NewsSource = sequelize.define('NewsSource', {
+  const NewsSource = sequelize.define('NewsSource', {
     sourceName: {
       type: DataTypes.STRING,
       primaryKey: true,

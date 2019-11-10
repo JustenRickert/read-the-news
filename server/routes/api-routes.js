@@ -45,12 +45,13 @@ router.post('/news-source/:site', (req, res) => {
   models.Article.create(payload)
     .then(result => {
       console.log('Created', payload.href, payload.title)
+      res.status(200).send('okay')
     })
     .catch(e => {
       console.error(e)
       console.log('Failed Payload', payload)
+      res.status(400).send('Bad request')
     })
-  res.status(200).send('okay')
 })
 
 module.exports = router
