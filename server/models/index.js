@@ -1,42 +1,35 @@
-'use strict';
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('sequelize');
-var basename = path.basename(module.filename);
-var env = process.env.NODE_ENV || 'development';
-var config = require(__dirname + '/../config/config.json')[env];
-var db = {};
+const fs = require('fs')
+const path = require('path')
+const Sequelize = require('sequelize')
+const env = process.env.NODE_ENV || 'development'
+const config = require(__dirname + '/../config/config.json')[env]
+const db = {}
+
+// TODO set up production environment
 
 // if (config.use_env_variable) {
 //   var sequelize = new Sequelize(process.env[config.use_env_variable]);
 // } else {
 // var sequelize = new Sequelize(config.database, config.username, config.password, config);
 // }
-let username = config.username;
-let password = config.password;
-let host = config.host;
-let configdb = config.database;
 
-let postgresURI = 'postgres://' + username + ':' + password + '@' + host + ':5432/' + configdb;
-var sequelize = new Sequelize(postgresURI);
+const username = config.username
+const password = config.password
+const host = config.host
+const configdb = config.database
 
-fs
-	.readdirSync(__dirname)
-	.filter(function(file) {
-		return file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js';
-	})
-	.forEach(function(file) {
-		var model = sequelize['import'](path.join(__dirname, file));
-		db[model.name] = model;
-	});
+const postgresURI =
+  'postgres://' + username + ':' + password + '@' + host + ':5432/' + configdb
+const sequelize = new Sequelize(postgresURI)
 
-Object.keys(db).forEach(function(modelName) {
-	if (db[modelName].associate) {
-		db[modelName].associate(db);
-	}
-});
+;['./news-source.js', './article.js']
+  .map(filname => path.join(__dirname, filname))
+  .forEach(pathname => {
+    const model = sequelize.import(pathname)
+    db[model.name] = model
+    if (model.associate) model.associate(db)
+  })
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+db.sequelize = sequelize
 
-module.exports = db;
+module.exports = db

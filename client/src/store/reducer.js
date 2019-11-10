@@ -2,6 +2,8 @@ const assert = require('assert')
 const { createSlice } = require('redux-starter-kit')
 const { pick, unique } = require('../utils')
 
+const { assertValidArticle } = require('../../../shared/data-assersions')
+
 const initialState = {}
 
 const addHeadline = (state, action) => {
@@ -20,33 +22,6 @@ const addHeadline = (state, action) => {
       console.log('Added article', u.href, u.title || 'No title found')
       return updates
     }, {})
-  )
-}
-
-const assertValidArticle = (update, article) => {
-  assert(update.href, 'Article updates require `href`')
-  assert('content' in update, 'Article updates require "content" key')
-  assert(
-    typeof update.content === 'string',
-    'Article content must be of type "string"'
-  )
-  assert(
-    'publicationDate' in update,
-    'Article updates require "publicationDate" key'
-  )
-  assert(
-    typeof update.publicationDate === 'string',
-    'Article publicationDate must be of type "string"'
-  )
-  assert('authors' in update, 'Article updates require "authors" key')
-  assert(
-    Array.isArray(update.authors) &&
-      update.authors.every(author => 'href' in author && 'name' in author),
-    'Article authors must have name and href (may be `null`)'
-  )
-  assert(
-    update.title || article.title,
-    '`title` needs to be given in either an `updateArticle` action or `addHeadline` action'
   )
 }
 

@@ -1,16 +1,28 @@
-module.exports = function(sequelize, DataTypes) {
-	var Article = sequelize.define('Article', {
-		title: DataTypes.STRING(500),
-		content: DataTypes.TEXT(),
-		href: DataTypes.STRING(500),
-		authors: DataTypes.STRING(500),
-		publicationDate: DataTypes.DATE()
-	});
+const { assertValidArticle } = require('../../shared/data-assersions')
 
-	Article.associate = function(models) {
-		Article.belongsTo(models.NewsSource, {
-			foreignKey: 'sourceName'
-		});
-	};
-	return Article;
-};
+module.exports = function(sequelize, DataTypes) {
+  const Article = sequelize.define(
+    'Article',
+    {
+      title: DataTypes.TEXT(),
+      content: DataTypes.TEXT(),
+      href: DataTypes.STRING(2000),
+      authors: DataTypes.JSON(),
+      publicationDate: DataTypes.DATE(),
+    },
+    {
+      validate: {
+        validArticle: function() {
+          assertValidArticle(this)
+        },
+      },
+    }
+  )
+
+  Article.associate = function(models) {
+    Article.belongsTo(models.NewsSource, {
+      foreignKey: 'sourceName',
+    })
+  }
+  return Article
+}
