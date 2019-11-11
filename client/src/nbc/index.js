@@ -1,7 +1,6 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
 
-const { store, saveStore, nbc } = require('../store/index')
+const { store, nbc } = require('../store/index')
 const { NBC } = require('../constant')
 const {
   complement,
@@ -119,36 +118,35 @@ const articlesWithoutContent = state =>
     headline => !headline.content && !headline.error
   )
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
-    // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
-    // timeouts better in the future?
-    await page.setDefaultTimeout(100e3)
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
+  // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
+  // timeouts better in the future?
+  await page.setDefaultTimeout(100e3)
 
-    const { headlines } = await discoverThruSitemap(page)
-    store.dispatch(nbc.addHeadline(headlines))
-    saveStore()
+  const { headlines } = await discoverThruSitemap(page)
+  store.dispatch(nbc.addHeadline(headlines))
 
-    const needsContent = articlesWithoutContent(store.getState())
-    console.log('searching thru', needsContent.length)
-    sequentiallyReduce(needsContent, async (_, headline) => {
-      await page.goto(headline.href)
-      console.log('Looking at', headline.href)
-      return articleContent(page)
-        .catch(
-          e => (
-            console.error(headline.href),
-            console.error(e),
-            { href: headline.href, error: true }
-          )
+  const needsContent = articlesWithoutContent(store.getState())
+  console.log('searching thru', needsContent.length)
+  await sequentiallyReduce(needsContent, async (_, headline) => {
+    await page.goto(headline.href)
+    console.log('Looking at', headline.href)
+    return articleContent(page)
+      .catch(
+        e => (
+          console.error(headline.href),
+          console.error(e),
+          { href: headline.href, error: true }
         )
-        .then(nbc.updateArticle)
-        .then(update => (store.dispatch(update), saveStore()))
-        .catch(e => console.error(e))
-    })
-  })
+      )
+      .then(nbc.updateArticle)
+      .then(store.dispatch)
+      .catch(console.error)
+  }).catch(console.error)
 
+  await page.close()
+}
 module.exports = {
   run,
 }

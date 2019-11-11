@@ -1,16 +1,16 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
 
-const { store, saveStore, npr } = require('../store')
+const { store, npr } = require('../store')
 const { NPR } = require('../constant')
 const {
   complement,
   or,
   partition,
-  sequentiallyMap,
-  unique,
   sample,
   sequentiallyDoTimes,
+  sequentiallyForEach,
+  sequentiallyMap,
+  unique,
 } = require('../utils')
 
 const {
@@ -128,34 +128,30 @@ const articlesWithoutContent = state =>
     article => !article.content && !article.error
   )
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
 
-    const headlines = await discover(page)
-    store.dispatch(npr.addHeadline(headlines))
-    saveStore()
+  const headlines = await discover(page)
+  store.dispatch(npr.addHeadline(headlines))
 
-    const articlesToSearch = articlesWithoutContent(store.getState())
-    console.log('New searches needed:', articlesToSearch.length)
-    const updates = await sequentiallyMap(articlesToSearch, article =>
-      page.goto(article.href).then(() =>
-        articleContents(page)
-          .catch(
-            e => (
-              console.error(article.href),
-              console.error(e),
-              { href: article.href, error: true }
-            )
+  const articlesToSearch = articlesWithoutContent(store.getState())
+  console.log('New searches needed:', articlesToSearch.length)
+  await sequentiallyForEach(articlesToSearch, article =>
+    page.goto(article.href).then(() =>
+      articleContents(page)
+        .catch(
+          e => (
+            console.error(article.href),
+            console.error(e),
+            { href: article.href, error: true }
           )
-          .then(npr.updateArticle)
-          .then(store.dispatch)
-      )
-    ).catch(console.error)
-
-    saveStore(store)
-    process.exit(0)
-  })
+        )
+        .then(npr.updateArticle)
+        .then(store.dispatch)
+    )
+  ).catch(console.error)
+  await page.close()
+}
 
 module.exports = {
   __impl: {

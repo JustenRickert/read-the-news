@@ -1,3 +1,5 @@
+const { performance } = require('perf_hooks')
+
 const tap = x => (console.log(x), x)
 
 const range = n =>
@@ -15,6 +17,9 @@ const sequentiallyMap = async (xs, fn) =>
     (p, x) => p.then(async ys => ys.concat(await fn(x))),
     Promise.resolve([])
   )
+
+const sequentiallyForEach = (xs, fn) =>
+  sequentiallyReduce(xs, fn).then(() => undefined)
 
 const sequentiallyReduce = async (xs, accumulatorFn, initialValue) =>
   (await xs)
@@ -78,6 +83,14 @@ const zip = xss => {
   return range(minLength).map(i => xss.map(xs => xs[i]))
 }
 
+const timeFn = fn => (...args) => {
+  const start = performance.now()
+  return Promise.resolve(fn(...args)).then(result => ({
+    duration: (performance.now() - start) / 1000 + 's',
+    result,
+  }))
+}
+
 module.exports = {
   and,
   complement,
@@ -88,10 +101,12 @@ module.exports = {
   pick,
   range,
   sample,
+  sequentiallyDoTimes,
+  sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,
-  sequentiallyDoTimes,
   tap,
+  timeFn,
   unique,
   zip,
 }

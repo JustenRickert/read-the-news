@@ -24,13 +24,13 @@ const options = {
   },
 }
 
-const testPost = http.request(options, res => {
-  console.log('test post result', res.statusCode)
+Object.values(state['fox']).forEach(value => {
+  const testPost = http.request(options, res => {
+    console.log('test post result', res.statusCode)
+  })
+
+  testPost.on('error', console.error)
+
+  testPost.write(JSON.stringify(value))
+  testPost.end()
 })
-
-testPost.on('error', console.error)
-
-const testPostBody = sample(Object.values(state['fox']))
-
-testPost.write(JSON.stringify(testPostBody))
-testPost.end()

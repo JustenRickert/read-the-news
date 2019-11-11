@@ -1,5 +1,4 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
 
 const { store, saveStore, fox } = require('../store')
 
@@ -152,33 +151,32 @@ const articlesWithoutContent = state =>
     article => !article.content && !article.error
   )
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
 
-    await page.goto(FOX_URL)
-    const headlines = await discoverThruFooter(page)
-    store.dispatch(fox.addHeadline(headlines))
-    saveStore(store)
+  await page.goto(FOX_URL)
+  const headlines = await discoverThruFooter(page)
+  store.dispatch(fox.addHeadline(headlines))
+  saveStore(store)
 
-    const needsContent = articlesWithoutContent(store.getState())
-    console.log('Searching thru', needsContent.length, 'articles')
-    const updates = await sequentiallyMap(needsContent, async article => {
-      await page.goto(article.href)
-      return articleContent(page)
-        .catch(
-          e => (
-            console.error(article.href),
-            console.error(e),
-            { href: article.href, error: true }
-          )
+  const needsContent = articlesWithoutContent(store.getState())
+  console.log('Searching thru', needsContent.length, 'articles')
+  await sequentiallyMap(needsContent, async article => {
+    await page.goto(article.href)
+    return articleContent(page)
+      .catch(
+        e => (
+          console.error(article.href),
+          console.error(e),
+          { href: article.href, error: true }
         )
-        .then(fox.updateArticle)
-        .then(store.dispatch)
-    }).catch(console.error)
-    saveStore(store)
-    process.exit(0)
-  })
+      )
+      .then(fox.updateArticle)
+      .then(store.dispatch)
+  }).catch(console.error)
+
+  await page.close()
+}
 
 module.exports = {
   run,

@@ -1,15 +1,14 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
 const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, cnn } = require('../store/index')
+const { store, cnn } = require('../store/index')
 const { CNN } = require('../constant')
 const {
   complement,
   partition,
   partitionGroups,
   sample,
-  sequentiallyMap,
+  sequentiallyForEach,
   or,
 } = require('../utils')
 
@@ -115,36 +114,34 @@ const discoverThruSitemap = async page => {
 const articlesWithoutContent = state =>
   Object.values(state[CNN]).filter(({ content, error }) => !content && !error)
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
-    // CNN is really slow... TODO(maybe) skip hrefs that take a really long
-    // time.
-    await page.setDefaultTimeout(130e3)
-    const articleHeadlines = await discoverThruSitemap(page)
-    store.dispatch(cnn.addHeadline(articleHeadlines))
-    await sequentiallyMap(
-      shuffle(articlesWithoutContent(store.getState())),
-      async article => {
-        await page.goto(article.href).then(() =>
-          articleContentUpdates(page)
-            .catch(
-              e => (
-                console.error(article.href),
-                console.error(e),
-                { href: article.href, error: true }
-              )
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
+  // CNN is really slow... TODO(maybe) skip hrefs that take a really long
+  // time.
+  await page.setDefaultTimeout(130e3)
+  const articleHeadlines = await discoverThruSitemap(page)
+  store.dispatch(cnn.addHeadline(articleHeadlines))
+
+  await sequentiallyForEach(
+    shuffle(articlesWithoutContent(store.getState())),
+    async article => {
+      await page.goto(article.href).then(() =>
+        articleContentUpdates(page)
+          .catch(
+            e => (
+              console.error(article.href),
+              console.error(e),
+              { href: article.href, error: true }
             )
-            .then(cnn.updateArticle)
-            .then(
-              action => (store.dispatch(action), saveStore(), console.log())
-            )
-        )
-      }
-    )
-    saveStore()
-    process.exit(0)
-  })
+          )
+          .then(cnn.updateArticle)
+          .then(action => (store.dispatch(action), console.log()))
+      )
+    }
+  ).catch(console.error)
+
+  await page.close()
+}
 
 module.exports = {
   __impl: {

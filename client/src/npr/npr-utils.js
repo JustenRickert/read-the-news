@@ -1,3 +1,5 @@
+const { isNprHref } = require('../../../shared/predicates')
+
 const isNprSectionsHref = ({ href }) =>
   /^https?:\/\/www\.npr\.org\/sections\/[\w\-]+\/$/.test(href)
 
@@ -23,8 +25,6 @@ const isNprHealthIncHref = ({ href }) =>
 
 const isNprSeriesHref = ({ href }) =>
   /^https?:\/\/www\.npr\.org\/series\//.test(href)
-
-const isNprHref = ({ href }) => /^https?:\/\/www\.npr\.org/.test(href)
 
 module.exports = {
   isNprHealthIncHref,

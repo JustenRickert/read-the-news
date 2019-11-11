@@ -1,4 +1,4 @@
-const isCnnHref = ({ href }) => /^https?:\/\/www\.cnn\.com/.test(href)
+const { isCnnHref } = require('../../../shared/predicates')
 
 const isCnnVideoArticle = ({ href }) =>
   /^https?:\/\/www\.cnn\.com\/videos/.test(href)
