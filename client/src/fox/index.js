@@ -35,7 +35,7 @@ const isHeadline = ({ href }) =>
     href
   )
 
-const discoverThruFooter = async page => {
+const discover = async page => {
   const sections = await page
     .$$eval('.footer-upper.section-nav a[href]', links =>
       links.map(l => ({ href: l.href }))
@@ -147,17 +147,8 @@ const articleContent = async page => {
   }
 }
 
-const run = async puppeteerBrowser => {
-  const page = await puppeteerBrowser.newPage()
-
-  await page.goto(FOX_URL)
-  const headlines = await discoverThruFooter(page)
-  store.dispatch(fox.addHeadline(headlines))
-  saveStore(store)
-
-  const needsContent = fox.selectArticlesWithoutContent(store.getState())
-  console.log('Searching thru', needsContent.length, 'articles')
-  await sequentiallyMap(shuffle(needsContent), async article => {
+const collect = (page, needsContent) =>
+  sequentiallyMap(shuffle(needsContent), async article => {
     const pageResult = await page
       .goto(article.href)
       .then(() => ({ error: false }))
@@ -165,25 +156,36 @@ const run = async puppeteerBrowser => {
         console.log(article.href, 'failed to load')
         return { error: true, msg: e.stack }
       })
-    if (pageResult.error) {
-      store.dispatch(fox.updateArticle(pageResult))
-      return
-    }
-    return articleContent(page)
-      .catch(
-        e => (
-          console.error(article.href),
-          console.error(e),
-          { href: article.href, error: true }
-        )
+    if (pageResult.error) return
+    return articleContent(page).catch(
+      e => (
+        console.error(article.href),
+        console.error(e),
+        { href: article.href, error: true }
       )
-      .then(fox.updateArticle)
-      .then(store.dispatch)
-  }).catch(console.error)
+    )
+  }).then(articles => articles.filter(Boolean))
+
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
+
+  await page.goto(FOX_URL)
+  const headlines = await discover(page)
+  store.dispatch(fox.addHeadline(headlines))
+  saveStore(store)
+
+  const needsContent = fox.selectArticlesWithoutContent(store.getState())
+  console.log('Searching thru', needsContent.length, 'articles')
+  await collect(page, needsContent)
+    .then(fox.updateArticle)
+    .then(store.dispatch)
+    .catch(console.error)
 
   await page.close()
 }
 
 module.exports = {
-  run,
+  discover,
+  collect,
+  slice: fox,
 }

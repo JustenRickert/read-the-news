@@ -9,6 +9,7 @@ const {
   partitionGroups,
   sample,
   sequentiallyForEach,
+  sequentiallyMap,
   or,
 } = require('../utils')
 
@@ -93,9 +94,23 @@ const articleContentUpdates = async page => {
   }
 }
 
-// Doing this is infinitely better than trying to discover content thru the
-// website the old-fashioned way! :D
-const discoverThruSitemap = async page => {
+const collect = async (page, needsContent) =>
+  await sequentiallyMap(shuffle(needsContent), article =>
+    page
+      .goto(article.href)
+      .catch(e => (console.error(e), undefined))
+      .then(() =>
+        articleContentUpdates(page).catch(
+          e => (
+            console.error(article.href),
+            console.error(e),
+            { href: article.href, error: true }
+          )
+        )
+      )
+  ).then(articles => articles.filter(Boolean))
+
+const discover = async page => {
   await page.goto(SITE_MAP_URL).catch(e => {
     console.error(SITE_MAP_URL, 'failed to load')
     throw e
@@ -118,7 +133,7 @@ const run = async puppeteerBrowser => {
   const page = await puppeteerBrowser.newPage()
   await page.setDefaultTimeout(130e3)
 
-  const articleHeadlines = await discoverThruSitemap(page).catch(e => {
+  const articleHeadlines = await discover(page).catch(e => {
     console.error(e)
     return undefined
   })
@@ -152,5 +167,8 @@ module.exports = {
     parsePublicationDateInformation,
     parseAuthorInformation,
   },
+  slice: cnn,
+  collect,
+  discover,
   run,
 }

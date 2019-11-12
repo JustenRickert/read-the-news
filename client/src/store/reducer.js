@@ -19,7 +19,7 @@ const addHeadline = (state, action) => {
       if (state[u.href]) return updates
       assert(!state[u.href], 'Article cannot be overwritten by a new headline')
       Object.assign(updates, { [u.href]: pick(u, ['href', 'title']) })
-      console.log('Added article', u.href, u.title || 'No title found')
+      console.log('Added article', u.href, u.title || '[Title required]')
       return updates
     }, {})
   )
