@@ -11,8 +11,6 @@ const assertValidArticle = (update, article) => {
     "publicationDate" in update,
     'Article updates require "publicationDate" key'
   );
-  console.log("typeof update", typeof update);
-  console.log(update.publicationDate);
   assert(
     typeof update.publicationDate === "string" ||
       update.publicationDate instanceof Date,

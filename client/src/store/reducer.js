@@ -2,7 +2,7 @@ const assert = require('assert')
 const { createSlice } = require('redux-starter-kit')
 const { pick, unique } = require('../utils')
 
-const { assertValidArticle } = require('../../../shared/data-assersions')
+const { assertValidArticle } = require('../../../shared/data-assertions')
 
 const initialState = {}
 
@@ -30,8 +30,8 @@ const updateArticle = (state, action) => {
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
     const slice = state[update.href]
-    // TODO more error logging?
     if (update.error) {
+      if (update.error.message) console.error(update.error.message)
       slice.error = true
       return
     }
@@ -50,8 +50,8 @@ const updateArticle = (state, action) => {
   })
 }
 
-const createNewsSourceSlice = newsSource =>
-  createSlice({
+const createNewsSourceSlice = newsSource => {
+  const slice = createSlice({
     name: newsSource,
     initialState,
     reducers: {
@@ -59,6 +59,16 @@ const createNewsSourceSlice = newsSource =>
       updateArticle,
     },
   })
+  slice.select = {}
+  slice.select.articlesWithoutContent = state =>
+    Object.values(state[newsSource]).filter(
+      article => !article.content && !article.error
+    )
+  slice.select.articlesWithErrors = state =>
+    Object.values(state[newsSource]).filter(article => article.error)
+
+  return slice
+}
 
 module.exports = {
   createNewsSourceSlice,

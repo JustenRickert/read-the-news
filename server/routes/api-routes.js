@@ -1,8 +1,7 @@
 const assert = require('assert')
 const express = require('express')
-const { assertValidArticle } = require('../../shared/data-assersions')
 const models = require('../models')
-const { parseSite } = require('./utils')
+const { parseSite, omit } = require('./utils')
 const router = express.Router()
 
 const { CNN, FOX, NBC, NPR } = require('../../shared/constants')
@@ -28,16 +27,22 @@ router.get('/news-source/:site', (req, res) => {
 })
 
 router.get('/news-source/:site/:href', (req, res) => {
-  console.log(req.params)
-  models.Article.findOne({ where: { href: req.params.href } })
+  models.Article.findOne({
+    where: { site: req.params.site, href: req.params.href },
+  })
     .then(result => {
-      res
+      if (!result) return res.status(404).send()
+      return res
         .status(200, { 'Content-Type': 'application/json' })
-        .send(JSON.stringify(result))
+        .send(
+          JSON.stringify(
+            omit(result.dataValues, ['createdAt', 'updatedAt', 'site'])
+          )
+        )
     })
     .catch(e => {
       console.error(e)
-      res.status(404).send()
+      res.status(500).send()
     })
 })
 

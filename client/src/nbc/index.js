@@ -1,4 +1,5 @@
 const assert = require('assert')
+const shuffle = require('lodash.shuffle')
 
 const { store, nbc } = require('../store/index')
 const { NBC } = require('../constant')
@@ -8,6 +9,7 @@ const {
   partition,
   and,
   or,
+  sequentiallyForEach,
   sequentiallyReduce,
   tap,
   unique,
@@ -120,17 +122,23 @@ const articlesWithoutContent = state =>
 
 const run = async puppeteerBrowser => {
   const page = await puppeteerBrowser.newPage()
-  // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
-  // timeouts better in the future?
   await page.setDefaultTimeout(100e3)
 
   const { headlines } = await discoverThruSitemap(page)
   store.dispatch(nbc.addHeadline(headlines))
 
-  const needsContent = articlesWithoutContent(store.getState())
+  const needsContent = nbc.selectArticlesWithoutContent(store.getState())
   console.log('searching thru', needsContent.length)
-  await sequentiallyReduce(needsContent, async (_, headline) => {
-    await page.goto(headline.href)
+  await sequentiallyForEach(shuffle(needsContent), async headline => {
+    const { error } = await page
+      .goto(headline.href)
+      .then(() => ({ error: false }))
+      .catch(e => {
+        console.log(headline.href)
+        console.error(e)
+        return { error: true }
+      })
+    if (error) return
     console.log('Looking at', headline.href)
     return articleContent(page)
       .catch(

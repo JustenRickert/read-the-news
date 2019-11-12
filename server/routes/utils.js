@@ -21,6 +21,14 @@ const parseSite = cond([
   [isNbcHref, constant(NBC)],
 ])
 
+const omit = (o, keys) =>
+  Object.keys(o)
+    .filter(key => !keys.includes(key))
+    .reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {})
+
+console.log(omit({ hello: 1, world: 2 }, ['world']))
+
 module.exports = {
   parseSite,
+  omit,
 }

@@ -19,7 +19,7 @@ const sequentiallyMap = async (xs, fn) =>
   )
 
 const sequentiallyForEach = (xs, fn) =>
-  sequentiallyReduce(xs, fn).then(() => undefined)
+  sequentiallyReduce(xs, (_, x) => fn(x), null).then(() => undefined)
 
 const sequentiallyReduce = async (xs, accumulatorFn, initialValue) =>
   (await xs)
@@ -86,7 +86,7 @@ const zip = xss => {
 const timeFn = fn => (...args) => {
   const start = performance.now()
   return Promise.resolve(fn(...args)).then(result => ({
-    duration: (performance.now() - start) / 1000 + 's',
+    duration: ((performance.now() - start) / 1000).toFixed(3) + 's',
     result,
   }))
 }

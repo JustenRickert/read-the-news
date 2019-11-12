@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { assertValidArticle } = require('../../shared/data-assersions')
+const { assertValidArticle } = require('../../shared/data-assertions')
 
 module.exports = function(sequelize, DataTypes) {
   const Article = sequelize.define(

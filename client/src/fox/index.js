@@ -1,4 +1,5 @@
 const assert = require('assert')
+const shuffle = require('lodash.shuffle')
 
 const { store, saveStore, fox } = require('../store')
 
@@ -146,11 +147,6 @@ const articleContent = async page => {
   }
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[FOX]).filter(
-    article => !article.content && !article.error
-  )
-
 const run = async puppeteerBrowser => {
   const page = await puppeteerBrowser.newPage()
 
@@ -159,10 +155,20 @@ const run = async puppeteerBrowser => {
   store.dispatch(fox.addHeadline(headlines))
   saveStore(store)
 
-  const needsContent = articlesWithoutContent(store.getState())
+  const needsContent = fox.selectArticlesWithoutContent(store.getState())
   console.log('Searching thru', needsContent.length, 'articles')
-  await sequentiallyMap(needsContent, async article => {
-    await page.goto(article.href)
+  await sequentiallyMap(shuffle(needsContent), async article => {
+    const pageResult = await page
+      .goto(article.href)
+      .then(() => ({ error: false }))
+      .catch(e => {
+        console.log(article.href, 'failed to load')
+        return { error: true, msg: e.stack }
+      })
+    if (pageResult.error) {
+      store.dispatch(fox.updateArticle(pageResult))
+      return
+    }
     return articleContent(page)
       .catch(
         e => (

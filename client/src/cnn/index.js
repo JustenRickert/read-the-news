@@ -96,7 +96,10 @@ const articleContentUpdates = async page => {
 // Doing this is infinitely better than trying to discover content thru the
 // website the old-fashioned way! :D
 const discoverThruSitemap = async page => {
-  await page.goto(SITE_MAP_URL)
+  await page.goto(SITE_MAP_URL).catch(e => {
+    console.error(SITE_MAP_URL, 'failed to load')
+    throw e
+  })
   await page.click('a[href="/article/sitemap-2019.html"]')
   const monthHandles = await page
     .waitForSelector('.sitemap-month')
@@ -111,19 +114,20 @@ const discoverThruSitemap = async page => {
     )
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[CNN]).filter(({ content, error }) => !content && !error)
-
 const run = async puppeteerBrowser => {
   const page = await puppeteerBrowser.newPage()
-  // CNN is really slow... TODO(maybe) skip hrefs that take a really long
-  // time.
   await page.setDefaultTimeout(130e3)
-  const articleHeadlines = await discoverThruSitemap(page)
-  store.dispatch(cnn.addHeadline(articleHeadlines))
+
+  const articleHeadlines = await discoverThruSitemap(page).catch(e => {
+    console.error(e)
+    return undefined
+  })
+  if (articleHeadlines) {
+    store.dispatch(cnn.addHeadline(articleHeadlines))
+  }
 
   await sequentiallyForEach(
-    shuffle(articlesWithoutContent(store.getState())),
+    shuffle(cnn.selectArticlesWithoutContent(store.getState())),
     async article => {
       await page.goto(article.href).then(() =>
         articleContentUpdates(page)

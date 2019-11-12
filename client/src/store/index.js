@@ -76,8 +76,8 @@ const saveStore = () => {
 module.exports = {
   store,
   saveStore,
-  cnn: cnn.actions,
-  fox: fox.actions,
-  nbc: nbc.actions,
-  npr: npr.actions,
+  cnn,
+  fox,
+  nbc,
+  npr,
 }
