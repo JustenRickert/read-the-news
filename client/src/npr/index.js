@@ -123,22 +123,20 @@ const discover = async page => {
   return uniqueLinks
 }
 
-const collect = async (page, needsContent) => {
-  await sequentiallyForEach(shuffle(needsContent), article =>
-    page.goto(article.href).then(() =>
-      articleContents(page)
-        .catch(
+const collect = (page, needsContent) =>
+  sequentiallyMap(shuffle(needsContent), article =>
+    page
+      .goto(article.href)
+      .then(() =>
+        articleContents(page).catch(
           e => (
             console.error(article.href),
             console.error(e),
             { href: article.href, error: true }
           )
         )
-        .then(npr.updateArticle)
-        .then(store.dispatch)
-    )
-  ).catch(console.error)
-}
+      )
+  )
 
 const run = async puppeteerBrowser => {
   const page = await puppeteerBrowser.newPage()

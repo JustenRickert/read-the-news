@@ -3,8 +3,13 @@ const puppeteer = require('puppeteer')
 
 const { store, saveStore } = require('./store')
 const { FOX, NPR, CNN, NBC, dataStoreFilename } = require('./constant')
-const { sequentiallyForEach, timeFn } = require('./utils')
-const { fetchArticle } = require('./connection')
+const {
+  sequentiallyForEach,
+  sequentiallyDoWhile,
+  timeFn,
+  partition,
+} = require('./utils')
+const { fetchArticle, postArticle } = require('./connection')
 
 const newsSource = process.argv[2]
 
@@ -35,32 +40,86 @@ const runAll = async browser => {
 
 const tap = x => (console.log(x), x)
 
-const articlesWithoutContentOnServerBatched = (slice, state, count) =>
+const withoutContentOnServerBatched = async (slice, articles, count = 100) => {
+  const needsContent = []
+  let batches = 0
+  await sequentiallyDoWhile(
+    () => batches * count < articles.length,
+    async () => {
+      const needsContentBatch = await Promise.all(
+        articles.slice(batches * count, (batches + 1) * count).map(article =>
+          fetchArticle(slice.name, article)
+            .then(() => undefined)
+            .catch(() => article)
+        )
+      ).then(maybeArticles => maybeArticles.filter(Boolean))
+      needsContent.push(...needsContentBatch)
+      batches++
+    }
+  )
+  return needsContent
+}
+
+const postArticlesToServerBatched = (slice, { getState }, count = 100) =>
   Promise.all(
-    Object.values(state[slice.name])
+    slice.select
+      .articlesOkayForServer(getState())
       .slice(0, count)
       .map(article =>
-        fetchArticle(slice.name, article)
-          .then(() => undefined)
-          .catch(() => article)
+        postArticle(slice.name, article)
+          .then(() => ({
+            sendToServerError: false,
+            article,
+          }))
+          .catch(() => ({
+            sendToServerError: true,
+            article,
+          }))
       )
-  ).then(maybeArticles => tap(maybeArticles).filter(Boolean))
+  )
+
+const runPostArticlesToServer = (slice, store) =>
+  sequentiallyDoWhile(
+    () => {
+      const needsToBeSentToServer = slice.select.articlesOkayForServer(
+        store.getState()
+      )
+      return needsToBeSentToServer.length
+    },
+    async () => {
+      const [
+        articlesErroringWhenSentToServer,
+        articles,
+      ] = await postArticlesToServerBatched(slice, store).then(results =>
+        partition(results, result => result.sendToServerError)
+      )
+      store.dispatch(slice.actions.markArticleSentToServer(articles))
+      store.dispatch(
+        slice.actions.markArticleErrorWhenSentToServer(
+          articlesErroringWhenSentToServer.map(({ article }) => article)
+        )
+      )
+    }
+  )
 
 const runSingle = async (browser, module) => {
   const { discover, collect, slice } = module
-  // const page = await browser.newPage()
-  // const headlines = await discover(page)
-  // store.dispatch(slice.actions.addHeadline(headlines))
-  const needsContentBatch = await articlesWithoutContentOnServerBatched(
-    slice,
-    store.getState(),
-    100
+  const page = await browser.newPage()
+  const headlines = await discover(page).then(headlines =>
+    withoutContentOnServerBatched(slice, headlines)
   )
-  // await collect(needsContent)
+  store.dispatch(slice.actions.addHeadline(headlines))
+  const needsContent = slice.select.articlesWithoutContent(store.getState())
+  await collect(page, needsContent)
+    .then(slice.actions.updateArticle)
+    .then(store.dispatch)
+    .catch(console.error)
+  await runPostArticlesToServer(slice, store)
+  saveStore()
 }
 
 const testRun = async () => {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({ devtools: true })
   await runSingle(browser, require('./npr'))
 }
 

@@ -91,6 +91,10 @@ const timeFn = fn => (...args) => {
   }))
 }
 
+const sequentiallyDoWhile = async (condition, procedure) => {
+  while (await condition()) await procedure()
+}
+
 module.exports = {
   and,
   complement,
@@ -105,6 +109,7 @@ module.exports = {
   sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,
+  sequentiallyDoWhile,
   tap,
   timeFn,
   unique,

@@ -25,6 +25,36 @@ const addHeadline = (state, action) => {
   )
 }
 
+const markArticleErrorWhenSentToServer = (state, action) => {
+  let { payload } = action
+  if (!Array.isArray(payload)) payload = [payload]
+  payload.forEach(update => {
+    try {
+      assert(update.href, 'Need `href` to mark error when sending')
+    } catch (e) {
+      console.log('UPDATE', update)
+      throw e
+    }
+    const slice = state[update.href]
+    slice.sendToServerError = true
+  })
+}
+
+const markArticleSentToServer = (state, action) => {
+  let { payload } = action
+  if (!Array.isArray(payload)) payload = [payload]
+  payload.forEach(update => {
+    try {
+      assert(update.href, 'Need `href` to mark sent')
+    } catch (e) {
+      console.log('UPDATE', update)
+      throw e
+    }
+    const slice = state[update.href]
+    slice.sentToServer = true
+  })
+}
+
 const updateArticle = (state, action) => {
   let { payload } = action
   if (!Array.isArray(payload)) payload = [payload]
@@ -57,15 +87,26 @@ const createNewsSourceSlice = newsSource => {
     reducers: {
       addHeadline,
       updateArticle,
+      markArticleSentToServer,
+      markArticleErrorWhenSentToServer,
     },
   })
+
   slice.select = {}
+
   slice.select.articlesWithoutContent = state =>
     Object.values(state[newsSource]).filter(
       article => !article.content && !article.error
     )
+
   slice.select.articlesWithErrors = state =>
     Object.values(state[newsSource]).filter(article => article.error)
+
+  slice.select.articlesOkayForServer = state =>
+    Object.values(state[newsSource]).filter(
+      article =>
+        article.content && !article.sentToServer && !article.sendToServerError
+    )
 
   return slice
 }
