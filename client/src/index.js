@@ -90,18 +90,20 @@ const runSingle = async (browser, module) => {
     .catch(console.error)
 
   await runPostArticlesToServer(slice, store)
+
+  store.dispatch(slice.actions.removeArticlesSentToServer())
   saveStore()
 }
 
+const possibleArguments = [CNN, FOX, NBC, NPR, 'all']
+
 const runAll = browser =>
   sequentiallyForEach(possibleArguments.slice(0, -1), name =>
-    runSingle(browser, require(`./${name}`))
+    runSingle(browser, require(`./${name}`)).catch(console.error)
   )
 
 const run = async () => {
   const newsSource = process.argv[2]
-
-  const possibleArguments = [CNN, FOX, NBC, NPR, 'all']
 
   if (!possibleArguments.some(key => newsSource === key)) {
     console.error(`News source ${newsSource} not found in data`)
