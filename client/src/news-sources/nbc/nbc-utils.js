@@ -1,5 +1,5 @@
-const { isNbcHref } = require('../../../shared/predicates')
-const { or } = require('../utils')
+const { isNbcHref } = require('../../../../shared/predicates')
+const { or } = require('../../utils')
 
 const isNbcBetterHref = href =>
   /^https?:\/\/www\.nbcnews\.com\/better/.test(href)

@@ -2,7 +2,16 @@ const assert = require('assert')
 const puppeteer = require('puppeteer')
 
 const { store, saveStore } = require('./store')
-const { FOX, NPR, CNN, NBC, dataStoreFilename } = require('./constant')
+const {
+  dataStoreFilename,
+
+  CNN,
+  DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+} = require('./constant')
 const {
   sequentiallyForEach,
   sequentiallyDoWhile,
@@ -35,10 +44,15 @@ const postArticlesToServerBatched = (slice, { getState }, count = 100) =>
       .slice(0, count)
       .map(article =>
         postArticle(slice.name, article)
-          .then(() => ({
-            sendToServerError: false,
-            article,
-          }))
+          .then(
+            () => (
+              console.log('posted', article.title, 'to server'),
+              {
+                sendToServerError: false,
+                article,
+              }
+            )
+          )
           .catch(() => ({
             sendToServerError: true,
             article,
@@ -95,11 +109,19 @@ const runSingle = async (browser, module) => {
   saveStore()
 }
 
-const possibleArguments = [CNN, FOX, NBC, NPR, 'all']
+const possibleArguments = [
+  CNN,
+  DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  'all',
+]
 
 const runAll = browser =>
   sequentiallyForEach(possibleArguments.slice(0, -1), name =>
-    runSingle(browser, require(`./${name}`)).catch(console.error)
+    runSingle(browser, require(`./news-sources/${name}`)).catch(console.error)
   )
 
 const run = async () => {
@@ -119,7 +141,7 @@ const run = async () => {
       execution = runAll(browser)
       break
     default:
-      execution = runSingle(browser, require(`./${newsSource}`))
+      execution = runSingle(browser, require(`./news-sources/${newsSource}`))
       break
   }
   return execution

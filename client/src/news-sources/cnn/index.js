@@ -1,8 +1,8 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, cnn } = require('../store/index')
-const { CNN } = require('../constant')
+const { store, cnn } = require('../../store')
+const { CNN } = require('../../constant')
 const {
   complement,
   partition,
@@ -11,7 +11,7 @@ const {
   sequentiallyForEach,
   sequentiallyMap,
   or,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isCnnHeadlineArticleHref,

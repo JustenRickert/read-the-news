@@ -1,8 +1,8 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, nbc } = require('../store/index')
-const { NBC } = require('../constant')
+const { store, nbc } = require('../../store/index')
+const { NBC } = require('../../constant')
 const {
   complement,
   difference,
@@ -13,7 +13,7 @@ const {
   sequentiallyReduce,
   tap,
   unique,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isNbcTextArticleLink,
