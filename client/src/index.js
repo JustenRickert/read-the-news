@@ -88,25 +88,33 @@ const runPostArticlesToServer = (slice, store) =>
     }
   )
 
-const runSingle = async (browser, module) => {
+const runSingle = async (browser, module, commands = {}) => {
   const { discover, collect, slice } = module
   const page = await browser.newPage()
 
-  const headlines = await discover(page).then(headlines =>
-    withoutContentOnServerBatched(slice, headlines)
-  )
-  store.dispatch(slice.actions.addHeadline(headlines))
+  if (!commands.skipDiscover) {
+    const headlines = await discover(page).then(headlines =>
+      withoutContentOnServerBatched(slice, headlines)
+    )
+    store.dispatch(slice.actions.addHeadline(headlines))
+  }
 
-  const needsContent = slice.select.articlesWithoutContent(store.getState())
-  await collect(page, needsContent)
-    .then(slice.actions.updateArticle)
-    .then(store.dispatch)
-    .catch(console.error)
+  if (!commands.skipCollect) {
+    const needsContent = slice.select.articlesWithoutContent(store.getState())
+    await collect(page, needsContent)
+      .then(slice.actions.updateArticle)
+      .then(store.dispatch)
+      .catch(console.error)
+  }
 
-  await runPostArticlesToServer(slice, store)
+  if (!commands.skipServerPost) {
+    await runPostArticlesToServer(slice, store)
+  }
 
-  store.dispatch(slice.actions.removeArticlesSentToServer())
-  saveStore()
+  if (!commands.skipSave) {
+    store.dispatch(slice.actions.removeArticlesSentToServer())
+    saveStore()
+  }
 }
 
 const possibleArguments = [
@@ -124,16 +132,7 @@ const runAll = browser =>
     runSingle(browser, require(`./news-sources/${name}`)).catch(console.error)
   )
 
-const run = async () => {
-  const newsSource = process.argv[2]
-
-  if (!possibleArguments.some(key => newsSource === key)) {
-    console.error(`News source ${newsSource} not found in data`)
-    console.error('Possible values:\n ', possibleArguments.join('\n  '))
-    console.log()
-    process.exit(1)
-  }
-
+const run = async (newsSource, options = {}) => {
   const browser = await puppeteer.launch()
   let execution = null
   switch (newsSource) {
@@ -141,7 +140,11 @@ const run = async () => {
       execution = runAll(browser)
       break
     default:
-      execution = runSingle(browser, require(`./news-sources/${newsSource}`))
+      execution = runSingle(
+        browser,
+        require(`./news-sources/${newsSource}`),
+        options
+      )
       break
   }
   return execution
@@ -150,12 +153,43 @@ const run = async () => {
 const runTimed = timeFn(run)
 const saveStoreTimed = timeFn(saveStore)
 
-runTimed()
-  .then(({ duration }) => {
-    console.log('Finished running everything', duration)
-    saveStoreTimed().then(({ duration }) => {
-      console.log('saved state', duration)
-      process.exit(0)
-    })
-  })
-  .catch(e => (console.error(e), process.exit(1)))
+const command = process.argv[2]
+const newsSource = process.argv[3]
+
+const additionalOptions = process.argv.slice(4).reduce((commands, flag) => {
+  switch (flag) {
+    case '--skipServerPost':
+      commands.skipServerPost = true
+      break
+    case '--skipCollect':
+      commands.skipCollect = true
+      break
+    case '--skipSave':
+      commands.skipSave = true
+      break
+    case '--skipDiscover':
+      commands.skipDiscover = true
+      break
+  }
+  return commands
+}, {})
+
+switch (command) {
+  case 'article-collection':
+    if (!possibleArguments.some(key => newsSource === key)) {
+      console.error(`News source ${newsSource} not found in data`)
+      console.error('Possible values:\n ', possibleArguments.join('\n  '))
+      console.log()
+      process.exit(1)
+    }
+    runTimed(newsSource, additionalOptions)
+      .then(({ duration }) => {
+        console.log('Finished running everything', duration)
+        saveStoreTimed().then(({ duration }) => {
+          console.log('saved state', duration)
+          process.exit(0)
+        })
+      })
+      .catch(e => (console.error(e), process.exit(1)))
+    break
+}
