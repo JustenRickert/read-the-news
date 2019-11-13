@@ -12,8 +12,21 @@ const { CNN, FOX, NBC, NPR } = require('../../shared/constants')
     .catch(() => console.log(site, 'table already created'))
 })
 
+router.get('/news-source/:site/random', (req, res) => {
+  models.Article.findOne({
+    order: models.sequelize.random(),
+    where: { site: req.params.site },
+  })
+    .then(result => {
+      if (!result) return res.status(404).send()
+      return res
+        .status(200, { 'Content-Type': 'application/json' })
+        .send(JSON.stringify(result))
+    })
+    .catch(e => res.status(500, { 'Content-Type': 'text/plain' }).send(e.stack))
+})
+
 router.get('/news-source/:site', (req, res) => {
-  console.log(req.params)
   models.NewsSource.findOne({ where: { site: req.params.site } })
     .then(results => {
       console.log(JSON.stringify(results))
