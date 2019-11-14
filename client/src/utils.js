@@ -95,10 +95,17 @@ const sequentiallyDoWhile = async (condition, procedure) => {
   while (await condition()) await procedure()
 }
 
+const dropRightWhile = (xs, predicate) => {
+  if (predicate(xs[xs.length - 1]))
+    return dropRightWhile(xs.slice(0, -1), predicate)
+  return xs
+}
+
 module.exports = {
   and,
   complement,
   difference,
+  dropRightWhile,
   or,
   partition,
   partitionGroups,

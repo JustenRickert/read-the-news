@@ -56,7 +56,6 @@ router.get('/news-source/:site/:href', (req, res) => {
 router.post('/news-source', (req, res) => {
   const payload = req.body
   const site = parseSite(payload)
-  console.log('SITE', site)
   const article = { site, ...payload }
   models.Article.create(article)
     .then(result => {

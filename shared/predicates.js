@@ -6,9 +6,13 @@ const isNbcHref = ({ href }) => /^https?:\/\/www\.nbcnews\.com/.test(href);
 
 const isNprHref = ({ href }) => /^https?:\/\/www\.npr\.org/.test(href);
 
+const isTheInterceptHref = ({ href }) =>
+  /^https?:\/\/theintercept\.com/.test(href);
+
 module.exports = {
   isCnnHref,
   isFoxHref,
   isNbcHref,
-  isNprHref
+  isNprHref,
+  isTheInterceptHref
 };

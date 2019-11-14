@@ -88,6 +88,8 @@ const runPostArticlesToServer = (slice, store) =>
     }
   )
 
+const tap = x => (console.log(x), x)
+
 const runSingle = async (browser, module, commands = {}) => {
   const { discover, collect, slice } = module
   const page = await browser.newPage()
@@ -108,7 +110,7 @@ const runSingle = async (browser, module, commands = {}) => {
   }
 
   if (!commands.skipServerPost) {
-    await runPostArticlesToServer(slice, store)
+    await runPostArticlesToServer(slice, store).catch(console.error)
   }
 
   if (!commands.skipSave) {
@@ -133,7 +135,7 @@ const runAll = browser =>
   )
 
 const run = async (newsSource, options = {}) => {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({ devtools: true })
   let execution = null
   switch (newsSource) {
     case 'all':
@@ -192,4 +194,12 @@ switch (command) {
       })
       .catch(e => (console.error(e), process.exit(1)))
     break
+  default:
+    console.error(
+      "Couldn't understand arguments",
+      command,
+      newsSource,
+      additionalOptions
+    )
+    process.exit(1)
 }
