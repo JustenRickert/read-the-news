@@ -16,6 +16,7 @@ const removeArticlesSentToServer = state =>
 const addHeadline = (state, action) => {
   let { payload } = action
   if (!Array.isArray(payload)) payload = [payload]
+  // Maybe dont need to use `unique` here?
   const uniqueActions = unique(payload, ({ href }) => href)
   return Object.assign(
     {},
@@ -67,6 +68,12 @@ const updateArticle = (state, action) => {
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
     const slice = state[update.href]
+    try {
+      assert(slice, 'State not found. Payload not a valid href maybe?')
+    } catch (e) {
+      console.error({ payload, update })
+      throw e
+    }
     if (update.error) {
       if (update.error.message) console.error(update.error.message)
       slice.error = true

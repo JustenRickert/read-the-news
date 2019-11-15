@@ -2,7 +2,17 @@ const assert = require('assert')
 const puppeteer = require('puppeteer')
 
 const { store, saveStore } = require('./store')
-const { FOX, NPR, CNN, NBC, dataStoreFilename } = require('./constant')
+const {
+  dataStoreFilename,
+
+  CNN,
+  DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  VICE,
+} = require('./constant')
 const {
   sequentiallyForEach,
   sequentiallyDoWhile,
@@ -35,10 +45,15 @@ const postArticlesToServerBatched = (slice, { getState }, count = 100) =>
       .slice(0, count)
       .map(article =>
         postArticle(slice.name, article)
-          .then(() => ({
-            sendToServerError: false,
-            article,
-          }))
+          .then(
+            () => (
+              console.log('posted', article.title, 'to server'),
+              {
+                sendToServerError: false,
+                article,
+              }
+            )
+          )
           .catch(() => ({
             sendToServerError: true,
             article,
@@ -74,52 +89,76 @@ const runPostArticlesToServer = (slice, store) =>
     }
   )
 
-const runSingle = async (browser, module) => {
+const tap = x => (console.log(x), x)
+
+const runSingle = async (browser, module, commands = {}) => {
   const { discover, collect, slice } = module
   const page = await browser.newPage()
 
-  const headlines = await discover(page).then(headlines =>
-    withoutContentOnServerBatched(slice, headlines)
-  )
-  store.dispatch(slice.actions.addHeadline(headlines))
+  if (!commands.skipDiscover) {
+    const headlines = await discover(page).then(headlines =>
+      withoutContentOnServerBatched(slice, headlines)
+    )
+    store.dispatch(slice.actions.addHeadline(headlines))
+  }
 
-  const needsContent = slice.select.articlesWithoutContent(store.getState())
-  await collect(page, needsContent)
-    .then(slice.actions.updateArticle)
-    .then(store.dispatch)
-    .catch(console.error)
+  if (!commands.skipCollect) {
+    const needsContent = slice.select
+      .articlesWithoutContent(store.getState())
+      .slice(0, 5)
+    // TODO `needsContent` shouldn't be a parameter for this method. It should
+    // be possible to do `goto`ing here so that it can be omitted from each
+    // module's `collect` method. This would allow elevating the error-handling
+    // strategy out as well. It would also allow for more direct processing
+    // (`collect->post` instead of `collect[]->post[]`, and removes complicated
+    // `batch` methods). Refactoring here would also provide an opportunity to
+    // `unique` headlines more consistently (though maybe this should always
+    // just be done in the reducer anyway...).
+    await collect(page, needsContent)
+      .then(slice.actions.updateArticle)
+      .then(store.dispatch)
+      .catch(console.error)
+  }
 
-  await runPostArticlesToServer(slice, store)
+  if (!commands.skipServerPost) {
+    await runPostArticlesToServer(slice, store).catch(console.error)
+  }
 
-  store.dispatch(slice.actions.removeArticlesSentToServer())
-  saveStore()
+  if (!commands.skipSave) {
+    store.dispatch(slice.actions.removeArticlesSentToServer())
+    saveStore()
+  }
 }
 
-const possibleArguments = [CNN, FOX, NBC, NPR, 'all']
+const possibleArguments = [
+  CNN,
+  VICE,
+  // DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  'all',
+]
 
 const runAll = browser =>
   sequentiallyForEach(possibleArguments.slice(0, -1), name =>
-    runSingle(browser, require(`./${name}`)).catch(console.error)
+    runSingle(browser, require(`./news-sources/${name}`)).catch(console.error)
   )
 
-const run = async () => {
-  const newsSource = process.argv[2]
-
-  if (!possibleArguments.some(key => newsSource === key)) {
-    console.error(`News source ${newsSource} not found in data`)
-    console.error('Possible values:\n ', possibleArguments.join('\n  '))
-    console.log()
-    process.exit(1)
-  }
-
-  const browser = await puppeteer.launch()
+const run = async (newsSource, options = {}) => {
+  const browser = await puppeteer.launch({ devtools: true })
   let execution = null
   switch (newsSource) {
     case 'all':
       execution = runAll(browser)
       break
     default:
-      execution = runSingle(browser, require(`./${newsSource}`))
+      execution = runSingle(
+        browser,
+        require(`./news-sources/${newsSource}`),
+        options
+      )
       break
   }
   return execution
@@ -128,12 +167,51 @@ const run = async () => {
 const runTimed = timeFn(run)
 const saveStoreTimed = timeFn(saveStore)
 
-runTimed()
-  .then(({ duration }) => {
-    console.log('Finished running everything', duration)
-    saveStoreTimed().then(({ duration }) => {
-      console.log('saved state', duration)
-      process.exit(0)
-    })
-  })
-  .catch(e => (console.error(e), process.exit(1)))
+const command = process.argv[2]
+const newsSource = process.argv[3]
+
+const additionalOptions = process.argv.slice(4).reduce((commands, flag) => {
+  switch (flag) {
+    case '--skip-discover':
+      commands.skipDiscover = true
+      break
+    case '--skip-server-post':
+      commands.skipServerPost = true
+      break
+    case '--skip-collect':
+      commands.skipCollect = true
+      break
+    case '--skip-save':
+      commands.skipSave = true
+      break
+  }
+  return commands
+}, {})
+
+switch (command) {
+  case 'article-collection':
+    if (!possibleArguments.some(key => newsSource === key)) {
+      console.error(`News source ${newsSource} not found in data`)
+      console.error('Possible values:\n ', possibleArguments.join('\n  '))
+      console.log()
+      process.exit(1)
+    }
+    runTimed(newsSource, additionalOptions)
+      .then(({ duration }) => {
+        console.log('Finished running everything', duration)
+        saveStoreTimed().then(({ duration }) => {
+          console.log('saved state', duration)
+          process.exit(0)
+        })
+      })
+      .catch(e => (console.error(e), process.exit(1)))
+    break
+  default:
+    console.error(
+      "Couldn't understand arguments",
+      command,
+      newsSource,
+      additionalOptions
+    )
+    process.exit(1)
+}

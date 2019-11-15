@@ -1,9 +1,9 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, fox } = require('../store')
+const { store, saveStore, fox } = require('../../store')
 
-const { FOX } = require('../constant')
+const { FOX } = require('../../constant')
 const {
   and,
   zip,
@@ -13,7 +13,7 @@ const {
   sample,
   range,
   unique,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isFoxVideoArticle,

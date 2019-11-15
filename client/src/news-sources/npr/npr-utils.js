@@ -1,4 +1,4 @@
-const { isNprHref } = require('../../../shared/predicates')
+const { isNprHref } = require('../../../../shared/predicates')
 
 const isNprSectionsHref = ({ href }) =>
   /^https?:\/\/www\.npr\.org\/sections\/[\w\-]+\/$/.test(href)

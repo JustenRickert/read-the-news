@@ -1,8 +1,8 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, npr } = require('../store')
-const { NPR } = require('../constant')
+const { store, npr } = require('../../store')
+const { NPR } = require('../../constant')
 const {
   complement,
   or,
@@ -12,7 +12,7 @@ const {
   sequentiallyForEach,
   sequentiallyMap,
   unique,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isNprHealthIncHref,

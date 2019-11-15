@@ -4,9 +4,16 @@ const models = require('../models')
 const { parseSite, omit } = require('./utils')
 const router = express.Router()
 
-const { CNN, FOX, NBC, NPR } = require('../../shared/constants')
+const {
+  CNN,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  VICE,
+} = require('../../shared/constants')
 
-;[FOX, CNN, NPR, NBC].forEach(site => {
+;[CNN, FOX, NBC, NPR, VICE, THE_INTERCEPT].forEach(site => {
   models.NewsSource.create({ site })
     .then(() => console.log(site, 'table created'))
     .catch(() => console.log(site, 'table already created'))
@@ -49,7 +56,6 @@ router.get('/news-source/:site/:href', (req, res) => {
 router.post('/news-source', (req, res) => {
   const payload = req.body
   const site = parseSite(payload)
-  console.log('SITE', site)
   const article = { site, ...payload }
   models.Article.create(article)
     .then(result => {

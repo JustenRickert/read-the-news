@@ -85,20 +85,37 @@ const zip = xss => {
 
 const timeFn = fn => (...args) => {
   const start = performance.now()
-  return Promise.resolve(fn(...args)).then(result => ({
-    duration: ((performance.now() - start) / 1000).toFixed(3) + 's',
-    result,
-  }))
+  return Promise.resolve(fn(...args)).then(result => {
+    const ms = performance.now() - start
+    let duration
+    if (ms / 1000 > 60)
+      duration =
+        Math.floor(ms / 1000 / 60) + 'm' + Math.floor((ms / 1000) % 60) + 's'
+    else if (ms / 1000 > 0)
+      duration = Math.floor(ms / 1000) + 's' + Math.floor(ms % 1000) + 'ms'
+    else duration = ms.toString().slice(0, 3) + 'ms'
+    return {
+      duration,
+      result,
+    }
+  })
 }
 
 const sequentiallyDoWhile = async (condition, procedure) => {
   while (await condition()) await procedure()
 }
 
+const dropRightWhile = (xs, predicate) => {
+  if (predicate(xs[xs.length - 1]))
+    return dropRightWhile(xs.slice(0, -1), predicate)
+  return xs
+}
+
 module.exports = {
   and,
   complement,
   difference,
+  dropRightWhile,
   or,
   partition,
   partitionGroups,
