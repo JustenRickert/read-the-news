@@ -69,9 +69,9 @@ const parseDate = date => {
 
 const articleCollect = async (page, headline) => {
   await page.goto(headline.href)
-  const title = await page.$eval('.Post-title', title => title.innerText)
+  const title = await page.$eval('.Post-title', title => title.textContent)
   const authors = await page.$eval('.PostByline-link', byline => {
-    const name = byline.querySelector('[itemprop="name"]').innerText
+    const name = byline.querySelector('[itemprop="name"]').textContent
     const href = byline.href
     return [
       {
