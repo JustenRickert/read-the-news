@@ -6,14 +6,14 @@ const router = express.Router()
 
 const {
   CNN,
-  DEMOCRACY_NOW,
   FOX,
   NBC,
   NPR,
   THE_INTERCEPT,
+  VICE,
 } = require('../../shared/constants')
 
-;[CNN, DEMOCRACY_NOW, FOX, NBC, NPR, THE_INTERCEPT].forEach(site => {
+;[CNN, FOX, NBC, NPR, VICE, THE_INTERCEPT].forEach(site => {
   models.NewsSource.create({ site })
     .then(() => console.log(site, 'table created'))
     .catch(() => console.log(site, 'table already created'))

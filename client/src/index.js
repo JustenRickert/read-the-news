@@ -11,6 +11,7 @@ const {
   NBC,
   NPR,
   THE_INTERCEPT,
+  VICE,
 } = require('./constant')
 const {
   sequentiallyForEach,
@@ -102,7 +103,17 @@ const runSingle = async (browser, module, commands = {}) => {
   }
 
   if (!commands.skipCollect) {
-    const needsContent = slice.select.articlesWithoutContent(store.getState())
+    const needsContent = slice.select
+      .articlesWithoutContent(store.getState())
+      .slice(0, 5)
+    // TODO `needsContent` shouldn't be a parameter for this method. It should
+    // be possible to do `goto`ing here so that it can be omitted from each
+    // module's `collect` method. This would allow elevating the error-handling
+    // strategy out as well. It would also allow for more direct processing
+    // (`collect->post` instead of `collect[]->post[]`, and removes complicated
+    // `batch` methods). Refactoring here would also provide an opportunity to
+    // `unique` headlines more consistently (though maybe this should always
+    // just be done in the reducer anyway...).
     await collect(page, needsContent)
       .then(slice.actions.updateArticle)
       .then(store.dispatch)
@@ -121,7 +132,8 @@ const runSingle = async (browser, module, commands = {}) => {
 
 const possibleArguments = [
   CNN,
-  DEMOCRACY_NOW,
+  VICE,
+  // DEMOCRACY_NOW,
   FOX,
   NBC,
   NPR,
@@ -160,17 +172,17 @@ const newsSource = process.argv[3]
 
 const additionalOptions = process.argv.slice(4).reduce((commands, flag) => {
   switch (flag) {
-    case '--skipServerPost':
+    case '--skip-discover':
+      commands.skipDiscover = true
+      break
+    case '--skip-server-post':
       commands.skipServerPost = true
       break
-    case '--skipCollect':
+    case '--skip-collect':
       commands.skipCollect = true
       break
-    case '--skipSave':
+    case '--skip-save':
       commands.skipSave = true
-      break
-    case '--skipDiscover':
-      commands.skipDiscover = true
       break
   }
   return commands
