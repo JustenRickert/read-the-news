@@ -1,11 +1,21 @@
 const {
   isCnnHref,
   isFoxHref,
-  isNprHref,
   isNbcHref,
+  isNprHref,
   isTheInterceptHref,
+  isViceHref,
+  isVoxHref,
 } = require('../../shared/predicates')
-const { CNN, FOX, NBC, NPR, THE_INTERCEPT } = require('../../shared/constants')
+const {
+  CNN,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  VICE,
+  VOX,
+} = require('../../shared/constants')
 
 const constant = x => () => x
 
@@ -21,6 +31,8 @@ const parseSite = cond([
   [isNprHref, constant(NPR)],
   [isNbcHref, constant(NBC)],
   [isTheInterceptHref, constant(THE_INTERCEPT)],
+  [isViceHref, constant(VICE)],
+  [isVoxHref, constant(VOX)],
 ])
 
 const omit = (o, keys) =>

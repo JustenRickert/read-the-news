@@ -11,9 +11,10 @@ const {
   NPR,
   THE_INTERCEPT,
   VICE,
+  VOX,
 } = require('../../shared/constants')
 
-;[CNN, FOX, NBC, NPR, VICE, THE_INTERCEPT].forEach(site => {
+;[CNN, FOX, NBC, NPR, VICE, VOX, THE_INTERCEPT].forEach(site => {
   models.NewsSource.create({ site })
     .then(() => console.log(site, 'table created'))
     .catch(() => console.log(site, 'table already created'))

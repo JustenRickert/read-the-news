@@ -121,7 +121,7 @@ const parseRelativeDate = unknownTimeFormat => {
   return date.toString()
 }
 
-const articleContent = async page => {
+const articleContent = async (page, headline) => {
   const title = await page.$eval(
     'header .headline',
     headline => headline.innerText
@@ -139,7 +139,7 @@ const articleContent = async page => {
     time.innerHTML.trim()
   )
   return {
-    href: page.url(),
+    href: headline.href,
     authors,
     title,
     content: content.join('\n'),
@@ -157,7 +157,7 @@ const collect = (page, needsContent) =>
         return { error: true, msg: e.stack }
       })
     if (pageResult.error) return
-    return articleContent(page).catch(
+    return articleContent(page, article).catch(
       e => (
         console.error(article.href),
         console.error(e),

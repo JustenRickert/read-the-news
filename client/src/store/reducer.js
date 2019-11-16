@@ -68,18 +68,13 @@ const updateArticle = (state, action) => {
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
     const slice = state[update.href]
-    try {
-      assert(slice, 'State not found. Payload not a valid href maybe?')
-    } catch (e) {
-      console.error({ payload, update })
-      throw e
-    }
     if (update.error) {
       if (update.error.message) console.error(update.error.message)
       slice.error = true
       return
     }
     try {
+      assert(slice, 'State not found. Payload not a valid href maybe?')
       assertValidArticle(update, slice)
     } catch (e) {
       console.error(e)

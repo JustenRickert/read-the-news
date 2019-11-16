@@ -11,11 +11,14 @@ const isTheInterceptHref = ({ href }) =>
 
 const isViceHref = ({ href }) => /^https:\/\/www\.vice\.com/.test(href);
 
+const isVoxHref = ({ href }) => /^https:\/\/www\.vox\.com/.test(href);
+
 module.exports = {
   isCnnHref,
   isFoxHref,
   isNbcHref,
   isNprHref,
   isTheInterceptHref,
-  isViceHref
+  isViceHref,
+  isVoxHref
 };

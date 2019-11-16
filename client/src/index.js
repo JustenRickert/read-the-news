@@ -1,5 +1,6 @@
 const assert = require('assert')
 const puppeteer = require('puppeteer')
+const shuffle = require('lodash.shuffle')
 
 const { store, saveStore } = require('./store')
 const {
@@ -12,6 +13,7 @@ const {
   NPR,
   THE_INTERCEPT,
   VICE,
+  VOX,
 } = require('./constant')
 const {
   sequentiallyForEach,
@@ -96,16 +98,15 @@ const runSingle = async (browser, module, commands = {}) => {
   const page = await browser.newPage()
 
   if (!commands.skipDiscover) {
-    const headlines = await discover(page).then(headlines =>
-      withoutContentOnServerBatched(slice, headlines)
-    )
-    store.dispatch(slice.actions.addHeadline(headlines))
+    const headlines = await discover(page)
+      .then(headlines => withoutContentOnServerBatched(slice, headlines))
+      .then(slice.actions.addHeadline)
+      .then(store.dispatch)
+      .catch(console.error)
   }
 
   if (!commands.skipCollect) {
-    const needsContent = slice.select
-      .articlesWithoutContent(store.getState())
-      .slice(0, 5)
+    const needsContent = slice.select.articlesWithoutContent(store.getState())
     // TODO `needsContent` shouldn't be a parameter for this method. It should
     // be possible to do `goto`ing here so that it can be omitted from each
     // module's `collect` method. This would allow elevating the error-handling
@@ -114,7 +115,7 @@ const runSingle = async (browser, module, commands = {}) => {
     // `batch` methods). Refactoring here would also provide an opportunity to
     // `unique` headlines more consistently (though maybe this should always
     // just be done in the reducer anyway...).
-    await collect(page, needsContent)
+    await collect(page, shuffle(needsContent))
       .then(slice.actions.updateArticle)
       .then(store.dispatch)
       .catch(console.error)
@@ -138,16 +139,17 @@ const possibleArguments = [
   NBC,
   NPR,
   THE_INTERCEPT,
+  VOX,
   'all',
 ]
 
 const runAll = browser =>
-  sequentiallyForEach(possibleArguments.slice(0, -1), name =>
+  sequentiallyForEach(shuffle(possibleArguments.slice(0, -1)), name =>
     runSingle(browser, require(`./news-sources/${name}`)).catch(console.error)
   )
 
 const run = async (newsSource, options = {}) => {
-  const browser = await puppeteer.launch({ devtools: true })
+  const browser = await puppeteer.launch()
   let execution = null
   switch (newsSource) {
     case 'all':

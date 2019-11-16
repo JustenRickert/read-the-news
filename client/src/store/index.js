@@ -13,6 +13,7 @@ const {
   NPR,
   THE_INTERCEPT,
   VICE,
+  VOX,
 } = require('../constant')
 
 const { createNewsSourceSlice } = require('./reducer')
@@ -63,6 +64,7 @@ const nbc = createNewsSourceSlice(NBC)
 const npr = createNewsSourceSlice(NPR)
 const theIntercept = createNewsSourceSlice(THE_INTERCEPT)
 const vice = createNewsSourceSlice(VICE)
+const vox = createNewsSourceSlice(VOX)
 
 const reducer = combineReducers({
   [CNN]: cnn.reducer,
@@ -72,6 +74,7 @@ const reducer = combineReducers({
   [NPR]: npr.reducer,
   [THE_INTERCEPT]: theIntercept.reducer,
   [VICE]: vice.reducer,
+  [VOX]: vox.reducer,
 })
 
 const store = createStore(
@@ -99,4 +102,5 @@ module.exports = {
   npr,
   theIntercept,
   vice,
+  vox,
 }
