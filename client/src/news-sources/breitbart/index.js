@@ -26,7 +26,7 @@ const BREITBART_SECTIONS = [
 const isHeadline = ({ href }) => /\d+\/\d+\/\d+\/[\w\-]+\/?$/.test(href)
 
 const discoverSection = (page, url) =>
-  sequentiallyMap(range(15), async i => {
+  sequentiallyMap(range(3), async i => {
     await page.goto(`${url}/page/${i + 1}`)
     return await page
       .$$eval('a[href]', ls => ls.map(l => ({ href: l.href })))
@@ -110,6 +110,7 @@ const collectPage = async (page, headline) => {
         p => /^click to play$/.test(p)
       )
     )
+    .then(ps => ps.join('\n'))
   return {
     href: headline.href,
     title,
