@@ -58,6 +58,8 @@ const partitionGroups = (xs, predicateMap) => {
 const difference = (xs, ys, idFn = id => id) =>
   xs.filter(x => !ys.some(y => idFn(x) === idFn(y)))
 
+const not = predicate => (...args) => !predicate(...args)
+
 const and = (...predicates) => (...args) =>
   predicates.every(predicate => predicate(...args))
 
@@ -126,6 +128,7 @@ module.exports = {
   complement,
   difference,
   dropRightWhile,
+  not,
   or,
   partition,
   partitionGroups,
@@ -133,10 +136,10 @@ module.exports = {
   range,
   sample,
   sequentiallyDoTimes,
+  sequentiallyDoWhile,
   sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,
-  sequentiallyDoWhile,
   tap,
   timeFn,
   unique,

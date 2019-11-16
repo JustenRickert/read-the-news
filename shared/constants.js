@@ -4,6 +4,7 @@ const FOX = "fox";
 const NBC = "nbc";
 const NPR = "npr";
 const THE_INTERCEPT = "the-intercept";
+const THE_NATION = "the-nation";
 const DEMOCRACY_NOW = "democracy-now";
 const VICE = "vice";
 const VOX = "vox";
@@ -15,6 +16,7 @@ module.exports = {
   FOX,
   NBC,
   NPR,
+  THE_NATION,
   THE_INTERCEPT,
   VICE,
   VOX

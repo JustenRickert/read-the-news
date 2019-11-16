@@ -119,7 +119,7 @@ const runSingle = async (browser, module, commands = {}) => {
         store.dispatch(slice.actions.addHeadline(contentForServer))
       })
       .catch(console.error)
-    process.exit(1)
+    saveStore()
   }
 
   if (!commands.skipCollect) {

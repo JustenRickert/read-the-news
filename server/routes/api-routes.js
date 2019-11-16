@@ -12,6 +12,7 @@ const {
   NBC,
   NPR,
   THE_INTERCEPT,
+  THE_NATION,
   VICE,
   VOX,
 } = require('../../shared/constants')
@@ -23,9 +24,10 @@ const {
   FOX,
   NBC,
   NPR,
+  THE_INTERCEPT,
+  THE_NATION,
   VICE,
   VOX,
-  THE_INTERCEPT,
 ].forEach(site => {
   models.NewsSource.create({ site })
     .then(() => console.log(site, 'table created'))

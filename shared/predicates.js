@@ -1,3 +1,5 @@
+const isBreitbartHref = ({ href }) => /^https?:\/\/www\.breitbart\.com/;
+
 const isCnnHref = ({ href }) => /^https?:\/\/www\.cnn\.com/.test(href);
 
 const isFoxHref = ({ href }) => /^https:\/\/www.foxnews\.com/.test(href);
@@ -9,11 +11,11 @@ const isNprHref = ({ href }) => /^https?:\/\/www\.npr\.org/.test(href);
 const isTheInterceptHref = ({ href }) =>
   /^https?:\/\/theintercept\.com/.test(href);
 
+const isTheNationHref = ({ href }) => /^https?:\/\/www\.breitbart\.com/;
+
 const isViceHref = ({ href }) => /^https:\/\/www\.vice\.com/.test(href);
 
 const isVoxHref = ({ href }) => /^https:\/\/www\.vox\.com/.test(href);
-
-const isBreitbartHref = ({ href }) => /^https?:\/\/www\.breitbart\.com/;
 
 module.exports = {
   isBreitbartHref,
@@ -22,6 +24,7 @@ module.exports = {
   isNbcHref,
   isNprHref,
   isTheInterceptHref,
+  isTheNationHref,
   isViceHref,
   isVoxHref
 };
