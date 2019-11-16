@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
       site: DataTypes.STRING,
       title: DataTypes.TEXT(),
       content: DataTypes.TEXT(),
-      authors: DataTypes.JSON(),
+      authors: DataTypes.JSONB(),
       publicationDate: DataTypes.DATE(),
     },
     {
