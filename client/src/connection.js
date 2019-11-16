@@ -1,11 +1,8 @@
 const http = require('http')
 const fs = require('fs')
-const { dataStoreFilename } = require('./constant')
 const { sample } = require('./utils')
 
 const PORT = 3001
-
-const state = JSON.parse(fs.readFileSync(dataStoreFilename, 'utf-8'))
 
 const requestOptions = {
   hostname: 'localhost',
