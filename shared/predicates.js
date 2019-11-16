@@ -13,7 +13,10 @@ const isViceHref = ({ href }) => /^https:\/\/www\.vice\.com/.test(href);
 
 const isVoxHref = ({ href }) => /^https:\/\/www\.vox\.com/.test(href);
 
+const isBreitbartHref = ({ href }) => /^https?:\/\/www\.breitbart\.com/;
+
 module.exports = {
+  isBreitbartHref,
   isCnnHref,
   isFoxHref,
   isNbcHref,

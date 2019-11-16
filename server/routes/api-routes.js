@@ -5,7 +5,9 @@ const { parseSite, omit } = require('./utils')
 const router = express.Router()
 
 const {
+  BREITBART,
   CNN,
+  // DEMOCRACY_NOW,
   FOX,
   NBC,
   NPR,
@@ -14,7 +16,17 @@ const {
   VOX,
 } = require('../../shared/constants')
 
-;[CNN, FOX, NBC, NPR, VICE, VOX, THE_INTERCEPT].forEach(site => {
+;[
+  BREITBART,
+  CNN,
+  // DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  VICE,
+  VOX,
+  THE_INTERCEPT,
+].forEach(site => {
   models.NewsSource.create({ site })
     .then(() => console.log(site, 'table created'))
     .catch(() => console.log(site, 'table already created'))

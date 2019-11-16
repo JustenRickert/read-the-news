@@ -6,13 +6,6 @@ const { assertValidArticle } = require('../../../shared/data-assertions')
 
 const initialState = {}
 
-const removeArticlesSentToServer = state =>
-  Object.entries(state).reduce(
-    (state, [key, value]) =>
-      value.sentToServer ? state : Object.assign(state, { [key]: value }),
-    {}
-  )
-
 const addHeadline = (state, action) => {
   let { payload } = action
   if (!Array.isArray(payload)) payload = [payload]
@@ -60,6 +53,8 @@ const markArticleSentToServer = (state, action) => {
     }
     const slice = state[update.href]
     slice.sentToServer = true
+    // because it takes up a lot of space
+    delete slice.content
   })
 }
 
@@ -98,7 +93,6 @@ const createNewsSourceSlice = newsSource => {
       updateArticle,
       markArticleSentToServer,
       markArticleErrorWhenSentToServer,
-      removeArticlesSentToServer,
     },
   })
 

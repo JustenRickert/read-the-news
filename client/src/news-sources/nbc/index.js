@@ -60,7 +60,6 @@ const discover = async page => {
     ({ href }) => href
   )
 
-  console.log(foundHeadlines.map(({ href }) => href))
   console.log(
     'Found',
     headlines.length,

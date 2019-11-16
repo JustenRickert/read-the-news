@@ -6,6 +6,7 @@ const { createStore, applyMiddleware, combineReducers } = require('redux')
 const {
   dataStoreFilename,
 
+  BREITBART,
   CNN,
   DEMOCRACY_NOW,
   FOX,
@@ -57,6 +58,7 @@ const initialState = () => {
   return JSON.parse(result)
 }
 
+const breitbart = createNewsSourceSlice(BREITBART)
 const cnn = createNewsSourceSlice(CNN)
 const democracyNow = createNewsSourceSlice(DEMOCRACY_NOW)
 const fox = createNewsSourceSlice(FOX)
@@ -67,6 +69,7 @@ const vice = createNewsSourceSlice(VICE)
 const vox = createNewsSourceSlice(VOX)
 
 const reducer = combineReducers({
+  [BREITBART]: breitbart.reducer,
   [CNN]: cnn.reducer,
   [DEMOCRACY_NOW]: democracyNow.reducer,
   [FOX]: fox.reducer,
@@ -95,6 +98,8 @@ const saveStore = () => {
 module.exports = {
   store,
   saveStore,
+
+  breitbart,
   cnn,
   democracyNow,
   fox,

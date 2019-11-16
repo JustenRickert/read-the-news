@@ -88,11 +88,21 @@ const timeFn = fn => (...args) => {
   return Promise.resolve(fn(...args)).then(result => {
     const ms = performance.now() - start
     let duration
-    if (ms / 1000 > 60)
+    if (ms / 1000 / 60 / 60 > 1)
+      Math.floor(ms / 1000 / 60 / 60) +
+        'h' +
+        (Math.floor((ms / 1000) % 60) + 'm')
+    else if (ms / 1000 > 60)
       duration =
-        Math.floor(ms / 1000 / 60) + 'm' + Math.floor((ms / 1000) % 60) + 's'
+        Math.floor(ms / 1000 / 60) + 'm' + (Math.floor((ms / 1000) % 60) + 's')
     else if (ms / 1000 > 0)
-      duration = Math.floor(ms / 1000) + 's' + Math.floor(ms % 1000) + 'ms'
+      duration =
+        Math.floor(ms / 1000) +
+        's' +
+        Math.floor(ms % 1000)
+          .toString()
+          .padEnd(3, '0') +
+        'ms'
     else duration = ms.toString().slice(0, 3) + 'ms'
     return {
       duration,

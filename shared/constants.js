@@ -1,3 +1,4 @@
+const BREITBART = "breitbart";
 const CNN = "cnn";
 const FOX = "fox";
 const NBC = "nbc";
@@ -8,6 +9,7 @@ const VICE = "vice";
 const VOX = "vox";
 
 module.exports = {
+  BREITBART,
   CNN,
   DEMOCRACY_NOW,
   FOX,

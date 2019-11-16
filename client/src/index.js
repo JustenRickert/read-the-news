@@ -6,6 +6,7 @@ const { store, saveStore } = require('./store')
 const {
   dataStoreFilename,
 
+  BREITBART,
   CNN,
   DEMOCRACY_NOW,
   FOX,
@@ -15,29 +16,40 @@ const {
   VICE,
   VOX,
 } = require('./constant')
+
 const {
-  sequentiallyForEach,
-  sequentiallyDoWhile,
-  timeFn,
   partition,
+  sequentiallyDoWhile,
+  sequentiallyForEach,
+  timeFn,
+  unique,
 } = require('./utils')
+
 const { fetchArticle, postArticle } = require('./connection')
 
-const withoutContentOnServerBatched = async (slice, headlines, count = 100) => {
-  const needsContentFromServer = []
+const withOrWithoutContentOnServerBatched = async (
+  slice,
+  headlines,
+  count = 100
+) => {
+  const alreadyOnServer = []
+  const contentForServer = []
   let batches = 0
   while (batches * count < headlines.length) {
-    const needsContentFromServerBatch = await Promise.all(
+    const [onServerBatch, notOnServerBatch] = await Promise.all(
       headlines.slice(batches * count, (batches + 1) * count).map(headline =>
         fetchArticle(slice.name, headline)
-          .then(() => undefined)
-          .catch(() => headline)
+          .then(() => ({ isOnServer: true, headline }))
+          .catch(() => ({ isOnServer: false, headline }))
       )
-    ).then(maybeHeadlines => maybeHeadlines.filter(Boolean))
-    needsContentFromServer.push(...needsContentFromServerBatch)
+    )
+      .then(maybeHeadlines => maybeHeadlines.filter(Boolean))
+      .then(headlines => partition(headlines, headline => headline.isOnServer))
+    contentForServer.push(...notOnServerBatch.map(({ headline }) => headline))
+    alreadyOnServer.push(...onServerBatch.map(({ headline }) => headline))
     batches++
   }
-  return needsContentFromServer
+  return { contentForServer, alreadyOnServer }
 }
 
 const postArticlesToServerBatched = (slice, { getState }, count = 100) =>
@@ -98,11 +110,16 @@ const runSingle = async (browser, module, commands = {}) => {
   const page = await browser.newPage()
 
   if (!commands.skipDiscover) {
-    const headlines = await discover(page)
-      .then(headlines => withoutContentOnServerBatched(slice, headlines))
-      .then(slice.actions.addHeadline)
-      .then(store.dispatch)
+    const headlines = await discover(page).then(headlines =>
+      unique(headlines, ({ href }) => href)
+    )
+    await withOrWithoutContentOnServerBatched(slice, headlines)
+      .then(({ alreadyOnServer, contentForServer }) => {
+        store.dispatch(slice.actions.markArticleSentToServer(alreadyOnServer))
+        store.dispatch(slice.actions.addHeadline(contentForServer))
+      })
       .catch(console.error)
+    process.exit(1)
   }
 
   if (!commands.skipCollect) {
@@ -126,12 +143,12 @@ const runSingle = async (browser, module, commands = {}) => {
   }
 
   if (!commands.skipSave) {
-    store.dispatch(slice.actions.removeArticlesSentToServer())
     saveStore()
   }
 }
 
 const possibleArguments = [
+  BREITBART,
   CNN,
   VICE,
   // DEMOCRACY_NOW,
@@ -149,7 +166,7 @@ const runAll = browser =>
   )
 
 const run = async (newsSource, options = {}) => {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({ devtools: true })
   let execution = null
   switch (newsSource) {
     case 'all':

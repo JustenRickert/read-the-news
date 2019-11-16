@@ -1,4 +1,5 @@
 const {
+  isBreitbartHref,
   isCnnHref,
   isFoxHref,
   isNbcHref,
@@ -7,7 +8,9 @@ const {
   isViceHref,
   isVoxHref,
 } = require('../../shared/predicates')
+
 const {
+  BREITBART,
   CNN,
   FOX,
   NBC,
@@ -26,6 +29,7 @@ const cond = matches => x => {
 }
 
 const parseSite = cond([
+  [isBreitbartHref, constant(BREITBART)],
   [isCnnHref, constant(CNN)],
   [isFoxHref, constant(FOX)],
   [isNprHref, constant(NPR)],
