@@ -105,25 +105,28 @@ const runPostArticlesToServer = (slice, store) =>
 
 const tap = x => (console.log(x), x)
 
-const runSingle = async (browser, module, commands = {}) => {
+const runSingle = async (browser, module, options = {}) => {
   const { discover, collect, slice } = module
+  console.log('Running', slice.name)
   const page = await browser.newPage()
 
-  if (!commands.skipDiscover) {
+  if (!options.skipDiscover) {
     const headlines = await discover(page).then(headlines =>
       unique(headlines, ({ href }) => href)
     )
+    store.dispatch(slice.actions.addHeadline(headlines))
     await withOrWithoutContentOnServerBatched(slice, headlines)
-      .then(({ alreadyOnServer, contentForServer }) => {
+      .then(({ alreadyOnServer, contentForServer: _contentForServer }) => {
+        // TODO shouldn't need to mark them actually...
+        console.log('Marking', alreadyOnServer.length, 'as `sentToServer`')
         store.dispatch(slice.actions.markArticleSentToServer(alreadyOnServer))
-        store.dispatch(slice.actions.addHeadline(contentForServer))
       })
       .catch(console.error)
-    saveStore()
   }
 
-  if (!commands.skipCollect) {
+  if (!options.skipCollect) {
     const needsContent = slice.select.articlesWithoutContent(store.getState())
+    console.log('Searching thru', needsContent.length, 'articles')
     // TODO `needsContent` shouldn't be a parameter for this method. It should
     // be possible to do `goto`ing here so that it can be omitted from each
     // module's `collect` method. This would allow elevating the error-handling
@@ -138,13 +141,15 @@ const runSingle = async (browser, module, commands = {}) => {
       .catch(console.error)
   }
 
-  if (!commands.skipServerPost) {
+  if (!options.skipServerPost) {
     await runPostArticlesToServer(slice, store).catch(console.error)
   }
 
-  if (!commands.skipSave) {
+  if (!options.skipSave) {
     saveStore()
   }
+
+  await page.close()
 }
 
 const possibleArguments = [
@@ -160,17 +165,19 @@ const possibleArguments = [
   'all',
 ]
 
-const runAll = browser =>
+const runAll = (browser, options = {}) =>
   sequentiallyForEach(shuffle(possibleArguments.slice(0, -1)), name =>
-    runSingle(browser, require(`./news-sources/${name}`)).catch(console.error)
+    runSingle(browser, require(`./news-sources/${name}`), options).catch(
+      console.error
+    )
   )
 
 const run = async (newsSource, options = {}) => {
-  const browser = await puppeteer.launch({ devtools: true })
+  const browser = await puppeteer.launch()
   let execution = null
   switch (newsSource) {
     case 'all':
-      execution = runAll(browser)
+      execution = runAll(browser, options)
       break
     default:
       execution = runSingle(

@@ -78,7 +78,7 @@ router.post('/news-source', (req, res) => {
       res.status(200).send('okay')
     })
     .catch(e => {
-      console.error(e)
+      console.error(e.stack)
       console.log('Failed Payload', article)
       res.status(400).send('Bad request')
     })

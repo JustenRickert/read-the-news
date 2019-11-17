@@ -45,13 +45,14 @@ const markArticleSentToServer = (state, action) => {
   let { payload } = action
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
+    const slice = state[update.href]
     try {
+      assert(slice, '`slice[href]` not found in data')
       assert(update.href, 'Need `href` to mark sent')
     } catch (e) {
       console.log('UPDATE', update)
-      throw e
+      return
     }
-    const slice = state[update.href]
     slice.sentToServer = true
     // because it takes up a lot of space
     delete slice.content
@@ -84,6 +85,13 @@ const updateArticle = (state, action) => {
   })
 }
 
+const clearErrors = state =>
+  Object.values(state).forEach(slice => {
+    delete slice.error
+    delete slice.sentToServer
+    delete slice.sendToServerError
+  })
+
 const createNewsSourceSlice = newsSource => {
   const slice = createSlice({
     name: newsSource,
@@ -93,6 +101,7 @@ const createNewsSourceSlice = newsSource => {
       updateArticle,
       markArticleSentToServer,
       markArticleErrorWhenSentToServer,
+      clearErrors,
     },
   })
 
@@ -100,7 +109,7 @@ const createNewsSourceSlice = newsSource => {
 
   slice.select.articlesWithoutContent = state =>
     Object.values(state[newsSource]).filter(
-      article => !article.content && !article.error
+      article => !article.content && !article.error && !article.sentToServer
     )
 
   slice.select.articlesWithErrors = state =>
