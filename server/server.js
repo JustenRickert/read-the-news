@@ -19,7 +19,7 @@ app.use(routes)
 const PORT = 3001
 
 db.sequelize.sync().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '192.168.1.7', () => {
     console.log('App now listening on port:', PORT)
   })
 })
