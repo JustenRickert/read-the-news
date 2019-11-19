@@ -34,8 +34,8 @@ const parseDate = datestamp => {
   return date
 }
 
-const collectArticle = async (page, headline) => {
-  await page.goto(headline.href)
+const collectArticle = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval('.heading', heading => heading.textContent)
   const authors = await page.$eval('.contributor__link', link => [
     {
@@ -51,7 +51,7 @@ const collectArticle = async (page, headline) => {
     date => date.textContent
   )
   return {
-    href: headline.href,
+    href,
     title,
     authors,
     content: content.join('\n'),
@@ -61,7 +61,7 @@ const collectArticle = async (page, headline) => {
 
 const collect = (page, needsContent) =>
   sequentiallyMap(needsContent, async headline =>
-    collectArticle(page, headline).catch(
+    collectArticle(page, headline.href).catch(
       e => (
         console.error(headline.href),
         console.error(e),
