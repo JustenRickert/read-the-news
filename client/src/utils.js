@@ -1,3 +1,5 @@
+const { performance } = require('perf_hooks')
+
 const tap = x => (console.log(x), x)
 
 const range = n =>
@@ -15,6 +17,9 @@ const sequentiallyMap = async (xs, fn) =>
     (p, x) => p.then(async ys => ys.concat(await fn(x))),
     Promise.resolve([])
   )
+
+const sequentiallyForEach = (xs, fn) =>
+  sequentiallyReduce(xs, (_, x) => fn(x), null).then(() => undefined)
 
 const sequentiallyReduce = async (xs, accumulatorFn, initialValue) =>
   (await xs)
@@ -53,6 +58,8 @@ const partitionGroups = (xs, predicateMap) => {
 const difference = (xs, ys, idFn = id => id) =>
   xs.filter(x => !ys.some(y => idFn(x) === idFn(y)))
 
+const not = predicate => (...args) => !predicate(...args)
+
 const and = (...predicates) => (...args) =>
   predicates.every(predicate => predicate(...args))
 
@@ -78,20 +85,63 @@ const zip = xss => {
   return range(minLength).map(i => xss.map(xs => xs[i]))
 }
 
+const timeFn = fn => (...args) => {
+  const start = performance.now()
+  return Promise.resolve(fn(...args)).then(result => {
+    const ms = performance.now() - start
+    let duration
+    if (ms / 1000 / 60 / 60 > 1)
+      Math.floor(ms / 1000 / 60 / 60) +
+        'h' +
+        (Math.floor((ms / 1000) % 60) + 'm')
+    else if (ms / 1000 > 60)
+      duration =
+        Math.floor(ms / 1000 / 60) + 'm' + (Math.floor((ms / 1000) % 60) + 's')
+    else if (ms / 1000 > 0)
+      duration =
+        Math.floor(ms / 1000) +
+        's' +
+        Math.floor(ms % 1000)
+          .toString()
+          .padEnd(3, '0') +
+        'ms'
+    else duration = ms.toString().slice(0, 3) + 'ms'
+    return {
+      duration,
+      result,
+    }
+  })
+}
+
+const sequentiallyDoWhile = async (condition, procedure) => {
+  while (await condition()) await procedure()
+}
+
+const dropRightWhile = (xs, predicate) => {
+  if (predicate(xs[xs.length - 1]))
+    return dropRightWhile(xs.slice(0, -1), predicate)
+  return xs
+}
+
 module.exports = {
   and,
   complement,
   difference,
+  dropRightWhile,
+  not,
   or,
   partition,
   partitionGroups,
   pick,
   range,
   sample,
+  sequentiallyDoTimes,
+  sequentiallyDoWhile,
+  sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,
-  sequentiallyDoTimes,
   tap,
+  timeFn,
   unique,
   zip,
 }

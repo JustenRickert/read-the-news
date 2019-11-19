@@ -1,6 +1,6 @@
 const {
   __impl: { parsePublicationDate, isHeadline },
-} = require('./npr')
+} = require('./')
 
 describe('utils', () => {
   it('has working timestamp parsing', () => {

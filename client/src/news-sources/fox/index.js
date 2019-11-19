@@ -1,9 +1,9 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
+const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, fox } = require('../store')
+const { store, saveStore, fox } = require('../../store')
 
-const { FOX } = require('../constant')
+const { FOX } = require('../../constant')
 const {
   and,
   zip,
@@ -13,7 +13,7 @@ const {
   sample,
   range,
   unique,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isFoxVideoArticle,
@@ -35,7 +35,7 @@ const isHeadline = ({ href }) =>
     href
   )
 
-const discoverThruFooter = async page => {
+const discover = async page => {
   const sections = await page
     .$$eval('.footer-upper.section-nav a[href]', links =>
       links.map(l => ({ href: l.href }))
@@ -121,7 +121,7 @@ const parseRelativeDate = unknownTimeFormat => {
   return date.toString()
 }
 
-const articleContent = async page => {
+const articleContent = async (page, headline) => {
   const title = await page.$eval(
     'header .headline',
     headline => headline.innerText
@@ -139,7 +139,7 @@ const articleContent = async page => {
     time.innerHTML.trim()
   )
   return {
-    href: page.url(),
+    href: headline.href,
     authors,
     title,
     content: content.join('\n'),
@@ -147,39 +147,45 @@ const articleContent = async page => {
   }
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[FOX]).filter(
-    article => !article.content && !article.error
-  )
+const collect = (page, needsContent) =>
+  sequentiallyMap(shuffle(needsContent), async article => {
+    const pageResult = await page
+      .goto(article.href)
+      .then(() => ({ error: false }))
+      .catch(e => {
+        console.log(article.href, 'failed to load')
+        return { error: true, msg: e.stack }
+      })
+    if (pageResult.error) return
+    return articleContent(page, article).catch(
+      e => (
+        console.error(article.href),
+        console.error(e),
+        { href: article.href, error: true }
+      )
+    )
+  }).then(articles => articles.filter(Boolean))
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
 
-    await page.goto(FOX_URL)
-    const headlines = await discoverThruFooter(page)
-    store.dispatch(fox.addHeadline(headlines))
-    saveStore(store)
+  await page.goto(FOX_URL)
+  const headlines = await discover(page)
+  store.dispatch(fox.addHeadline(headlines))
+  saveStore(store)
 
-    const needsContent = articlesWithoutContent(store.getState())
-    console.log('Searching thru', needsContent.length, 'articles')
-    const updates = await sequentiallyMap(needsContent, async article => {
-      await page.goto(article.href)
-      return articleContent(page)
-        .catch(
-          e => (
-            console.error(article.href),
-            console.error(e),
-            { href: article.href, error: true }
-          )
-        )
-        .then(fox.updateArticle)
-        .then(store.dispatch)
-    }).catch(console.error)
-    saveStore(store)
-    process.exit(0)
-  })
+  const needsContent = fox.selectArticlesWithoutContent(store.getState())
+  console.log('Searching thru', needsContent.length, 'articles')
+  await collect(page, needsContent)
+    .then(fox.updateArticle)
+    .then(store.dispatch)
+    .catch(console.error)
+
+  await page.close()
+}
 
 module.exports = {
-  run,
+  discover,
+  collect,
+  slice: fox,
 }

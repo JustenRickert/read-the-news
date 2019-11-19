@@ -1,17 +1,18 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
+const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, npr } = require('../store')
-const { NPR } = require('../constant')
+const { store, npr } = require('../../store')
+const { NPR } = require('../../constant')
 const {
   complement,
   or,
   partition,
-  sequentiallyMap,
-  unique,
   sample,
   sequentiallyDoTimes,
-} = require('../utils')
+  sequentiallyForEach,
+  sequentiallyMap,
+  unique,
+} = require('../../utils')
 
 const {
   isNprHealthIncHref,
@@ -52,7 +53,6 @@ const articleContents = async page => {
     return authors
   })
   const ps = await page.$$eval('#storytext > p', ps => {
-    // TODO(maybe) use this updateTimestamp somehow
     const updatePublicationDate = ps[0].querySelector('strong')
     const paragraphs = ps.map(p => p.innerText)
     return {
@@ -123,44 +123,37 @@ const discover = async page => {
   return uniqueLinks
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[NPR]).filter(
-    article => !article.content && !article.error
+const collect = (page, needsContent) =>
+  sequentiallyMap(shuffle(needsContent), article =>
+    page
+      .goto(article.href)
+      .then(() =>
+        articleContents(page).catch(
+          e => (
+            console.error(article.href),
+            console.error(e),
+            { href: article.href, error: true }
+          )
+        )
+      )
   )
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
 
-    const headlines = await discover(page)
-    store.dispatch(npr.addHeadline(headlines))
-    saveStore()
+  const headlines = await discover(page)
+  store.dispatch(npr.addHeadline(headlines))
 
-    const articlesToSearch = articlesWithoutContent(store.getState())
-    console.log('New searches needed:', articlesToSearch.length)
-    const updates = await sequentiallyMap(articlesToSearch, article =>
-      page.goto(article.href).then(() =>
-        articleContents(page)
-          .catch(
-            e => (
-              console.error(article.href),
-              console.error(e),
-              { href: article.href, error: true }
-            )
-          )
-          .then(npr.updateArticle)
-          .then(store.dispatch)
-      )
-    ).catch(console.error)
-
-    saveStore(store)
-    process.exit(0)
-  })
+  await page.close()
+}
 
 module.exports = {
   __impl: {
     parsePublicationDate,
     isHeadline,
   },
+  slice: npr,
+  discover,
+  collect,
   run,
 }

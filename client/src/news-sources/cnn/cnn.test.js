@@ -1,6 +1,6 @@
 const {
   __impl: { parseAuthorInformation, parsePublicationDateInformation },
-} = require('./cnn')
+} = require('./')
 
 describe('parsing utils', () => {
   it('parses publication dates', () => {

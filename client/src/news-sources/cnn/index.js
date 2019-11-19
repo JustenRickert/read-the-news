@@ -1,17 +1,17 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
 const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, cnn } = require('../store/index')
-const { CNN } = require('../constant')
+const { store, cnn } = require('../../store')
+const { CNN } = require('../../constant')
 const {
   complement,
   partition,
   partitionGroups,
   sample,
+  sequentiallyForEach,
   sequentiallyMap,
   or,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isCnnHeadlineArticleHref,
@@ -94,10 +94,27 @@ const articleContentUpdates = async page => {
   }
 }
 
-// Doing this is infinitely better than trying to discover content thru the
-// website the old-fashioned way! :D
-const discoverThruSitemap = async page => {
-  await page.goto(SITE_MAP_URL)
+const collect = async (page, needsContent) =>
+  await sequentiallyMap(shuffle(needsContent), article =>
+    page
+      .goto(article.href)
+      .catch(e => (console.error(e), undefined))
+      .then(() =>
+        articleContentUpdates(page).catch(
+          e => (
+            console.error(article.href),
+            console.error(e),
+            { href: article.href, error: true }
+          )
+        )
+      )
+  ).then(articles => articles.filter(Boolean))
+
+const discover = async page => {
+  await page.goto(SITE_MAP_URL).catch(e => {
+    console.error(SITE_MAP_URL, 'failed to load')
+    throw e
+  })
   await page.click('a[href="/article/sitemap-2019.html"]')
   const monthHandles = await page
     .waitForSelector('.sitemap-month')
@@ -112,44 +129,46 @@ const discoverThruSitemap = async page => {
     )
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[CNN]).filter(({ content, error }) => !content && !error)
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
+  await page.setDefaultTimeout(130e3)
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
-    // CNN is really slow... TODO(maybe) skip hrefs that take a really long
-    // time.
-    await page.setDefaultTimeout(130e3)
-    const articleHeadlines = await discoverThruSitemap(page)
-    store.dispatch(cnn.addHeadline(articleHeadlines))
-    await sequentiallyMap(
-      shuffle(articlesWithoutContent(store.getState())),
-      async article => {
-        await page.goto(article.href).then(() =>
-          articleContentUpdates(page)
-            .catch(
-              e => (
-                console.error(article.href),
-                console.error(e),
-                { href: article.href, error: true }
-              )
-            )
-            .then(cnn.updateArticle)
-            .then(
-              action => (store.dispatch(action), saveStore(), console.log())
-            )
-        )
-      }
-    )
-    saveStore()
-    process.exit(0)
+  const articleHeadlines = await discover(page).catch(e => {
+    console.error(e)
+    return undefined
   })
+  if (articleHeadlines) {
+    store.dispatch(cnn.addHeadline(articleHeadlines))
+  }
+
+  await sequentiallyForEach(
+    shuffle(cnn.selectArticlesWithoutContent(store.getState())),
+    async article => {
+      await page.goto(article.href).then(() =>
+        articleContentUpdates(page)
+          .catch(
+            e => (
+              console.error(article.href),
+              console.error(e),
+              { href: article.href, error: true }
+            )
+          )
+          .then(cnn.updateArticle)
+          .then(action => (store.dispatch(action), console.log()))
+      )
+    }
+  ).catch(console.error)
+
+  await page.close()
+}
 
 module.exports = {
   __impl: {
     parsePublicationDateInformation,
     parseAuthorInformation,
   },
+  slice: cnn,
+  collect,
+  discover,
   run,
 }

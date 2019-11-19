@@ -3,11 +3,24 @@ const fs = require('fs')
 const throttle = require('lodash.throttle')
 const { createStore, applyMiddleware, combineReducers } = require('redux')
 
-const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
+const {
+  dataStoreFilename,
 
-const { dataStoreFilename, CNN, FOX, NPR, NBC } = require('../constant')
+  BREITBART,
+  CNN,
+  DEMOCRACY_NOW,
+  FOX,
+  NBC,
+  NPR,
+  THE_INTERCEPT,
+  THE_NATION,
+  VICE,
+  VOX,
+} = require('../constant')
 
 const { createNewsSourceSlice } = require('./reducer')
+
+const defer = (fn, ...args) => setTimeout(fn, 1, ...args)
 
 const ensureDir = filepath => {
   if (!fs.existsSync(path.dirname(filepath))) {
@@ -46,16 +59,28 @@ const initialState = () => {
   return JSON.parse(result)
 }
 
+const breitbart = createNewsSourceSlice(BREITBART)
 const cnn = createNewsSourceSlice(CNN)
+const democracyNow = createNewsSourceSlice(DEMOCRACY_NOW)
 const fox = createNewsSourceSlice(FOX)
 const nbc = createNewsSourceSlice(NBC)
 const npr = createNewsSourceSlice(NPR)
+const theIntercept = createNewsSourceSlice(THE_INTERCEPT)
+const theNation = createNewsSourceSlice(THE_NATION)
+const vice = createNewsSourceSlice(VICE)
+const vox = createNewsSourceSlice(VOX)
 
 const reducer = combineReducers({
+  [BREITBART]: breitbart.reducer,
   [CNN]: cnn.reducer,
+  [DEMOCRACY_NOW]: democracyNow.reducer,
   [FOX]: fox.reducer,
   [NBC]: nbc.reducer,
   [NPR]: npr.reducer,
+  [THE_INTERCEPT]: theIntercept.reducer,
+  [THE_NATION]: theNation.reducer,
+  [VICE]: vice.reducer,
+  [VOX]: vox.reducer,
 })
 
 const store = createStore(
@@ -76,8 +101,15 @@ const saveStore = () => {
 module.exports = {
   store,
   saveStore,
-  cnn: cnn.actions,
-  fox: fox.actions,
-  nbc: nbc.actions,
-  npr: npr.actions,
+
+  breitbart,
+  cnn,
+  democracyNow,
+  fox,
+  nbc,
+  npr,
+  theIntercept,
+  theNation,
+  vice,
+  vox,
 }

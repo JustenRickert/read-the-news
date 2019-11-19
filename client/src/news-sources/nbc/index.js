@@ -1,18 +1,19 @@
 const assert = require('assert')
-const puppeteer = require('puppeteer')
+const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, nbc } = require('../store/index')
-const { NBC } = require('../constant')
+const { store, nbc } = require('../../store/index')
+const { NBC } = require('../../constant')
 const {
   complement,
   difference,
   partition,
   and,
   or,
+  sequentiallyMap,
   sequentiallyReduce,
   tap,
   unique,
-} = require('../utils')
+} = require('../../utils')
 
 const {
   isNbcTextArticleLink,
@@ -25,7 +26,7 @@ const NBC_URL = 'https://www.nbcnews.com'
 
 const NBC_SITEMAP_URL = 'https://www.nbcnews.com/sitemap'
 
-const discoverThruSitemap = async page => {
+const discover = async page => {
   await page.goto(NBC_SITEMAP_URL)
 
   const sections = await page
@@ -59,7 +60,6 @@ const discoverThruSitemap = async page => {
     ({ href }) => href
   )
 
-  console.log(foundHeadlines.map(({ href }) => href))
   console.log(
     'Found',
     headlines.length,
@@ -68,7 +68,7 @@ const discoverThruSitemap = async page => {
     'headlines to search thru'
   )
 
-  return { headlines: foundHeadlines }
+  return foundHeadlines
 }
 
 const maybeReplaceLocation = (str, replacement) =>
@@ -119,36 +119,46 @@ const articlesWithoutContent = state =>
     headline => !headline.content && !headline.error
   )
 
-const run = () =>
-  puppeteer.launch().then(async browser => {
-    const page = await browser.newPage()
-    // TODO(maybe) NBC is _sometimes_ slow (Especially `/business`)... handle
-    // timeouts better in the future?
-    await page.setDefaultTimeout(100e3)
+const collect = (page, needsContent) =>
+  sequentiallyMap(shuffle(needsContent), async headline => {
+    const { error } = await page
+      .goto(headline.href)
+      .then(() => ({ error: false }))
+      .catch(e => {
+        console.log(headline.href)
+        console.error(e)
+        return { error: true }
+      })
+    if (error) return
+    console.log('Looking at', headline.href)
+    return articleContent(page).catch(
+      e => (
+        console.error(headline.href),
+        console.error(e),
+        { href: headline.href, error: true }
+      )
+    )
+  }).then(articles => articles.filter(Boolean))
 
-    const { headlines } = await discoverThruSitemap(page)
-    store.dispatch(nbc.addHeadline(headlines))
-    saveStore()
+const run = async puppeteerBrowser => {
+  const page = await puppeteerBrowser.newPage()
+  await page.setDefaultTimeout(100e3)
 
-    const needsContent = articlesWithoutContent(store.getState())
-    console.log('searching thru', needsContent.length)
-    sequentiallyReduce(needsContent, async (_, headline) => {
-      await page.goto(headline.href)
-      console.log('Looking at', headline.href)
-      return articleContent(page)
-        .catch(
-          e => (
-            console.error(headline.href),
-            console.error(e),
-            { href: headline.href, error: true }
-          )
-        )
-        .then(nbc.updateArticle)
-        .then(update => (store.dispatch(update), saveStore()))
-        .catch(e => console.error(e))
-    })
-  })
+  const headlines = await discover(page)
+  store.dispatch(nbc.addHeadline(headlines))
 
+  const needsContent = nbc.selectArticlesWithoutContent(store.getState())
+  console.log('searching thru', needsContent.length)
+  await collect(page, needsContent)
+    .then(nbc.updateArticle)
+    .then(store.dispatch)
+    .catch(console.error)
+
+  await page.close()
+}
 module.exports = {
+  discover,
+  collect,
+  slice: nbc,
   run,
 }

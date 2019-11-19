@@ -1,6 +1,6 @@
-const isFoxVideoArticle = ({ href }) => /^https:\/\/video/.test(href)
+const { isFoxHref } = require('../../../../shared/predicates')
 
-const isFoxHref = ({ href }) => /^https:\/\/www.foxnews\.com/.test(href)
+const isFoxVideoArticle = ({ href }) => /^https:\/\/video/.test(href)
 
 const isFoxPoliticsArticleHref = ({ href }) =>
   /^https:\/\/www.foxnews\.com\/politics\/.*/.test(href)

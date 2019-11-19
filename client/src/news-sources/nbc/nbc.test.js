@@ -2,7 +2,7 @@ const {
   __impl: { isNbcBusinessArticleLink },
   isNbcBetterHref,
   isNbcFeatureNbcOutHref,
-} = require('./nbc-utils')
+} = require('./')
 
 describe('nbc utils', () => {
   it('should not collect certain "busines" hrefs', () => {
