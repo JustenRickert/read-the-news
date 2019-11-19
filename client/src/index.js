@@ -1,188 +1,48 @@
-const assert = require('assert')
 const puppeteer = require('puppeteer')
-const shuffle = require('lodash.shuffle')
 
-const { store, saveStore } = require('./store')
-const {
-  dataStoreFilename,
+const { parseSite } = require('../../shared/utils')
 
-  BREITBART,
-  CNN,
-  DEMOCRACY_NOW,
-  FOX,
-  NBC,
-  NPR,
-  THE_INTERCEPT,
-  VICE,
-  VOX,
-} = require('./constant')
+const { newsSourceModule } = require('./news-sources')
 
 const {
-  partition,
-  sequentiallyDoWhile,
-  sequentiallyForEach,
-  timeFn,
-  unique,
-} = require('./utils')
+  NEWS_SOURCE_COMMAND_OPTIONS,
+  runSingleCollection,
+  runAllCollection,
+  runHref,
+} = require('./commands')
 
-const { fetchArticle, postArticle } = require('./connection')
+// TODO reintroduce saveStore somewhere
+const { reducer, loadFileState } = require('./store')
 
-const withOrWithoutContentOnServerBatched = async (
-  slice,
-  headlines,
-  count = 100
-) => {
-  const alreadyOnServer = []
-  const contentForServer = []
-  let batches = 0
-  while (batches * count < headlines.length) {
-    const [onServerBatch, notOnServerBatch] = await Promise.all(
-      headlines.slice(batches * count, (batches + 1) * count).map(headline =>
-        fetchArticle(slice.name, headline)
-          .then(() => ({ isOnServer: true, headline }))
-          .catch(() => ({ isOnServer: false, headline }))
-      )
-    )
-      .then(maybeHeadlines => maybeHeadlines.filter(Boolean))
-      .then(headlines => partition(headlines, headline => headline.isOnServer))
-    contentForServer.push(...notOnServerBatch.map(({ headline }) => headline))
-    alreadyOnServer.push(...onServerBatch.map(({ headline }) => headline))
-    batches++
-  }
-  return { contentForServer, alreadyOnServer }
+const store = createStore(
+  reducer,
+  loadFileState()
+  // applyMiddleware(saveContentMiddleware, logAction)
+)
+
+const createBrowserInstanceAndRunHref = async href => {
+  const browser = await puppeteer.launch()
+  return runHref(
+    store,
+    browser,
+    newsSourceModule(parseSite(href)),
+    href,
+    additionalOptions
+  ).catch(e => (console.error(e), { error: true, message: e.stack }))
 }
 
-const postArticlesToServerBatched = (slice, { getState }, count = 100) =>
-  Promise.all(
-    slice.select
-      .articlesOkayForServer(getState())
-      .slice(0, count)
-      .map(article =>
-        postArticle(slice.name, article)
-          .then(
-            () => (
-              console.log('posted', article.title, 'to server'),
-              {
-                sendToServerError: false,
-                article,
-              }
-            )
-          )
-          .catch(() => ({
-            sendToServerError: true,
-            article,
-          }))
-      )
-  )
-
-const runPostArticlesToServer = (slice, store) =>
-  sequentiallyDoWhile(
-    () => {
-      const needsToBeSentToServer = slice.select.articlesOkayForServer(
-        store.getState()
-      )
-      return needsToBeSentToServer.length
-    },
-    async () => {
-      const [
-        articlesErroringWhenSentToServer,
-        articles,
-      ] = await postArticlesToServerBatched(slice, store).then(results =>
-        partition(results, result => result.sendToServerError)
-      )
-      store.dispatch(
-        slice.actions.markArticleSentToServer(
-          articles.map(({ article }) => article)
-        )
-      )
-      store.dispatch(
-        slice.actions.markArticleErrorWhenSentToServer(
-          articlesErroringWhenSentToServer.map(({ article }) => article)
-        )
-      )
-    }
-  )
-
-const tap = x => (console.log(x), x)
-
-const runSingle = async (browser, module, options = {}) => {
-  const { discover, collect, slice } = module
-  console.log('Running', slice.name)
-  const page = await browser.newPage()
-
-  if (!options.skipDiscover) {
-    const headlines = await discover(page).then(headlines =>
-      unique(headlines, ({ href }) => href)
-    )
-    store.dispatch(slice.actions.addHeadline(headlines))
-    await withOrWithoutContentOnServerBatched(slice, headlines)
-      .then(({ alreadyOnServer, contentForServer: _contentForServer }) => {
-        // TODO shouldn't need to mark them actually...
-        console.log('Marking', alreadyOnServer.length, 'as `sentToServer`')
-        store.dispatch(slice.actions.markArticleSentToServer(alreadyOnServer))
-      })
-      .catch(console.error)
-  }
-
-  if (!options.skipCollect) {
-    const needsContent = slice.select.articlesWithoutContent(store.getState())
-    console.log('Searching thru', needsContent.length, 'articles')
-    // TODO `needsContent` shouldn't be a parameter for this method. It should
-    // be possible to do `goto`ing here so that it can be omitted from each
-    // module's `collect` method. This would allow elevating the error-handling
-    // strategy out as well. It would also allow for more direct processing
-    // (`collect->post` instead of `collect[]->post[]`, and removes complicated
-    // `batch` methods). Refactoring here would also provide an opportunity to
-    // `unique` headlines more consistently (though maybe this should always
-    // just be done in the reducer anyway...).
-    await collect(page, shuffle(needsContent))
-      .then(slice.actions.updateArticle)
-      .then(store.dispatch)
-      .catch(console.error)
-  }
-
-  if (!options.skipServerPost) {
-    await runPostArticlesToServer(slice, store).catch(console.error)
-  }
-
-  if (!options.skipSave) {
-    saveStore()
-  }
-
-  await page.close()
-}
-
-const possibleArguments = [
-  BREITBART,
-  CNN,
-  VICE,
-  // DEMOCRACY_NOW,
-  FOX,
-  NBC,
-  NPR,
-  THE_INTERCEPT,
-  VOX,
-  'all',
-]
-
-const runAll = (browser, options = {}) =>
-  sequentiallyForEach(shuffle(possibleArguments.slice(0, -1)), name =>
-    runSingle(browser, require(`./news-sources/${name}`), options).catch(
-      console.error
-    )
-  )
-
-const run = async (newsSource, options = {}) => {
+const runCollection = async (newsSource, options = {}) => {
   const browser = await puppeteer.launch()
   let execution = null
   switch (newsSource) {
     case 'all':
-      execution = runAll(browser, options)
+      execution = runAllCollection(store, browser, options)
       break
     default:
-      execution = runSingle(
+      execution = runSingleCollection(
+        store,
         browser,
-        require(`./news-sources/${newsSource}`),
+        newsSourceModule(newsSource),
         options
       )
       break
@@ -190,39 +50,42 @@ const run = async (newsSource, options = {}) => {
   return execution
 }
 
-const runTimed = timeFn(run)
+const createBrowserInstanceAndRunHref = async (href, options = {}) => {}
+
+const runCollectionTimed = timeFn(runCollection)
+const runHrefTimed = timeFn(createBrowserInstanceAndRunHref)
 const saveStoreTimed = timeFn(saveStore)
 
 const command = process.argv[2]
-const newsSource = process.argv[3]
 
-const additionalOptions = process.argv.slice(4).reduce((commands, flag) => {
+const additionalOptions = process.argv.slice(4).reduce((options, flag) => {
   switch (flag) {
     case '--skip-discover':
-      commands.skipDiscover = true
+      options.skipDiscover = true
       break
     case '--skip-server-post':
-      commands.skipServerPost = true
+      options.skipServerPost = true
       break
     case '--skip-collect':
-      commands.skipCollect = true
+      options.skipCollect = true
       break
     case '--skip-save':
-      commands.skipSave = true
+      options.skipSave = true
       break
   }
-  return commands
+  return options
 }, {})
 
 switch (command) {
   case 'article-collection':
-    if (!possibleArguments.some(key => newsSource === key)) {
+    const newsSource = process.argv[3]
+    if (!NEWS_SOURCE_COMMAND_OPTIONS.some(key => newsSource === key)) {
       console.error(`News source ${newsSource} not found in data`)
       console.error('Possible values:\n ', possibleArguments.join('\n  '))
       console.log()
       process.exit(1)
     }
-    runTimed(newsSource, additionalOptions)
+    runCollectionTimed(newsSource, additionalOptions)
       .then(({ duration }) => {
         console.log('Finished running everything', duration)
         saveStoreTimed().then(({ duration }) => {
@@ -231,6 +94,10 @@ switch (command) {
         })
       })
       .catch(e => (console.error(e), process.exit(1)))
+    break
+  case 'href':
+    const href = process.argv[3]
+    runHrefTimed(store)
     break
   default:
     console.error(

@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { createSlice } = require('redux-starter-kit')
+const { createSlice } = require('@reduxjs/toolkit')
 const { pick, unique } = require('../utils')
 
 const { assertValidArticle } = require('../../../shared/data-assertions')
