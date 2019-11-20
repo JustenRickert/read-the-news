@@ -1,6 +1,5 @@
 const puppeteer = require('puppeteer')
 
-const voxModule = require('./index')
 const { runHref } = require('../')
 
 describe('vox media', () => {

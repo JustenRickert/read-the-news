@@ -1,5 +1,4 @@
 const assert = require('assert')
-const { store, vice } = require('../../store')
 const {
   sequentiallyMap,
   unique,
@@ -34,17 +33,52 @@ const parseDate = datestamp => {
   return date
 }
 
-const collectArticle = async (page, href) => {
+const collect = async (page, href) => {
   await page.goto(href)
   const title = await page.$eval('.heading', heading => heading.textContent)
-  const authors = await page.$eval('.contributor__link', link => [
-    {
-      href: link.href,
-      name: link.textContent,
-    },
-  ])
-  const content = await page.$$eval('[data-type="body-text"] p', ps =>
-    ps.map(p => p.textContent)
+  const subheading = await page.$eval(
+    '.article-heading-v2__header-dek-wrapper h2',
+    $subheading => $subheading.textContent
+  )
+  const authors = await page.$eval(
+    '.article-heading-v2__contributors',
+    $contributors =>
+      Array.from($contributors.querySelectorAll('a.contributor__link')).map(
+        l => ({ href: l.href, name: l.textContent })
+      )
+  )
+  const content = await page.$eval('[data-type="body-text"]', body =>
+    Array.from(body.childNodes)
+      .filter(node => {
+        if (!['P', 'H2', 'UL'].some(tagName => node.tagName === tagName))
+          return false
+        if (node.classList.contains('article__pull-quote')) return false
+        if (node.querySelector('i') && node.textContent.startsWith('Cover:'))
+          return false
+        if (
+          ['p b i a', 'p i b a', 'p a i', 'p i a'].some(selector =>
+            node.querySelector(selector)
+          )
+        )
+          return false
+        if (
+          node.tagName === 'P' &&
+          /^<i>.*<\/i>$/.test(node.innerHTML) &&
+          node.previousElementSibling &&
+          node.previousElementSibling.classList.contains('article__embed')
+        )
+          return false
+        return true
+      })
+      .map(p => {
+        if (p.tagName === 'UL') {
+          return Array.from(p.querySelectorAll('li'))
+            .map(li => li.textContent.trim())
+            .join('\n')
+        }
+        return p.textContent.trim()
+      })
+      .filter(Boolean)
   )
   const date = await page.$eval(
     '.article-heading-v2__formatted-date',
@@ -53,25 +87,14 @@ const collectArticle = async (page, href) => {
   return {
     href,
     title,
+    subheading,
     authors,
-    content: content.join('\n'),
     publicationDate: parseDate(date),
+    content: content.join('\n'),
   }
 }
-
-const collect = (page, needsContent) =>
-  sequentiallyMap(needsContent, async headline =>
-    collectArticle(page, headline.href).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  )
 
 module.exports = {
   discover,
   collect,
-  slice: vice,
 }
