@@ -1,5 +1,4 @@
 const assert = require('assert')
-const { store, theIntercept } = require('../../store')
 const {
   partitionGroups,
   sequentiallyMap,
@@ -67,9 +66,9 @@ const parseDate = date => {
   )
 }
 
-const articleCollect = async (page, headline) => {
-  await page.goto(headline.href)
-  const title = await page.$eval('.Post-title', title => title.textContent)
+const collect = async (page, href) => {
+  await page.goto(href)
+  const title = await page.$eval('h1', title => title.textContent)
   const authors = await page.$eval('.PostByline-link', byline => {
     const name = byline.querySelector('[itemprop="name"]').textContent
     const href = byline.href
@@ -97,7 +96,7 @@ const articleCollect = async (page, headline) => {
     )
   if (content.endsWith('Transcript coming soon.')) return undefined
   return {
-    href: headline.href,
+    href,
     title,
     authors,
     publicationDate: parseDate(date),
@@ -105,19 +104,7 @@ const articleCollect = async (page, headline) => {
   }
 }
 
-const collect = (page, needsContent) =>
-  sequentiallyMap(needsContent, headline =>
-    articleCollect(page, headline).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  ).then(articles => articles.filter(Boolean))
-
 module.exports = {
-  slice: theIntercept,
   discover,
   collect,
 }
