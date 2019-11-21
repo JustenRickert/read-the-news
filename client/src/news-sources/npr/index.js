@@ -1,7 +1,6 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, npr } = require('../../store')
 const { NPR } = require('../../constant')
 const {
   complement,
@@ -41,7 +40,8 @@ const parsePublicationDate = (date, time) => {
   ).toString()
 }
 
-const articleContents = async page => {
+const collect = async (page, href) => {
+  await page.goto(href)
   const authors = await page.$$eval('div[aria-label="Byline"]', bylines => {
     const authors = bylines.map(byline => {
       const author = byline.querySelector('p a') || byline.querySelector('p')
@@ -123,37 +123,11 @@ const discover = async page => {
   return uniqueLinks
 }
 
-const collect = (page, needsContent) =>
-  sequentiallyMap(shuffle(needsContent), article =>
-    page
-      .goto(article.href)
-      .then(() =>
-        articleContents(page).catch(
-          e => (
-            console.error(article.href),
-            console.error(e),
-            { href: article.href, error: true }
-          )
-        )
-      )
-  )
-
-const run = async puppeteerBrowser => {
-  const page = await puppeteerBrowser.newPage()
-
-  const headlines = await discover(page)
-  store.dispatch(npr.addHeadline(headlines))
-
-  await page.close()
-}
-
 module.exports = {
   __impl: {
     parsePublicationDate,
     isHeadline,
   },
-  slice: npr,
   discover,
   collect,
-  run,
 }
