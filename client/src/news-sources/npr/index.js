@@ -47,18 +47,35 @@ const collect = async (page, href) => {
       const author = byline.querySelector('p a') || byline.querySelector('p')
       return {
         href: author.href || null,
-        name: author.innerText,
+        name: author.innerText.trim(),
       }
     })
     return authors
   })
-  const ps = await page.$$eval('#storytext > p', ps => {
-    const updatePublicationDate = ps[0].querySelector('strong')
-    const paragraphs = ps.map(p => p.innerText)
-    return {
-      paragraphs: updatePublicationDate ? paragraphs.slice(1) : paragraphs,
-    }
-  })
+  const ps = await page.$eval('#storytext', $content =>
+    Array.from($content.childNodes)
+      .filter($n => {
+        if ($n.attributes && $n.attributes.previewtitle) return false
+        if ($n.nodeName === '#comment') return false
+        if ($n.classList && $n.classList.contains('bucketwrap')) return false
+        return true
+      })
+      .reduce((contents, $node, i, $filteredContent) => {
+        if (
+          i + 2 >= $filteredContent.length &&
+          /^<em>.*<\/em>$/.test($node.innerHTML)
+        )
+          return contents
+        if ($node.nodeName === 'UL')
+          return contents.concat(
+            Array.from($node.querySelectorAll('li') || []).map(li =>
+              li.textContent.trim()
+            )
+          )
+        return contents.concat($node.textContent.trim())
+      }, [])
+      .filter(Boolean)
+  )
   const title = await page.$eval('.storytitle h1', title => title.innerText)
   const timestampDate = await page.$eval('time .date', date => date.innerText)
   const timestampTime = await page.$eval('time .time', date => date.innerText)
@@ -66,7 +83,7 @@ const collect = async (page, href) => {
     href: page.url(),
     title,
     publicationDate: parsePublicationDate(timestampDate, timestampTime),
-    content: ps.paragraphs.join('\n'),
+    content: ps.join('\n'),
     authors,
   }
 }

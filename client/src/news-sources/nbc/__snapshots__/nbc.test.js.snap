@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`nbc snapshots gets multiple authors 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Mosheh Gains",
+    },
+    Object {
+      "href": null,
+      "name": "Phil Helsel",
+    },
+  ],
+  "content": "Two U.S. service members were killed in a helicopter crash in Afghanistan on Wednesday, the military said.
+U.S. Forces Afghanistan said preliminary reports do not indicate the crash was caused by enemy fire but said the cause of the crash is still under investigation.
+The statement does not say where the crash occurred.
+The service members were not immediately identified. Department of Defense policy is to withhold the names of those killed for 24 hours after notification of next of kin is complete.
+There are around 13,000 U.S. troops in Afghanistan supporting missions to train, advise and assist Afghan forces under a NATO mission, and to conduct counterterrorism operations.
+On Oct. 21, during a visit to Kabul, U.S. Gen. Austin \\"Scott\\" Miller, commander of the NATO Resolute Support Mission and U.S. Forces Afghanistan, said that in the last year, the United States had reduced the troops in the country by around 2,000 \\"as part of our optimization,\\" according to a Defense Department transcript.
+President Donald Trump said in an interview with Fox News Radio in late August that negotiators were working on reducing the number of U.S. troops in the country and hoped to get to 8,600 \\"and then we’ll make a determination from there as to what happens.\\"
+But in early September, Trump announced that he was calling off \\"peace negotiations\\" with Taliban leadership after a U.S. service member was killed in a suicide attack in Kabul. It remains unclear if and when they will start again.",
+  "href": "https://www.nbcnews.com/news/us-news/two-u-s-service-members-killed-helicopter-crash-afghanistan-n1086486",
+  "publicationDate": "Wed Nov 20 2019 00:17:00 GMT-0600 (Central Standard Time)",
+  "title": "Two U.S. service members killed in helicopter crash in Afghanistan",
+}
+`;
