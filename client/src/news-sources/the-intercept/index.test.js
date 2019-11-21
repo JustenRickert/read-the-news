@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer')
+const { inspect } = require('util')
 
 const theInterceptModule = require('./')
 const { runHref } = require('../')
@@ -8,7 +9,7 @@ describe('The intercept', () => {
   let page
 
   beforeAll(async () => {
-    browser = await puppeteer.launch()
+    browser = await puppeteer.launch({ devtools: true })
   })
 
   beforeEach(async () => {
@@ -23,14 +24,27 @@ describe('The intercept', () => {
     await browser.close()
   })
 
-  it('', async () => {
+  it('does long articles', async () => {
     const result = await runHref(
       page,
       'https://theintercept.com/2019/11/18/iran-iraq-spy-cables/'
     )
-    console.log({
-      ...result,
-      content: result.content.split('\n'),
-    })
+    expect(result).toMatchSnapshot()
+  })
+
+  it('does articles with different kinds of updates at the bottom', async () => {
+    const result = await runHref(
+      page,
+      'https://theintercept.com/2019/11/20/pete-buttigieg-federal-contracts-minorities/'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  it('reads transcripts', async () => {
+    const result = await runHref(
+      page,
+      'https://theintercept.com/2019/03/21/mayor-pete-buttigieg-on-trump-islamophobia-and-his-presidential-bid/'
+    )
+    expect(result).toMatchSnapshot()
   })
 })
