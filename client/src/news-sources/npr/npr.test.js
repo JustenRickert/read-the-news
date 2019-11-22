@@ -33,11 +33,13 @@ describe('utils', () => {
 })
 
 describe('Npr snapshots', () => {
+  jest.setTimeout(30e3)
+
   let browser
   let page
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({ devtools: true })
+    browser = await puppeteer.launch()
   })
 
   beforeEach(async () => {

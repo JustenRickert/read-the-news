@@ -4,6 +4,8 @@ const viceModule = require('./')
 const { runHref } = require('../')
 
 describe('vice', () => {
+  jest.setTimeout(30e3)
+
   let browser
   let page
 

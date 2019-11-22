@@ -3,6 +3,8 @@ const puppeteer = require('puppeteer')
 const { runHref } = require('../')
 
 describe('vox media', () => {
+  jest.setTimeout(30e3)
+
   let browser
   let page
 

@@ -5,11 +5,13 @@ const theInterceptModule = require('./')
 const { runHref } = require('../')
 
 describe('The intercept', () => {
+  jest.setTimeout(30e3)
+
   let browser
   let page
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({ devtools: true })
+    browser = await puppeteer.launch()
   })
 
   beforeEach(async () => {

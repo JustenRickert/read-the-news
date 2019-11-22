@@ -11,6 +11,7 @@ const {
   sequentiallyForEach,
   sequentiallyMap,
   unique,
+  dropRightWhile,
 } = require('../../utils')
 
 const {
@@ -52,30 +53,39 @@ const collect = async (page, href) => {
     })
     return authors
   })
-  const ps = await page.$eval('#storytext', $content =>
-    Array.from($content.childNodes)
-      .filter($n => {
-        if ($n.attributes && $n.attributes.previewtitle) return false
-        if ($n.nodeName === '#comment') return false
-        if ($n.classList && $n.classList.contains('bucketwrap')) return false
-        return true
-      })
-      .reduce((contents, $node, i, $filteredContent) => {
-        if (
-          i + 2 >= $filteredContent.length &&
-          /^<em>.*<\/em>$/.test($node.innerHTML)
-        )
-          return contents
-        if ($node.nodeName === 'UL')
-          return contents.concat(
-            Array.from($node.querySelectorAll('li') || []).map(li =>
-              li.textContent.trim()
-            )
+  const ps = await page
+    .$eval('#storytext', $content =>
+      Array.from($content.childNodes)
+        .filter($n => {
+          if ($n.attributes && $n.attributes.previewtitle) return false
+          if ($n.nodeName === '#comment') return false
+          if ($n.classList && $n.classList.contains('bucketwrap')) return false
+          return true
+        })
+        .reduce((contents, $node, i, $filteredContent) => {
+          if (
+            i + 2 >= $filteredContent.length &&
+            /^<em>.*<\/em>$/.test($node.innerHTML)
           )
-        return contents.concat($node.textContent.trim())
-      }, [])
-      .filter(Boolean)
-  )
+            return contents
+          if ($node.nodeName === 'UL')
+            return contents.concat(
+              Array.from($node.querySelectorAll('li') || []).map(li =>
+                li.textContent.trim()
+              )
+            )
+          return contents.concat($node.textContent.trim())
+        }, [])
+        .filter(Boolean)
+    )
+    .then(ps =>
+      dropRightWhile(
+        ps,
+        p =>
+          /^read more about/i.test(p) ||
+          /^updated at ([\w: pm.]+) (\w+)/i.test(p)
+      )
+    )
   const title = await page.$eval('.storytitle h1', title => title.innerText)
   const timestampDate = await page.$eval('time .date', date => date.innerText)
   const timestampTime = await page.$eval('time .time', date => date.innerText)

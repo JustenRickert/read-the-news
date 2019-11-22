@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer')
 
 const { runHref } = require('../')
 
-describe('cnn snapshots', () => {
-  jest.setTimeout(15e3)
+describe('fox snapshots', () => {
+  jest.setTimeout(30e3)
 
   let browser
   let page

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`cnn snapshots does dates statically when running in test 1`] = `
+exports[`fox snapshots does dates statically when running in test 1`] = `
 Object {
   "authors": Array [
     Object {
@@ -22,12 +22,12 @@ But for the administration, which has prioritized securing America’s border an
 The Guatemala agreement will work in conjunction with MPP, known colloquially as the “Remain-in-Mexico” policy, by which migrants seeking asylum are sent back to Mexico to await their immigration proceedings. That policy aims in part to speed up claims and also end the “catch-and-release” practice whereby migrants were released into the interior.
 The administration’s approach, which includes building a wall at the southern border, has coincided with apprehensions at the border dropping by approximately 70 percent since May.",
   "href": "https://www.foxnews.com/politics/trump-administration-begins-sending-migrants-to-guatemala-as-part-of-safe-third-country-agreement",
-  "publicationDate": "Thu Nov 21 2019 08:32:01 GMT-0600 (Central Standard Time)",
+  "publicationDate": "Thu Nov 21 2019 04:32:01 GMT-0600 (Central Standard Time)",
   "title": "Trump administration begins sending migrants to Guatemala as part of ‘safe third country’ agreement",
 }
 `;
 
-exports[`cnn snapshots does gutfield fuuuu 1`] = `
+exports[`fox snapshots does gutfield fuuuu 1`] = `
 Object {
   "authors": Array [
     Object {
@@ -51,12 +51,12 @@ It was that cabin at Camp Crystal Lake from \\"Friday the 13th.\\" All those ca
 And President Trump is the ever-present Jason, waiting to pick each and every one of them off. He’s there, on that stage, even when he isn’t.
 It's sad to think that someday Trump will not be president, and the whole world will look like a Democratic debate. Like Jason, maybe we’ll just keep bringing him back.",
   "href": "https://www.foxnews.com/opinion/gutfeld-on-last-nights-debate",
-  "publicationDate": "Thu Nov 21 2019 15:32:01 GMT-0600 (Central Standard Time)",
+  "publicationDate": "Thu Nov 21 2019 13:32:01 GMT-0600 (Central Standard Time)",
   "title": "Gutfeld on Wednesday night’s debate",
 }
 `;
 
-exports[`cnn snapshots gets it good on a first pager 1`] = `
+exports[`fox snapshots gets it good on a first pager 1`] = `
 Object {
   "authors": Array [
     Object {
@@ -93,12 +93,12 @@ The White House has signaled it will mount an aggressive defense. \\"When this 
 For his part, Trump has argued that U.S. Ambassador to the European Union Gordon Sondland's testimony before the Intelligence Committee was a total exoneration.\\"I just noticed one thing and that would mean it’s all over,\\" Trump said on the White House lawn before reading from handwritten notes taken during Sondland’s testimony. Sondland testified about a conversation with Trump during which he asked the president what he wanted from Ukraine.
 \\"It was a very short, abrupt conversation,\\" the ambassador said. \\"He was not in a good mood, and he just said, 'I want nothing. I want nothing. I want no quid pro quo. Tell Zelensky to do the right thing.' Something to that effect.\\"",
   "href": "https://www.foxnews.com/politics/impeachment-articles-senate-trial-republicans",
-  "publicationDate": "Thu Nov 21 2019 17:32:01 GMT-0600 (Central Standard Time)",
+  "publicationDate": "Thu Nov 21 2019 16:32:01 GMT-0600 (Central Standard Time)",
   "title": "Dems could draft 4 articles of impeachment, GOP plans for full Senate trial, sources say",
 }
 `;
 
-exports[`cnn snapshots gets rid of ^WATCH: type advertisements 1`] = `
+exports[`fox snapshots gets rid of ^WATCH: type advertisements 1`] = `
 Object {
   "authors": Array [
     Object {
@@ -115,7 +115,7 @@ Schwab said in October that eliminating its $4.95-per-trade commission would t
 The firm's stock has risen 7.8 percent this year, while TD Ameritrade's has fallen 15.5 percent. The broader S&P 500 gained 24 percent in the same period.
 TD Ameritrade, which began as First Omaha Securities, was founded by Joe Ricketts in1975. In 1988, it became the first firm to let clients make trades by touch-tone phone, then went public three years later. TD bought Scottrade in a $4 billion cash-and-stock deal in 2016, tying up two major players in the industry.",
   "href": "https://www.foxbusiness.com/markets/charles-schwab-buying-td-ameritrade-for-26b",
-  "publicationDate": "Wed Nov 20 2019 17:32:01 GMT-0600 (Central Standard Time)",
+  "publicationDate": "Wed Nov 20 2019 11:32:01 GMT-0600 (Central Standard Time)",
   "title": "Charles Schwab buying TD Ameritrade for $26B: EXCLUSIVE",
 }
 `;

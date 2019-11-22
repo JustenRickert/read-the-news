@@ -76,6 +76,8 @@ const collect = async (page, href) => {
   const content = await page
     .$eval('article.the-article .entry-content', $article => {
       let $ps = Array.from($article.childNodes || []).filter($p => {
+        if (/^Breitbart TVVideo Player is loading/.test($article.textContent))
+          return false
         if (
           $p.classList &&
           ['wp-caption-text', 'rmoreabt'].some(className =>
