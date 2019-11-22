@@ -1,5 +1,147 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`cnn snapshots does articles about the queen of Sweden 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Julia Horowitz",
+    },
+  ],
+  "content": "London — As Sweden's population ages, the country faces a challenge: how can it maintain support for its citizens without breaking the bank?
+Furniture giant Ikea has one idea.
+The company is launching a new style of home for dementia patients through BoKlok, a joint venture with Swedish construction company Skanska that makes sustainable and affordable housing.
+For the past three decades, the group has built more than 11,000 modular homes throughout Sweden, Finland and Norway using the Ikea model: strip out costs by producing large quantities of parts off-site. Lower income customers only pay what they can afford.
+Now, with some modifications, the company thinks it can help people who struggle with memory loss to live at home — saving the government money it would otherwise spend on care. It's built the first customized homes just outside Stockholm.
+Design tweaks include taking mirrors out of bathrooms and fitting kitchen appliances with old-fashioned knobs, rather than digital controls.
+The developments also emphasize spending time outdoors, and will include \\"therapeutic\\" gardens and clubhouses for socializing. That could make it more appealing for a partner to move there, too.
+\\"To take care of elderly people, that cost is exploding,\\" BoKlok CEO Jonas Spangenberg told CNN Business. \\"It's much cheaper for society and the public to give them service back home.\\"
+'A growing problem'
+From Japan to the United States, countries around the world are dealing with the effects of aging populations.
+Sweden is no exception. By 2040, nearly one in four Swedes will be 65 years or older by 2040, in part because of the baby boom following World War II.
+In a country like Sweden, where life expectancy is very high and most care for the elderly is government funded, that means a strain on spending and resources looms. One concern is the supply of affordable yet comfortable accommodations.
+\\"We see a growing problem ... that [people] are ending up in institutions where they do not want to end up,\\" Spangenberg said.
+He continued: \\"If we can crack the code where you can continue to live at a home or an apartment that is more suitable for you, even with various syndromes, we believe we could do a ... good thing for society.\\"
+That's the driving idea behind the company's SilviaBo project. Its namesake, Queen Silvia of Sweden — whose mother suffered from Alzheimer's — has been a partner from the beginning.
+Before he died in 2018, Ikea founder Ingvar Kamprad made a large donation to the project through the the queen's foundation, which provides training on dementia care. She's a member of the steering board, and has also been involved in the design process.
+The Ikea model
+BoKlok is in the early stages of launching SilviaBo in Sweden, its first market, and is starting to talk to local governments about land and zoning. Spangenberg said he expects progress in the next year.
+So far, the company has built a small pilot with six apartments just outside Stockholm. Residents have not moved in yet due to an ongoing permit dispute with neighbors, but the company maintains a legal resolution is \\"on its way.\\"
+The BoKlok approach to affordable housing has its roots in the Ikea way of thinking.
+\\"BoKlok was designed the IKEA way: large volumes, low prices,\\" according to a Skanska blog post from 2011. \\"Industrialized production and large volumes — in other words, repetition — cut prices and save time in planning.\\"
+The venture also controls its entire supply chain, including land acquisition, factory production, on-site construction, sales and marketing. This helps reduce costs.
+SilviaBo homes have some key differences from traditional BoKlok builds, though the homes will operate under BoKlok's \\"Left to Live\\" payment model, where residents are charged only what they can afford after taxes and living expenses.
+\\"It's still the same floor layout, but you need to understand how people with dementia react in certain situations,\\" Spangenberg said.
+For example, there are no mirrors or dark-colored floors in the bathroom, which could scare or confuse residents.
+SilviaBo also plans to offer a version of its home for people who are around 65-years-old and newly retired, with small adjustments and the option to easily add certain accessibility functions.
+The pitch, according to Spangenberg: \\"Make that clever move now, before it's too late.\\"",
+  "href": "https://www.cnn.com/2019/08/08/business/ikea-sweden-dementia/index.html",
+  "publicationDate": "Thu Aug 08 2019 00:00:00 GMT-0500 (Central Daylight Time)",
+  "title": "Ikea and the Queen of Sweden are designing homes for people with dementia",
+}
+`;
+
+exports[`cnn snapshots drops unrelated content off at the end of the article 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Meghan Dunn",
+    },
+  ],
+  "content": "Reno, Nevada — Staci Alonso knows first-hand the powerful bond that can exist between a woman and her pet.
+In 2004, when she was serving as a board member of a women's shelter, she discovered that women fleeing domestic abuse often had nowhere to go because shelters wouldn't accept their pets.
+Domestic violence is a leading cause of injury to women in the United States -- one in four experience intimate partner violence in her lifetime. Yet fewer than 10% of domestic violence shelters provide some sort of pet service, such as placement in a nearby foster home or boarding at a local animal shelter.
+\\"My two dogs ... were my rock and my reinforcement,\\" Alonso said. \\"I couldn't imagine being in that type of situation, finding the courage to leave and having to leave them behind.\\"
+Alonso was also shocked to learn that in many cases, without family to stay with or money for a hotel, women go back to their abusive situation to remain with their beloved pet.
+\\"We can't make it this hard for a woman to leave an abusive relationship just because she has a pet,\\" Alonso said.
+To help break this barrier, in 2007, she opened Noah's Animal House, a full-service pet shelter located right on the grounds of a domestic violence shelter in Las Vegas.
+It was the first of its kind in the country -- having cat condos, indoor and outdoor dog runs, a vet station and a grooming station all together in one facility.
+\\"They check in to the women's shelter, and the pets are right next door at Noah's,\\" Alonso said. \\"And they're free of abuse and safe.\\"
+When Jennifer decided to leave a physically and emotionally abusive relationship, she sought out a domestic violence shelter that allowed pets. She found Noah's, and it took Jennifer and her cat a four-day bus ride to get there.
+\\"When I got to Noah's and they took my cat in, and I looked around that place and I was like, 'Okay, we're good.'\\"
+CNN is not using Jennifer's real name at her request for her safety.
+Women can visit and take care of their pets as often as they'd like. The shelter also has \\"cuddle rooms,\\" set up like living rooms, where women can spend time with their pets.
+\\"You know the power of the pet when you watch the woman come through the doors and you see the anxiety on her face -- and then they see their pet. You look back at the woman and all of the stress is gone,\\" Alonso said.
+Noah's House has a staff and volunteers who help take care of the pets while the women are looking for jobs, going to therapy or taking care of themselves.
+\\"My abuser told me if I leave I was never going to make it. I had been playing that dangerous tape in my head, and I've got to get rid of it,\\" Jennifer said. \\"My cat helps me with that. He lets me know that I am wanted, and I am loved.\\"
+Women have traveled from 21 states to get to Noah's Animal House.
+Knowing that so few places like Noah's exist, Alonso opened a second location last year in Reno.
+\\"I've seen the powerful impact of women getting their courage back all because they had the reinforcement of their pet by their side,\\" Alonso said. \\"Everybody deserves this chance. I want to remove the 'No Pets Allowed' sign on all the domestic violence shelters' doors.\\"
+CNN's Meghan Dunn spoke with Alonso about her work. Below is an edited version of their conversation.
+CNN: How many pets has your group helped?
+Staci Alonso: Since opening in 2007, we have cared for over 1,400 pets at Noah's. And that equates to 90,000 boarding nights. Some pets have stayed as long as a year. The average stay, in good times, is six weeks, and in financially difficult times, it's three months. When you compare the woman with her pet at Noah's to a woman who doesn't have a pet -- they have the reinforcement of \\"I can do this,\\" because of the unconditional love of their pet. You see it every day when the two see each other. And I think anybody who has a pet knows that they make you feel better.
+CNN: You do so much more than just house the pets.
+Alonso: Our model at Noah's is to remove any level of stress that the woman could experience and treat the pets like they were checking into a boarding facility or a hotel. So, our services include the food; and if it's prescription food, then we get the special diet food. We take care of any medical need that is required -- the vaccinations, spay and neutering. And when the women leave, we give them a to-go package and it's a kennel or a crate, beds, toys and food for the month. We also give them a gift card for that next round of food, or litter, whatever they need. We take care of everything.
+CNN: What's the inspiration behind your shelter's name?
+Alonso: Noah's Animal House is named after my son. It was four or five years after he was born that we started working on a pet shelter. It was having my son know from very early on that there was this sense of purpose for him. I strived to make sure that it was never really about his name on the building; it was about the responsibilities that went with that name. And I dragged him to construction meetings and media interviews and meeting women. It's setting it up to always live on.
+CNN: What's your favorite space in Noah's Animal House?
+Alonso: My favorite room is probably everybody's favorite room. It is our cuddle rooms. I wanted to make sure that the women had an opportunity to cuddle and feel normal. They're little living rooms. The funniest part is when you look inside, and you see the dog is on the couch, and the woman is on the floor. And you go, 'Oh yeah, I can relate to that.'
+We have a sign-in board, actually, because the cuddle rooms are everybody's favorite. The next Noah's, we'll need to double the amount of cuddle rooms, because it's a good place to hang out.",
+  "href": "https://www.cnn.com/2019/05/30/us/cnnheroes-staci-alonso-noahs-animal-house-pets-domestic-violence/index.html",
+  "publicationDate": "Fri May 31 2019 00:00:00 GMT-0500 (Central Daylight Time)",
+  "title": "Women leaving abusive situations come here because they can bring their pets",
+}
+`;
+
+exports[`cnn snapshots gets the cool STATE (CNN) - with just the state because it's pretty cool-looking 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Katelyn Polantz",
+    },
+    Object {
+      "href": null,
+      "name": "Evan Perez",
+    },
+  ],
+  "content": "Washington — An FBI official is under criminal investigation after allegedly altering a document related to 2016 surveillance of a Trump campaign adviser, several people briefed on the matter told CNN.
+The possibility of a substantive change to an investigative document is likely to fuel accusations from President Donald Trump and his allies that the FBI committed wrongdoing in its investigation of connections between Russian election meddling and the Trump campaign.
+The finding is expected to be part of Justice Department Inspector General Michael Horowitz's review of the FBI's effort to obtain warrants under the Foreign Intelligence Surveillance Act on Carter Page, a former Trump campaign aide. Horowitz will release the report next month.
+Horowitz turned over evidence on the allegedly altered document to John Durham, the federal prosecutor appointed early this year by Attorney General William Barr to conduct a broad investigation of intelligence gathered for the Russia probe by the CIA and other agencies, including the FBI. The altered document is also at least one focus of Durham's criminal probe.
+It's unknown how significant a role the altered document played in the FBI's investigation of Page and whether the FISA warrant would have been approved without the document. The alterations were significant enough to have shifted the document's meaning and came up during a part of Horowitz's FISA review where details were classified, according to the sources.
+Some witnesses who have been interviewed in Horowitz's investigation have said they expect the inspector general to find mistakes in the FBI's handling of the FISA process, but that those mistakes do not undermine the premise for the FBI's investigation.
+American intelligence agencies and the Justice Department have not swayed from their finding that Russia interfered in the 2016 election by hacking the Democrats and spreading pro-Trump propaganda online. And even former top Trump campaign officials have corroborated special counsel Robert Mueller's finding that the Trump campaign planned some of its strategy around the Russian hacks, and had multiple contacts with Kremlin-linked individuals in 2016.
+Horowitz's investigators conducted more than 100 witness interviews in their review. During one of interviews this year, they confronted the witness about the document. The witness admitted to the change, the sources said.
+The identity or rank of the FBI employee under investigation isn't yet known, and it's not clear whether the employee still works in the federal government. No charges that could reflect the situation have been filed publicly in court.
+The Justice Department and inspector general's office declined to comment.
+Horowitz report
+Horowitz is expected to release his report on December 9 and testify before the Senate Judiciary Committee two days later.
+The internal, independent investigator so far, over several reports, has criticized top members of the FBI for their actions leading up to and during the Russia investigation. Those IG reports have looked at situations including former FBI Director James Comey's handling of his personal memos about meetings with the President and former official Peter Strzok's anti-Trump text messages.
+A finding of alleged wrongdoing from Horowitz could further fuel Republican criticism and conspiracies about previous investigators' targeting of Trump associates. It could also provide them a political boost at a moment where Democrats' impeachment investigation into Trump's political quid pro quo with Ukraine has battered the President.
+The report is said to cover the FBI's approach to foreign surveillance during the Russia investigation, including of warrants used to wiretap Page, who had advised the Trump campaign in 2016. Witnesses are currently reviewing Horowitz's findings.
+Horowitz has shared information from his review with Durham, CNN previously reported.
+The Justice Department has been tight-lipped on outlining exactly what Durham has been looking at. But the attorney general himself said soon after appointing him that he was concerned officials acted inappropriately as they oversaw the counterintelligence probe of the 2016 Trump campaign.
+Barr's embrace of these theories aligns with Trump's chief grievance that he was the victim of a \\"deep state\\" spy operation that has clouded his presidency.
+The New York Times, CNN and other outlets have reported that Durham's investigation had become a criminal investigation.",
+  "href": "https://www.cnn.com/2019/11/21/politics/fbi-fisa-russia-investigation/index.html",
+  "publicationDate": "Thu Nov 21 2019 00:00:00 GMT-0600 (Central Standard Time)",
+  "title": "Exclusive: FBI official under investigation after allegedly altering document in 2016 Russia probe",
+}
+`;
+
+exports[`cnn snapshots likes to do movie reviews too 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Brian Lowry",
+    },
+  ],
+  "content": "The simplicity of \\"Dollface\\" doesn't make the show any less fun, although this slenderly conceived comedy vehicle for \\"2 Broke Girls\\" star Kat Dennings could easily have landed on a conventional broadcast network. As is, it's a nice addition to Hulu's lineup of originals, and a whole lot less depressing than \\"The Handmaid's Tale.\\"
+The story of Dennings' Jules is actually a pretty familiar one, and it's what gives the show much of its kick: Dumped by her boyfriend of five years, she realizes that she's lost touch with all of her girlfriends, having abandoned them while in the throes of couplehood.
+Jules thus goes about the task of reconnecting with her pals Madison (Brenda Song) and Stella (Shay Mitchell), an accomplished name-dropper, who aren't exactly eager to welcome her back. At the same time, she's prone to flights of fantasy, which includes regular visitations by a cat-faced lady (Beth Grant), offering a glimpse of her potentially lonely, single future.
+Much of the show hinges on the usual sitcom situations, from meeting guys to discovering a boyfriend is married to awkward encounters with Jules' ex, building over the 10 episodes toward his sister's destination wedding, an event to which she's still invited.
+Nevertheless, the series -- which counts Dennings and Margot Robbie among its producers and features Malin Akerman as Jules' wealthy boss -- manages to be consistently fun, including a clever \\"Wizard of Oz\\" riff in one of the later installments. In one of the better early moments, the trio go to a club, a sequence that explains -- for every guy who has ever wondered -- why women make a point of going to the bathroom together in such locales.
+Notably, the show was created by Jordan Weiss, a writer still in her 20s, and thus an actual contemporary of the characters featured. Although the show isn't the sort of jolt to the demo that, say, \\"Girls\\" delivered, those auspices might contribute to why the series feels fresher than the TV logline for it otherwise sounds, with a clear and distinctive creative voice.
+\\"Dollface\\" won't be everyone's cup of tea, but one suspects a portion of the audience will be enamored with it. In today's streaming environment, that's the kind of formula that tends to lead to lasting relationships.",
+  "href": "https://www.cnn.com/2019/11/15/entertainment/dollface-review/index.html",
+  "publicationDate": "Fri Nov 15 2019 00:00:00 GMT-0600 (Central Standard Time)",
+  "title": "In 'Dollface,' Kat Dennings rediscovers her girlfriends after a bad breakup",
+}
+`;
+
 exports[`parsing utils parses authors info 1`] = `
 Array [
   Array [

@@ -1,7 +1,6 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, cnn } = require('../../store')
 const { CNN } = require('../../constant')
 const {
   complement,
@@ -27,9 +26,9 @@ const SITE_MAP_URL = 'https://www.cnn.com/sitemap.html'
 
 const parseAuthorInformation = authors => {
   const author = authors[0]
-  let result = /Opinion by ([\w\-. ]+)/.exec(author)
+  let result = /(opinion by|review by) ([\w\-. ]+)/i.exec(author)
   if (result) {
-    const [, name] = result
+    const [, , name] = result
     return [{ href: null, name }]
   }
   result = /By ([\w\- ]+),?[\w\- ]*/.exec(author)
@@ -54,19 +53,11 @@ const parsePublicationDateInformation = timestamp => {
 
 const articleContentsBodyParagraphsEvalFunction = body => {
   const ps = body.querySelectorAll('.zn-body__paragraph')
-  return (
-    Array.from(ps)
-      // This is an advertisement...
-      .filter(p => !/^<a href=.*<\/a>$/.test(p.innerHTML))
-      // preceding editor's not unrelated to the content
-      .filter(p => !/^<q class="el-editorial-note">.*<\/q>$/.test(p.innerHTML))
-      // footer is on some pages, unrelated content
-      .filter(p => !p.classList.contains('zn-body__footer'))
-      .map(p => p.innerText.replace(/^[\w ]*\(CNN\)/, ''))
-  )
+  return Array.from(ps)
 }
 
-const articleContentUpdates = async page => {
+const collect = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval('h1.pg-headline', title => title.innerText)
   const authors = await page
     .$$eval('.metadata__byline__author', authors =>
@@ -76,15 +67,39 @@ const articleContentUpdates = async page => {
   const publicationDate = await page
     .$eval('.update-time', timestamp => timestamp.innerText)
     .then(parsePublicationDateInformation)
-  const content = await page.$eval(
-    '[data-zn-id="body-text"]',
-    articleContentsBodyParagraphsEvalFunction
-  )
-  // TODO more content!
-  // console.log(content)
-  // console.log(authors)
-  // console.log(publicationDate)
-  // console.log(title)
+  const content = await page.$eval('[data-zn-id="body-text"]', $body => {
+    const dropRightWhile = (xs, predicate) => {
+      if (!xs.length) return xs
+      if (predicate(xs[xs.length - 1]))
+        return dropRightWhile(xs.slice(0, -1), predicate)
+      return xs
+    }
+    const $ps = Array.from(
+      $body.querySelectorAll('.zn-body__paragraph')
+    ).filter($p => {
+      if (/^<q class="el-editorial-note">.*<\/q>$/.test($p.innerHTML))
+        return false
+      if ($p.classList.contains('zn-body__footer')) return false
+      return true
+    })
+    return dropRightWhile(
+      $ps,
+      $p =>
+        (['a', 'em'].every(selector => $p.querySelector(selector)) &&
+          ['to donate', 'see how to help'].some(keyword =>
+            RegExp(keyword, 'i').test($p.textContent)
+          )) ||
+        /"([\w,.:\- ]+)" premieres ([\w. ]+) on ([\w]+)/i.test($p.textContent)
+    )
+      .map(p =>
+        p.textContent
+          .replace(/^([\w, ]*)\(cnn( business)?\)/i, (_, state) =>
+            state.trim() ? `${state.trim()} — ` : ''
+          )
+          .trim()
+      )
+      .filter(Boolean)
+  })
   return {
     href: page.url(),
     title,
@@ -93,22 +108,6 @@ const articleContentUpdates = async page => {
     content: content.join('\n'),
   }
 }
-
-const collect = async (page, needsContent) =>
-  await sequentiallyMap(shuffle(needsContent), article =>
-    page
-      .goto(article.href)
-      .catch(e => (console.error(e), undefined))
-      .then(() =>
-        articleContentUpdates(page).catch(
-          e => (
-            console.error(article.href),
-            console.error(e),
-            { href: article.href, error: true }
-          )
-        )
-      )
-  ).then(articles => articles.filter(Boolean))
 
 const discover = async page => {
   await page.goto(SITE_MAP_URL).catch(e => {
@@ -129,46 +128,11 @@ const discover = async page => {
     )
 }
 
-const run = async puppeteerBrowser => {
-  const page = await puppeteerBrowser.newPage()
-  await page.setDefaultTimeout(130e3)
-
-  const articleHeadlines = await discover(page).catch(e => {
-    console.error(e)
-    return undefined
-  })
-  if (articleHeadlines) {
-    store.dispatch(cnn.addHeadline(articleHeadlines))
-  }
-
-  await sequentiallyForEach(
-    shuffle(cnn.selectArticlesWithoutContent(store.getState())),
-    async article => {
-      await page.goto(article.href).then(() =>
-        articleContentUpdates(page)
-          .catch(
-            e => (
-              console.error(article.href),
-              console.error(e),
-              { href: article.href, error: true }
-            )
-          )
-          .then(cnn.updateArticle)
-          .then(action => (store.dispatch(action), console.log()))
-      )
-    }
-  ).catch(console.error)
-
-  await page.close()
-}
-
 module.exports = {
   __impl: {
     parsePublicationDateInformation,
     parseAuthorInformation,
   },
-  slice: cnn,
   collect,
   discover,
-  run,
 }
