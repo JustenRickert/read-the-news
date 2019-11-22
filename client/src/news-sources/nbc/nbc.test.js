@@ -1,26 +1,6 @@
 const puppeteer = require('puppeteer')
 
-const { isNbcBetterHref, isNbcFeatureNbcOutHref } = require('./')
 const { runHref } = require('../')
-
-// describe('nbc utils', () => {
-//   it('should not collect certain "busines" hrefs', () => {
-//     const badHrefs = ['https://www.nbcnews.com/business/consumer']
-//     expect(isNbcBusinessArticleLink({ href: badHrefs[0] })).toBeFalsy()
-//   })
-
-//   it('should know about "better" hrefs', () => {
-//     const exampleHref =
-//       'https://www.nbcnews.com/better/lifestyle/travel-website-you-re-using-says-there-s-only-1-ncna1073066'
-//     expect(isNbcBetterHref(exampleHref)).toBeTruthy()
-//   })
-
-//   it('should know about "feature/nbc-out" hrefs', () => {
-//     const exampleHref =
-//       'https://www.nbcnews.com/feature/nbc-out/almost-30-percent-bisexual-women-trans-people-live-poverty-report-n1073501'
-//     expect(isNbcFeatureNbcOutHref(exampleHref)).toBeTruthy()
-//   })
-// })
 
 describe('nbc snapshots', () => {
   let browser
@@ -46,6 +26,30 @@ describe('nbc snapshots', () => {
     const result = await runHref(
       page,
       'https://www.nbcnews.com/news/us-news/two-u-s-service-members-killed-helicopter-crash-afghanistan-n1086486'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  it('gets subheadings', async () => {
+    const result = await runHref(
+      page,
+      'https://www.nbcnews.com/business/business-news/wework-lays-2-400-employees-n1088521'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  it('does articles on white supremecism on nbc that have a random "Why?" in the middle', async () => {
+    const result = await runHref(
+      page,
+      'https://www.nbcnews.com/think/opinion/syracuse-suspends-fraternities-racism-greek-system-s-prejudice-national-problem-ncna1087111'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  it('gets articles on Zuckbaby', async () => {
+    const result = await runHref(
+      page,
+      'https://www.nbcnews.com/tech/tech-news/trump-hosted-zuckerberg-undisclosed-dinner-white-house-october-n1087986'
     )
     expect(result).toMatchSnapshot()
   })

@@ -1,5 +1,65 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`nbc snapshots does articles on white supremecism on nbc that have a random "Why?" in the middle 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Matthew W",
+    },
+  ],
+  "content": "What is the relationship between fraternities and racism?
+The answer to this question could dictate much of the future of higher education, where Greek life remains central to both campus social life and collegiate politics. And while pledging or “rushing” a fraternity or sorority is an annual rite, so now are the yearly stories about these organizations' less than subtle embrace of racism.
+From a 2015 incident at the University of Oklahoma, where two fraternity members were expelled after video of them singing a violently racist song went public, to the 2018 release of photos showing members of a fraternity at California Polytechnic State University wearing blackface and dressing as Mexican gangsters, to an incident just this month at Syracuse University that has resulted in the suspension of all fraternity social activities, racial prejudice and frats are often intertwined.
+In the case of Syracuse, members of one fraternity were connected to the alleged use of a racial epithet, which came in the wake of a string of racist episodes at the university, and even prompted a response from Gov. Andrew Cuomo. Days later, students staged a “sit-in” to demand a better response from university officials.
+Some contend that these events have been blown out of proportion and that such incidents, while unfortunate, are the consequence of a few bad apples. But as a sociologist and university professor who has studied racism, inequality and Greek life for over two decades, I see evidence that the orchard ground may indeed be poisoned.
+The white fraternity system exists in a protected bubble. These organizations are often granted a host of material and symbolic resources. And when those privileged fraternal spaces are marked by extreme racial segregation, on what are already fairly unrepresentative campuses, racism and particularly anti-black views find fertile ground. For instance, research shows that, on average, members of white Greek-letter organizations hold more Eurocentric ideologies and are less conscious of social injustices than both non-Greek-letter students and Greek-letter members in Black, Latino and Asian Greek-letter organizations.
+Why?
+They function as designed. And their aim has long been to exclude and function as a vehicle for the reproduction of white status and power.
+To begin with, the Greek system has historically been marked by intense race and class segregation and inequality. The first U.S. Greek-letter fraternity, academic honor society Phi Beta Kappa, was founded at William & Mary in 1776. As the fraternity movement grew, it reflected the demographics of U.S. campuses: the children of white, male, Christian and generally elite families pledged these organizations.
+But as the racial, gender and religious barriers to higher education began to weaken by the turn of early 1900s, many of these de facto white Greek-letter organizations incorporated racial bans into their constitutions. Many did not remove these de jure restrictions until the 1960s, often as a consequence of lawsuits. Simultaneously, African American, Latino and Asian students founded their own Greek-letter organizations over the 20th century. In contrast to many of the old white fraternities, these groups — such as the African American fraternity Phi Beta Sigma (of which I am a member) — served as a clearinghouse for the promotion of racial equality, and attracted members such as Alain Leroy Locke, A. Philip Randolph and Congressman John Lewis.
+But while official racial exclusion policies are no longer in effect, racial norms maintain a hypersegregated and extremely unequal Greek system. While few organizations or colleges keep racial statistics on this Greek-letter color-line, research indicates that approximately 95 percent of historically white fraternity and sorority members still identify as white.
+This racial separation helped create a deeply engrained inequality. Many colleges and universities afford special housing to white fraternities and sororities, but do not always do the same for their Black, Latin, or Asian counterparts. Some colleges have earmarked positions in student government for Greek-letter members. Moreover, while colleges often employ fraternity advisers, many are ill-equipped to mentor anyone outside of the white fraternity and sorority experience. With little to no cultural competence in advising diverse and multicultural fraternities and sororities, the white Greek-letter system is naturally advantaged. And with such systems in place for the past century, a powerful white alumni system labors to reproduce these privileged organizations with healthy donations to increasingly needy institutions.
+I have interviewed hundreds of members of traditionally white fraternities and sororities, from large public universities to small private colleges. Across geographic regions, despite socioeconomic class backgrounds, and regardless of religious or gendered makeup, there is one common denominator: racial prejudice.
+From sitting inside the vestibules and parlors of Deep South sorority mansions to navigating the beer-can bespeckled porches of northeastern rentals, white Greek-letter members in my experience are all-too agile defenders of their segregated spaces. Often, these defenses come cloaked in coded language about tradition and heritage. People of color “wouldn’t understand our ways,” I heard. Alternatively, people of color, especially African Americans, they feared, would “make everything about race.” “We just want to socialize and have fun,” one white member of a historically white fraternity told me, before he continued “I know black people, and they’ll ruin the reputation we have. Girls won’t want to party with us.”
+Even when people of color do obtain membership in historically white fraternities and sororities, these nonwhite members often find themselves relegated to stereotypical roles. One young Latino member told me that when he drank with his fraternity brothers, they would cheer him on by yelling, “He’s got that Latin blood!” One Asian member of a traditionally white Greek sorority said that when she was pledging, some of her future sisters hazed her by paddling. “They had a paddle for me when I joined, it was a joke, but they wrote ‘Yellow Power’ on it. They said I could put up with more stuff than the other [white] girls.”
+Why does such racism persist? Greek life breeds social norms that legitimize their own existence. Those that resist are not often granted membership, or if they do, are rarely in a position of leadership. It should come as no surprise that hypersegregated and racially privileged organizations produce members who engage in racist activities. We should be surprised if they didn’t.",
+  "href": "https://www.nbcnews.com/think/opinion/syracuse-suspends-fraternities-racism-greek-system-s-prejudice-national-problem-ncna1087111",
+  "publicationDate": "Thu Nov 21 2019 15:49:00 GMT-0600 (Central Standard Time)",
+  "subheading": "It should come as no surprise that hyper-segregated and racially privileged organizations produce members that engage in racist activities.",
+  "title": "Syracuse suspends fraternities racism, but Greek system's prejudice is a national problem",
+}
+`;
+
+exports[`nbc snapshots gets articles on Zuckbaby 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Dylan Byers",
+    },
+    Object {
+      "href": null,
+      "name": "Ben Collins",
+    },
+  ],
+  "content": "President Donald Trump hosted a previously undisclosed dinner with Facebook CEO Mark Zuckerberg and Facebook board member Peter Thiel at the White House in October, the company told NBC News on Wednesday.
+The meeting took place during Zuckerberg’s most recent visit to Washington, where he testified before Congress about Facebook’s new cryptocurrency Libra. Zuckerberg also gave a speech at Georgetown University the week before, detailing his company’s commitment to free speech, and its resistance to calls for the company to crack down on misinformation in political advertisements.
+“As is normal for a CEO of a major U.S. company, Mark accepted an invitation to have dinner with the President and First Lady at the White House,” a Facebook spokesperson said in an emailed statement.
+A source familiar with the dinner told NBC News that Thiel was also present. It is unclear why the meeting was not made public or what Trump, Zuckerberg and Thiel discussed.
+The White House declined to comment.
+The dinner was the second meeting between Zuckerberg and Trump in a month. Zuckerberg also met with the president in the Oval Office during a September visit to the capital.
+Thiel, one of seven Facebook board members, is one of the few outspoken conservative figures in Silicon Valley. A major donor to Trump’s campaign, Thiel is also the chairman of Palantir, a private data technology company that has become one of the largest recipients of government defense contracts with the United States government since Trump took office.
+Thiel famously bankrolled an invasion of privacy lawsuit that effectively bankrupted the gossip website Gawker. Zuckerberg’s speech at Georgetown, which he delivered on the same trip in which he met with Trump, was titled “Standing for Voice and Free Expression.”
+The Facebook chief is not the only high-profile tech executive to have met with the president recently. On Wednesday, Trump and Apple CEO Tim Cook toured an Apple manufacturing plant in Austin, Texas.
+Trump and Cook have maintained a very public working relationship as the Apple CEO seeks to keep Apple products exempt from the president’s tariffs on China.",
+  "href": "https://www.nbcnews.com/tech/tech-news/trump-hosted-zuckerberg-undisclosed-dinner-white-house-october-n1087986",
+  "publicationDate": "Wed Nov 20 2019 22:32:00 GMT-0600 (Central Standard Time)",
+  "subheading": "The meeting took place during Zuckerberg’s most recent visit to Washington, where he testified before Congress about Facebook’s new cryptocurrency Libra.",
+  "title": "Trump hosted Zuckerberg for undisclosed dinner at the White House in October",
+}
+`;
+
 exports[`nbc snapshots gets multiple authors 1`] = `
 Object {
   "authors": Array [
@@ -22,6 +82,29 @@ President Donald Trump said in an interview with Fox News Radio in late August t
 But in early September, Trump announced that he was calling off \\"peace negotiations\\" with Taliban leadership after a U.S. service member was killed in a suicide attack in Kabul. It remains unclear if and when they will start again.",
   "href": "https://www.nbcnews.com/news/us-news/two-u-s-service-members-killed-helicopter-crash-afghanistan-n1086486",
   "publicationDate": "Wed Nov 20 2019 00:17:00 GMT-0600 (Central Standard Time)",
+  "subheading": "The military said preliminary reports do not indicate the crash was caused by enemy fire, and the cause is under investigation.",
   "title": "Two U.S. service members killed in helicopter crash in Afghanistan",
+}
+`;
+
+exports[`nbc snapshots gets subheadings 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "Annie Palmer",
+    },
+  ],
+  "content": "WeWork is laying off 2,400 employees as it works to cut costs and right-size the business, the company confirmed on Thursday.
+A WeWork spokesperson told CNBC in a statement: “As part of our renewed focus on the core WeWork business, and as we have previously shared with employees, the company is making necessary layoffs to create a more efficient organization. The process began weeks ago in regions around the world and continued this week in the U.S. This workforce reduction affects approximately 2,400 employees globally, who will receive severance, continued benefits, and other forms of assistance to aid in their career transition. These are incredibly talented professionals and we are grateful for the important roles they have played in building WeWork over the last decade.”
+Leading up to the announcement, reports of forthcoming job cuts had been circulating for weeks. The New York Times reported on Sunday that WeWork could cut at least 4,000 jobs across its core office-sharing business and some side ventures. In October, Marcelo Claure, WeWork’s new executive chairman, warned that layoffs would be on the way but didn’t say how many would be announced.
+Claure said in a memo to employees earlier this week that the company will hold an all-hands meeting at 10 a.m. on Friday to address the changes coming to the company.
+The layoffs come after several tumultuous months for WeWork. In September, the beleaguered start-up pulled its IPO filing after investors balked at its mounting losses and unusual corporate governance structure. The scrutiny forced WeWork founder Adam Neumann to step down from his role as CEO, with Sebastian Gunningham and Artie Minson stepping in as co-CEOs.
+WeWork was poised to run out of money in a matter of weeks, but secured an eleventh-hour bailout deal from SoftBank, its biggest investor. With a new owner in place, WeWork is expected to make sweeping changes to its business, including divesting non-core businesses and focusing on enterprise customers, instead of small and mid-sized clients.
+The company continues to bleed cash, reporting $1.25 billion in losses in the third quarter, up more than 150 percent from the same period last year.",
+  "href": "https://www.nbcnews.com/business/business-news/wework-lays-2-400-employees-n1088521",
+  "publicationDate": "Thu Nov 21 2019 09:59:00 GMT-0600 (Central Standard Time)",
+  "subheading": "The company reported a $1.25 billion loss in the third quarter, up more than 150 percent from the same period last year.",
+  "title": "WeWork lays off 2,400 employees",
 }
 `;

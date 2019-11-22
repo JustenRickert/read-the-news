@@ -93,6 +93,10 @@ const collect = async (page, href) => {
     '[data-test="article-hero__headline"]',
     el => el.innerText
   )
+  const subheading = await page.$eval(
+    '.articleDek',
+    subheading => subheading.textContent
+  )
   const authors = await page
     .$eval('[data-test="byline"]', el => el.innerText)
     .then(parseAuthors)
@@ -100,7 +104,15 @@ const collect = async (page, href) => {
     .$eval('[data-test="timestamp__datePublished"]', el => el.dateTime)
     .then(datetime => new Date(datetime).toString())
   const content = await page
-    .$$eval('.endmarkEnabled', els => els.map(el => el.innerText))
+    .$eval('.article-body__content', $content =>
+      Array.from($content.childNodes)
+        .filter(
+          $el =>
+            $el.classList.contains('endmarkEnabled') || $el.className === ''
+        )
+        .map($el => $el.textContent.trim())
+        .filter(Boolean)
+    )
     .then(paragraphs =>
       [maybeReplaceLocation(paragraphs[0], '')].concat(paragraphs.slice(1))
     )
@@ -108,6 +120,7 @@ const collect = async (page, href) => {
   return {
     href: page.url(),
     title,
+    subheading,
     authors,
     publicationDate,
     content,
