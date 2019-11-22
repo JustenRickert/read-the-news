@@ -3,7 +3,8 @@ const isBreitbartHref = ({ href }) =>
 
 const isCnnHref = ({ href }) => /^https?:\/\/www\.cnn\.com/.test(href);
 
-const isFoxHref = ({ href }) => /^https:\/\/www.foxnews\.com/.test(href);
+const isFoxHref = ({ href }) =>
+  /^https:\/\/www.(foxnews|foxbusiness)\.com/.test(href);
 
 const isNbcHref = ({ href }) => /^https?:\/\/www\.nbcnews\.com/.test(href);
 
