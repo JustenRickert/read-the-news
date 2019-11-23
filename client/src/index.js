@@ -5,9 +5,9 @@ const { createStore } = require('@reduxjs/toolkit')
 const { parseSite } = require('../../shared/utils')
 const { isBreitbartHref } = require('../../shared/predicates')
 
-const { newsSourceModule, collectArticle } = require('./news-sources')
+const { collectArticle, discoverSite } = require('./news-sources')
 
-const { postArticle } = require('./connection')
+const { postArticle, fetchArticle } = require('./connection')
 
 // TODO reintroduce saveStore somewhere ??
 const { last, timeFn } = require('./utils')
@@ -41,7 +41,7 @@ const runArticle = async (page, store, article) => {
       )
       .catch(
         e => (
-          console.error('POST ERROR', result.href, e),
+          console.error('POST ERROR', result.href),
           slice.actions.markArticleErrorWhenSentToServer(result)
         )
       )
@@ -77,25 +77,50 @@ const createBrowserInstanceAndRunHref = async (store, href) => {
   await runArticle(page, store, { href }).then(() => browser.close())
 }
 
+const createBrowserIstanceAndDiscoverAll = async store => {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+  const siteNames = shuffle(Object.keys(store.getState()))
+  while (siteNames.length) {
+    const site = last(siteNames)
+    const slice = newsSourceSliceMap[site]
+    await discoverSite(page, site)
+      .then(headlines => {
+        store.dispatch(slice.actions.addHeadline(headlines))
+      })
+      .catch(console.error)
+    siteNames.pop()
+  }
+}
+
 const command = process.argv[2]
 
-const additionalOptions = process.argv.slice(4).reduce((options, flag) => {
-  switch (flag) {
-    case '--skip-discover':
-      options.skipDiscover = true
+const run = store => {
+  let prom = null
+  switch (command) {
+    case 'random-discover':
+      const runDiscoverAllTimed = timeFn(createBrowserIstanceAndDiscoverAll)
+      prom = runDiscoverAllTimed(store)
       break
-    case '--skip-server-post':
-      options.skipServerPost = true
+    case 'random-collect':
+      const runCollectionTimed = timeFn(
+        createBrowserInstanceAndRunRandomCollection
+      )
+      prom = runCollectionTimed(store)
       break
-    case '--skip-collect':
-      options.skipCollect = true
+    case 'href':
+      const href = process.argv[3]
+      const runHrefTimed = timeFn(createBrowserInstanceAndRunHref)
+      prom = runHrefTimed(store, href)
       break
-    case '--skip-save':
-      options.skipSave = true
-      break
+    default:
+      console.error("Couldn't understand arguments", command, additionalOptions)
+      process.exit(1)
   }
-  return options
-}, {})
+  return prom
+}
+
+const { SKIP_SAVE } = process.env
 
 const store = createStore(
   reducer,
@@ -103,27 +128,6 @@ const store = createStore(
   // applyMiddleware(saveContentMiddleware, logAction)
 )
 
-const saveStoreTimed = timeFn(saveStore)
-const runCollectionTimed = timeFn(createBrowserInstanceAndRunRandomCollection)
-const runHrefTimed = timeFn(createBrowserInstanceAndRunHref)
-
-switch (command) {
-  case 'random-discover':
-    throw new Error('TODO')
-    break
-  case 'random-collect':
-    runCollectionTimed(store)
-    break
-  case 'href':
-    const href = process.argv[3]
-    runHrefTimed(store, href)
-    break
-  default:
-    console.error(
-      "Couldn't understand arguments",
-      command,
-      newsSource,
-      additionalOptions
-    )
-    process.exit(1)
-}
+run(store).then(() => {
+  if (!SKIP_SAVE) saveStore(store)
+})

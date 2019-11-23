@@ -9,7 +9,12 @@ const collectArticle = (page, article) => {
   return collect(page, href || article.href)
 }
 
+const discoverSite = (page, site) => {
+  const { discover } = newsSourceModule(site)
+  return discover(page)
+}
+
 module.exports = {
   collectArticle,
-  newsSourceModule,
+  discoverSite,
 }
