@@ -129,8 +129,16 @@ const take = (count, xs) => xs.slice(0, count)
 
 const drop = (count, xs) => xs.slice(count)
 
+const bucket = (xs, id) =>
+  xs.reduce(
+    (record, x) =>
+      Object.assign(record, { [id(x)]: (record[id(x)] || []).concat(x) }),
+    {}
+  )
+
 module.exports = {
   and,
+  bucket,
   complement,
   difference,
   dropRightWhile,

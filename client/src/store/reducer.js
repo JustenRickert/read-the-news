@@ -16,7 +16,6 @@ const addHeadline = (state, action) => {
     state,
     uniqueActions.reduce((updates, u) => {
       assert(u.href, 'Update must contain `href`')
-      // TODO consider getting rid of early return
       if (state[u.href]) return updates
       assert(!state[u.href], 'Article cannot be overwritten by a new headline')
       Object.assign(updates, { [u.href]: pick(u, ['href', 'title']) })
@@ -105,7 +104,7 @@ const createNewsSourceSlice = newsSource => {
 
   slice.select = {}
 
-  slice.select.articles = state => state[newsSource]
+  slice.select.articles = state => Object.values(state[newsSource])
 
   slice.select.articlesWithoutContent = state =>
     Object.values(state[newsSource]).filter(
@@ -114,6 +113,11 @@ const createNewsSourceSlice = newsSource => {
 
   slice.select.articlesWithErrors = state =>
     Object.values(state[newsSource]).filter(article => article.error)
+
+  slice.select.articlesOnServer = state =>
+    Object.values(state[newsSource]).filter(
+      article => !article.sentToServer || !article.sendToServerError
+    )
 
   slice.select.articlesOkayForServer = state =>
     Object.values(state[newsSource]).filter(

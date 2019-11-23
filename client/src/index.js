@@ -9,7 +9,17 @@ const { collectArticle, discoverSite } = require('./news-sources')
 
 const { postArticle, fetchArticle } = require('./connection')
 
-const { last, partition, timeFn, take, drop } = require('./utils')
+const {
+  bucket,
+  difference,
+  last,
+  partition,
+  timeFn,
+  take,
+  drop,
+  unique,
+  sequentiallyForEach,
+} = require('./utils')
 const {
   reducer,
   loadFileState,
@@ -82,48 +92,106 @@ const createBrowserInstanceAndRunHref = async (store, href, options) => {
   await runArticle(page, store, { href }, options).then(() => browser.close())
 }
 
-const mapAsyncBatched = async (xs, fn, batchSize = 100) => {
+// TODO better impl
+const mapAsyncBatched = async (xs, asyncFn, batchSize = 100) => {
   let batch = 0
   const result = []
   while (batch * batchSize < xs.length) {
-    batch++
-    const ys = await xs
-      .slice(batch * batchSize)
-      .slice(0, batchSize)
-      .map(fn)
+    const xsBatch = xs.slice(batch * batchSize).slice(0, batchSize)
+    const ys = await Promise.all(xsBatch.map(asyncFn))
     result.push(...ys)
+    batch++
   }
   return result
 }
 
-const isOnServerBatched = articles => {
-  const [needsContent, alreadyOnServer] = mapAsyncBatched(articles, article =>
-    fetchArticle(article)
-      .then(() => ({ type: 'ALREADY_ON_SERVER', article }))
-      .catch(() => ({ type: 'NO_CONTENT', article }))
-  ).then(results =>
-    partition(results, result => result.type === 'NO_CONTENT').map((lhs, rhs) =>
-      [lhs, rhs].map(result => result.article)
+const isOnServerBatched = async (store, slice, articles) => {
+  const { needsContent, alreadyOnServer } = await mapAsyncBatched(
+    articles,
+    article =>
+      fetchArticle(article)
+        .then(() => ({ type: 'ALREADY_ON_SERVER', article }))
+        .catch(() => ({ type: 'NO_CONTENT', article }))
+  ).then(results => {
+    const [lhs, rhs] = partition(
+      results,
+      result => result.type === 'NO_CONTENT'
     )
-  )
+    return {
+      needsContent: lhs.map(r => r.article),
+      alreadyOnServer: rhs.map(r => r.article),
+    }
+  })
   return { needsContent, alreadyOnServer }
 }
 
-const createBrowserIstanceAndDiscoverAll = async store => {
-  const browser = await puppeteer.launch()
+const createDiscoverPage = async (site, browser) => {
   const page = await browser.newPage()
-  const siteNames = shuffle(Object.keys(store.getState()))
-  let site
-  while ((site = siteNames.pop())) {
-    const slice = newsSourceSliceMap[site]
-    console.log('Discover:', slice.name)
-    const headlines = await discoverSite(page, site)
-      .then(headlines => {
-        store.dispatch(slice.actions.addHeadline(headlines))
-      })
-      .catch(console.error)
-    assert(typeof headlines === 'object', '')
-  }
+  const headlines = await discoverSite(page, site)
+  await page.close()
+  return headlines
+}
+
+const createBrowserInstanceAndDiscoverAll = async store => {
+  const browser = await puppeteer.launch({ headless: false })
+  const sites = shuffle(Object.keys(store.getState()))
+  const headlinesRecord = await Promise.all(
+    sites.map(
+      site => (
+        console.log('Starting up', site),
+        createDiscoverPage(site, browser).catch(e => {
+          console.error('WORK ERROR:', e.stack)
+          return []
+        })
+      )
+    )
+  )
+    .then(headlines => headlines.reduce((hs, xs) => hs.concat(xs), []))
+    .then(headlines => bucket(headlines, headline => parseSite(headline.href)))
+
+  const state = store.getState()
+
+  await sequentiallyForEach(
+    Object.entries(headlinesRecord),
+    async ([site, headlines]) => {
+      const slice = newsSourceSliceMap[site]
+      store.dispatch(slice.actions.addHeadline(headlines))
+
+      const articlesBefore = slice.select.articles(state).length
+      const {
+        needsContent,
+        alreadyOnServer: alreadyOnServerButNotMarkedAsSuch,
+      } = await isOnServerBatched(
+        store,
+        slice,
+        difference(
+          headlines,
+          slice.select.articlesOnServer(state),
+          ({ href }) => href
+        )
+      )
+      store.dispatch(
+        slice.actions.markArticleSentToServer(alreadyOnServerButNotMarkedAsSuch)
+      )
+      const articlesAfter = slice.select.articles(store.getState()).length
+
+      console.log()
+      console.log(
+        'Added',
+        articlesAfter - articlesBefore,
+        'headlines for',
+        site
+      )
+      console.log(
+        alreadyOnServerButNotMarkedAsSuch.length,
+        'marked as on server and',
+        needsContent.length,
+        'marked as needs content'
+      )
+    }
+  ).catch(console.error)
+
+  await browser.close()
 }
 
 const parseAdditionalArguments = (index, argv) =>
@@ -146,7 +214,7 @@ const run = store => {
   let prom = null
   switch (command) {
     case 'random-discover':
-      const runDiscoverAllTimed = timeFn(createBrowserIstanceAndDiscoverAll)
+      const runDiscoverAllTimed = timeFn(createBrowserInstanceAndDiscoverAll)
       prom = runDiscoverAllTimed(store)
       break
     case 'random-collect':

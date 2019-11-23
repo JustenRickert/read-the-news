@@ -1,5 +1,7 @@
 const { parseSite } = require('../../../shared/utils')
 
+const { unique } = require('../utils')
+
 const newsSourceModule = name => require(`./${name}`)
 
 const collectArticle = (page, article) => {
@@ -11,7 +13,7 @@ const collectArticle = (page, article) => {
 
 const discoverSite = (page, site) => {
   const { discover } = newsSourceModule(site)
-  return discover(page)
+  return discover(page).then(headlines => unique(headlines, ({ href }) => href))
 }
 
 module.exports = {
