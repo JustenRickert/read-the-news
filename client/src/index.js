@@ -9,7 +9,7 @@ const { collectArticle, discoverSite } = require('./news-sources')
 
 const { postArticle, fetchArticle } = require('./connection')
 
-const { last, timeFn } = require('./utils')
+const { last, partition, timeFn, take, drop } = require('./utils')
 const {
   reducer,
   loadFileState,
@@ -18,7 +18,7 @@ const {
 } = require('./store')
 const { allArticles } = require('./store/selectors')
 
-const runArticle = async (page, store, article) => {
+const runArticle = async (page, store, article, { skipPost = false }) => {
   const site = parseSite(article)
   const slice = newsSourceSliceMap[site]
   const result = await collectArticle(page, article).catch(
@@ -27,9 +27,14 @@ const runArticle = async (page, store, article) => {
       { error: true, message: e.stack }
     )
   )
+  {
+    const storeDiscoveredArticles = slice.select.articles(store.getState())
+    if (!storeDiscoveredArticles[result.href])
+      store.dispatch(slice.actions.addHeadline(result))
+  }
   store.dispatch(slice.actions.updateArticle(result))
-  if (!result.error) {
-    await postArticle(result)
+  if (!skipPost && !result.error) {
+    await postArticle(result, { isUpdate: true })
       .then(
         () => (
           console.log('SUCCESS:', result.href),
@@ -46,6 +51,7 @@ const runArticle = async (page, store, article) => {
       )
       .then(store.dispatch)
   }
+  console.log({ ...result, content: result.content.split('\n') })
 }
 
 const runCollection = async (browser, store, needsContent) => {
@@ -70,27 +76,69 @@ const createBrowserInstanceAndRunRandomCollection = async (
   )
 }
 
-const createBrowserInstanceAndRunHref = async (store, href) => {
+const createBrowserInstanceAndRunHref = async (store, href, options) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  await runArticle(page, store, { href }).then(() => browser.close())
+  await runArticle(page, store, { href }, options).then(() => browser.close())
+}
+
+const mapAsyncBatched = async (xs, fn, batchSize = 100) => {
+  let batch = 0
+  const result = []
+  while (batch * batchSize < xs.length) {
+    batch++
+    const ys = await xs
+      .slice(batch * batchSize)
+      .slice(0, batchSize)
+      .map(fn)
+    result.push(...ys)
+  }
+  return result
+}
+
+const isOnServerBatched = articles => {
+  const [needsContent, alreadyOnServer] = mapAsyncBatched(articles, article =>
+    fetchArticle(article)
+      .then(() => ({ type: 'ALREADY_ON_SERVER', article }))
+      .catch(() => ({ type: 'NO_CONTENT', article }))
+  ).then(results =>
+    partition(results, result => result.type === 'NO_CONTENT').map((lhs, rhs) =>
+      [lhs, rhs].map(result => result.article)
+    )
+  )
+  return { needsContent, alreadyOnServer }
 }
 
 const createBrowserIstanceAndDiscoverAll = async store => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   const siteNames = shuffle(Object.keys(store.getState()))
-  while (siteNames.length) {
-    const site = last(siteNames)
+  let site
+  while ((site = siteNames.pop())) {
     const slice = newsSourceSliceMap[site]
-    await discoverSite(page, site)
+    console.log('Discover:', slice.name)
+    const headlines = await discoverSite(page, site)
       .then(headlines => {
         store.dispatch(slice.actions.addHeadline(headlines))
       })
       .catch(console.error)
-    siteNames.pop()
+    assert(typeof headlines === 'object', '')
   }
 }
+
+const parseAdditionalArguments = (index, argv) =>
+  argv
+    .filter(Boolean)
+    .slice(index)
+    .reduce((options, a) => {
+      switch (a) {
+        case '--skipPost':
+          return {
+            ...options,
+            skipPost: true,
+          }
+      }
+    }, {})
 
 const command = process.argv[2]
 
@@ -109,8 +157,9 @@ const run = store => {
       break
     case 'href':
       const href = process.argv[3]
+      const additionalArguments = parseAdditionalArguments(4, process.argv)
       const runHrefTimed = timeFn(createBrowserInstanceAndRunHref)
-      prom = runHrefTimed(store, href)
+      prom = runHrefTimed(store, href, additionalArguments)
       break
     default:
       console.error("Couldn't understand arguments", command, additionalOptions)

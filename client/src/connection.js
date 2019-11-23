@@ -10,7 +10,8 @@ const requestOptions = {
   port: 3001,
 }
 
-const fetchArticle = (site, { href }) => {
+const fetchArticle = ({ href }) => {
+  const site = parseSite({ href })
   const endpoint = `http://${
     requestOptions.hostname
   }:3001/api/news-source/${site}/${encodeURIComponent(href)}`
@@ -34,13 +35,21 @@ const postArticleOptions = {
   },
 }
 
-const postArticle = article =>
+const postArticle = (article, { isUpdate = false }) =>
   new Promise((resolve, reject) => {
-    const site = parseSite(article)
-    const request = http.request(postArticleOptions, res => {
-      if (res.statusCode >= 200 && res.statusCode < 300) return resolve(res)
-      else reject(res)
-    })
+    const site = parseSite(article.href)
+    const request = http.request(
+      isUpdate
+        ? {
+            ...postArticleOptions,
+            path: `/api/news-source/${encodeURIComponent(article.href)}`,
+          }
+        : postArticleOptions,
+      res => {
+        if (res.statusCode >= 200 && res.statusCode < 300) return resolve(res)
+        else reject(res)
+      }
+    )
     request.on('error', console.error)
     request.write(JSON.stringify(article))
     request.end()

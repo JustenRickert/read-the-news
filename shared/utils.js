@@ -31,7 +31,7 @@ const cond = matches => x => {
   return cond(matches.slice(1))(x);
 };
 
-const parseSite = cond([
+const parseSiteConditionalFn = cond([
   [isBreitbartHref, constant(BREITBART)],
   [isCnnHref, constant(CNN)],
   [isFoxHref, constant(FOX)],
@@ -49,6 +49,12 @@ const parseSite = cond([
     }
   ]
 ]);
+
+const parseSite = articleOrHref => {
+  if (typeof articleOrHref === "string")
+    articleOrHref = { href: articleOrHref };
+  return parseSiteConditionalFn(articleOrHref);
+};
 
 module.exports = {
   parseSite

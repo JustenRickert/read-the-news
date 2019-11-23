@@ -125,6 +125,10 @@ const dropRightWhile = (xs, predicate) => {
   return xs
 }
 
+const take = (count, xs) => xs.slice(0, count)
+
+const drop = (count, xs) => xs.slice(count)
+
 module.exports = {
   and,
   complement,

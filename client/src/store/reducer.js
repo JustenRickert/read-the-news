@@ -32,7 +32,7 @@ const markArticleErrorWhenSentToServer = (state, action) => {
     try {
       assert(update.href, 'Need `href` to mark error when sending')
     } catch (e) {
-      console.log('SENT TO SERVER ERROR UPDATE:', update)
+      console.log('ERROR: SENT TO SERVER ERROR UPDATE:', update)
       throw e
     }
     const slice = state[update.href]
@@ -49,7 +49,7 @@ const markArticleSentToServer = (state, action) => {
       assert(slice, '`slice[href]` not found in data')
       assert(update.href, 'Need `href` to mark sent')
     } catch (e) {
-      console.log('SENT TO SERVER UPDATE:', update)
+      console.log('ERROR: SENT TO SERVER UPDATE:', update)
       return
     }
     slice.sentToServer = true
@@ -69,7 +69,7 @@ const updateArticle = (state, action) => {
       return
     }
     try {
-      assert(slice, 'State not found. Payload not a valid href maybe?')
+      assert(slice, '\nState not found. Payload not a valid href maybe?')
       assertValidArticle(update, slice)
     } catch (e) {
       console.error(e)
@@ -104,6 +104,8 @@ const createNewsSourceSlice = newsSource => {
   })
 
   slice.select = {}
+
+  slice.select.articles = state => state[newsSource]
 
   slice.select.articlesWithoutContent = state =>
     Object.values(state[newsSource]).filter(
