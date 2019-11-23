@@ -9,7 +9,6 @@ const { collectArticle, discoverSite } = require('./news-sources')
 
 const { postArticle, fetchArticle } = require('./connection')
 
-// TODO reintroduce saveStore somewhere ??
 const { last, timeFn } = require('./utils')
 const {
   reducer,
@@ -128,6 +127,7 @@ const store = createStore(
   // applyMiddleware(saveContentMiddleware, logAction)
 )
 
-run(store).then(() => {
+run(store).then(({ duration }) => {
+  console.log('COMPLETED:', duration)
   if (!SKIP_SAVE) saveStore(store)
 })
