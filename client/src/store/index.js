@@ -1,11 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const throttle = require('lodash.throttle')
-const {
-  createStore,
-  applyMiddleware,
-  combineReducers,
-} = require('@reduxjs/toolkit')
+const { combineReducers } = require('@reduxjs/toolkit')
 
 const {
   dataStoreFilename,
@@ -95,21 +91,21 @@ const slices = [
   vox,
 ]
 
-const sliceMap = slices.reduce(
+const newsSourceSliceMap = slices.reduce(
   (sliceMap, slice) => Object.assign(sliceMap, { [slice.name]: slice }),
   {}
 )
 
 const reducer = combineReducers(
   slices.reduce(
-    (reducerMap, [name, slice]) =>
+    (reducerMap, slice) =>
       Object.assign(reducerMap, { [slice.name]: slice.reducer }),
     {}
   )
 )
 
 module.exports = {
-  sliceMap,
+  newsSourceSliceMap,
   reducer,
   saveStore,
   loadFileState,

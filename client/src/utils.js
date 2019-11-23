@@ -9,6 +9,8 @@ const range = n =>
 
 const map = (xs, fn) => xs.map(fn)
 
+const last = xs => xs[xs.length - 1]
+
 const sequentiallyDoTimes = async (n, fn) =>
   range(n).reduce(p => p.then(fn), Promise.resolve(null))
 
@@ -137,6 +139,7 @@ module.exports = {
   sample,
   sequentiallyDoTimes,
   sequentiallyDoWhile,
+  last,
   sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,

@@ -20,7 +20,6 @@ const addHeadline = (state, action) => {
       if (state[u.href]) return updates
       assert(!state[u.href], 'Article cannot be overwritten by a new headline')
       Object.assign(updates, { [u.href]: pick(u, ['href', 'title']) })
-      console.log('Added article', u.href, u.title || '[Title required]')
       return updates
     }, {})
   )
@@ -33,7 +32,7 @@ const markArticleErrorWhenSentToServer = (state, action) => {
     try {
       assert(update.href, 'Need `href` to mark error when sending')
     } catch (e) {
-      console.log('UPDATE', update)
+      console.log('SENT TO SERVER ERROR UPDATE:', update)
       throw e
     }
     const slice = state[update.href]
@@ -50,7 +49,7 @@ const markArticleSentToServer = (state, action) => {
       assert(slice, '`slice[href]` not found in data')
       assert(update.href, 'Need `href` to mark sent')
     } catch (e) {
-      console.log('UPDATE', update)
+      console.log('SENT TO SERVER UPDATE:', update)
       return
     }
     slice.sentToServer = true
@@ -81,7 +80,6 @@ const updateArticle = (state, action) => {
     slice.publicationDate = update.publicationDate
     slice.authors = update.authors
     if (update.title) slice.title = update.title
-    console.log('Updated article', update.title || slice.title || update.href)
   })
 }
 

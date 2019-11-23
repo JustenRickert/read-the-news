@@ -40,7 +40,14 @@ const parseSite = cond([
   [isTheNationHref, constant(THE_NATION)],
   [isTheInterceptHref, constant(THE_INTERCEPT)],
   [isViceHref, constant(VICE)],
-  [isVoxHref, constant(VOX)]
+  [isVoxHref, constant(VOX)],
+  [
+    constant(true),
+    article => {
+      console.error("href:", article);
+      throw new Error("Could not parse href");
+    }
+  ]
 ]);
 
 module.exports = {

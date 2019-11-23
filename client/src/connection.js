@@ -1,6 +1,7 @@
 const http = require('http')
 const fs = require('fs')
 const { sample } = require('./utils')
+const { parseSite } = require('../../shared/utils')
 
 const PORT = 3001
 
@@ -33,8 +34,9 @@ const postArticleOptions = {
   },
 }
 
-const postArticle = (site, article) =>
+const postArticle = article =>
   new Promise((resolve, reject) => {
+    const site = parseSite(article)
     const request = http.request(postArticleOptions, res => {
       if (res.statusCode >= 200 && res.statusCode < 300) return resolve(res)
       else reject(res)
