@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 
-const { runHref } = require('../')
+const { collectArticle } = require('../')
 
 describe('fox snapshots', () => {
   jest.setTimeout(30e3)
@@ -25,7 +25,7 @@ describe('fox snapshots', () => {
   })
 
   it('gets it good on a first pager', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.foxnews.com/politics/impeachment-articles-senate-trial-republicans'
     )
@@ -33,7 +33,7 @@ describe('fox snapshots', () => {
   })
 
   it('does gutfield fuuuu', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.foxnews.com/opinion/gutfeld-on-last-nights-debate'
     )
@@ -41,7 +41,7 @@ describe('fox snapshots', () => {
   })
 
   it('does dates statically when running in test', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.foxnews.com/politics/trump-administration-begins-sending-migrants-to-guatemala-as-part-of-safe-third-country-agreement'
     )
@@ -49,7 +49,7 @@ describe('fox snapshots', () => {
   })
 
   it('gets rid of ^WATCH: type advertisements', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.foxbusiness.com/markets/charles-schwab-buying-td-ameritrade-for-26b'
     )

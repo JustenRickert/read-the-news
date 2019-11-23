@@ -69,10 +69,9 @@ const collect = async (page, href) => {
   const publicationDate = await page
     .$eval('time[datetime]', time => time.dateTime)
     .then(datetime => new Date(datetime))
-  const subheading = await page.$eval(
-    '.entry-content h2',
-    $subheading => $subheading.textContent
-  )
+  const subheading = await page
+    .$eval('.entry-content h2', $subheading => $subheading.textContent)
+    .catch(() => undefined)
   const content = await page
     .$eval('article.the-article .entry-content', $article => {
       let $ps = Array.from($article.childNodes || []).filter($p => {

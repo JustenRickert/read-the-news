@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const { inspect } = require('util')
 
 const theInterceptModule = require('./')
-const { runHref } = require('../')
+const { collectArticle } = require('../')
 
 describe('The intercept', () => {
   jest.setTimeout(30e3)
@@ -27,7 +27,7 @@ describe('The intercept', () => {
   })
 
   it('does long articles', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://theintercept.com/2019/11/18/iran-iraq-spy-cables/'
     )
@@ -35,7 +35,7 @@ describe('The intercept', () => {
   })
 
   it('does articles with different kinds of updates at the bottom', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://theintercept.com/2019/11/20/pete-buttigieg-federal-contracts-minorities/'
     )
@@ -43,7 +43,7 @@ describe('The intercept', () => {
   })
 
   it('reads transcripts', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://theintercept.com/2019/03/21/mayor-pete-buttigieg-on-trump-islamophobia-and-his-presidential-bid/'
     )

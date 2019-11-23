@@ -97,10 +97,11 @@ Object {
     },
   ],
   "content": "Washington — A former FBI lawyer is under criminal investigation after allegedly altering a document related to 2016 surveillance of a Trump campaign adviser, several people briefed on the matter told CNN.
-The possibility of a substantive change to an investigative document is likely to fuel accusations from President Donald Trump and his allies that the FBI committed wrongdoing in its investigation of connections between Russian election meddling and the Trump campaign.
-The finding is expected to be part of Justice Department Inspector General Michael Horowitz's review of the FBI's effort to obtain warrants under the Foreign Intelligence Surveillance Act on Carter Page, a former Trump campaign aide. Horowitz will release the report next month.
+Yet the situation did not sway an independent Justice Department watchdog from finding the surveillance was valid, sources said.
+Still, the possibility of a substantive change to an investigative document is likely to fuel accusations from President Donald Trump and his allies that the FBI committed wrongdoing in its investigation of connections between Russian election meddling and the Trump campaign.
+The findings are expected to be part of Justice Department Inspector General Michael Horowitz's review of the FBI's effort to obtain warrants under the Foreign Intelligence Surveillance Act on Carter Page, a former Trump campaign aide. Horowitz will release the report next month.
 Horowitz turned over evidence on the allegedly altered document to John Durham, the federal prosecutor appointed early this year by Attorney General William Barr to conduct a broad investigation of intelligence gathered for the Russia probe by the CIA and other agencies, including the FBI. The altered document is also at least one focus of Durham's criminal probe.
-It's unknown how significant a role the altered document played in the FBI's investigation of Page and whether the FISA warrant would have been approved without the document. The alterations were significant enough to have shifted the document's meaning and came up during a part of Horowitz's FISA review where details were classified, according to the sources.
+It's unknown how significant a role the altered document played in the FBI's investigation of Page. The alterations were significant enough to have shifted the document's meaning and came up during a part of Horowitz's FISA review where details were classified, according to the sources. It did not change Horowitz's finding that the FISA application had a legal basis, The Washington Post first reported.
 Some witnesses who have been interviewed in Horowitz's investigation have said they expect the inspector general to find mistakes in the FBI's handling of the FISA process, but that those mistakes do not undermine the premise for the FBI's investigation.
 American intelligence agencies and the Justice Department have not swayed from their finding that Russia interfered in the 2016 election by hacking the Democrats and spreading pro-Trump propaganda online. And even former top Trump campaign officials have corroborated special counsel Robert Mueller's finding that the Trump campaign planned some of its strategy around the Russian hacks, and had multiple contacts with Kremlin-linked individuals in 2016.
 Horowitz's investigators conducted more than 100 witness interviews in their review. During one of interviews this year, they confronted the witness about the document. The witness admitted to the change, the sources said.
@@ -116,9 +117,9 @@ Horowitz has shared information from his review with Durham, CNN previously repo
 The Justice Department has been tight-lipped on outlining exactly what Durham has been looking at. But the attorney general himself said soon after appointing him that he was concerned officials acted inappropriately as they oversaw the counterintelligence probe of the 2016 Trump campaign.
 Barr's embrace of these theories aligns with Trump's chief grievance that he was the victim of a \\"deep state\\" spy operation that has clouded his presidency.
 The New York Times, CNN and other outlets have reported that Durham's investigation had become a criminal investigation.
-Update: This story has been updated to reflect the official is a lawyer who is no longer with the FBI.",
+UPDATE: This story has been updated to reflect the official is a lawyer who is no longer with the FBI. It has also been updated with information about the impact of the matter under investigation.",
   "href": "https://www.cnn.com/2019/11/21/politics/fbi-fisa-russia-investigation/index.html",
-  "publicationDate": "Thu Nov 21 2019 00:00:00 GMT-0600 (Central Standard Time)",
+  "publicationDate": "Fri Nov 22 2019 00:00:00 GMT-0600 (Central Standard Time)",
   "title": "Exclusive: Former FBI lawyer under investigation after allegedly altering document in 2016 Russia probe",
 }
 `;

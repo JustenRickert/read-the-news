@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`cnn snapshots does articles with weird endings 1`] = `
+exports[`breitbart snapshots does articles with weird endings 1`] = `
 Object {
   "authors": Array [
     Object {
@@ -33,7 +33,25 @@ Look at what the policies this new socialist Democrat party is doing. They want 
 }
 `;
 
-exports[`cnn snapshots does not do ending citations 1`] = `
+exports[`breitbart snapshots does articles without subheadings 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.breitbart.com/author/pam-key/",
+      "name": "Pam Key",
+    },
+  ],
+  "content": "On Friday’s broadcast of MSNBC’s “Deadline,” anchor Nicolle Wallace discussed Shepard Smith’s departure from Fox News.
+Wallace said, “That’s Shep Smith in my view, the most important voice at Fox News. He took apart Donald Trump’s Uranium One scam, he was an important voice for truth in front of an audience that needs it desperately.”
+She continued, “Very sad news for the truth today.”",
+  "href": "https://www.breitbart.com/clips/2019/10/11/msnbcs-wallace-on-shep-smiths-fox-news-departure-very-sad-news-for-the-truth-today/",
+  "publicationDate": 2019-10-11T16:07:08.000Z,
+  "subheading": undefined,
+  "title": "MSNBC’s Wallace on Shep Smith’s Fox News Departure: ‘Very Sad News for the Truth Today’",
+}
+`;
+
+exports[`breitbart snapshots does not do ending citations 1`] = `
 Object {
   "authors": Array [
     Object {

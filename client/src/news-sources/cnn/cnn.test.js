@@ -4,7 +4,7 @@ const {
 
 const puppeteer = require('puppeteer')
 
-const { runHref } = require('../')
+const { collectArticle } = require('../')
 
 describe('parsing utils', () => {
   it('parses publication dates', () => {
@@ -18,14 +18,17 @@ describe('parsing utils', () => {
   })
 })
 
+const TIMEOUT = 60e3
+
 describe('cnn snapshots', () => {
-  jest.setTimeout(30e3)
+  jest.setTimeout(TIMEOUT)
 
   let browser
   let page
 
   beforeAll(async () => {
     browser = await puppeteer.launch()
+    browser.setDefaultTimeout(TIMEOUT)
   })
 
   beforeEach(async () => {
@@ -41,7 +44,7 @@ describe('cnn snapshots', () => {
   })
 
   it("gets the cool STATE (CNN) - with just the state because it's pretty cool-looking", async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.cnn.com/2019/11/21/politics/fbi-fisa-russia-investigation/index.html'
     )
@@ -49,7 +52,7 @@ describe('cnn snapshots', () => {
   })
 
   it('does articles about the queen of Sweden', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.cnn.com/2019/08/08/business/ikea-sweden-dementia/index.html'
     )
@@ -57,7 +60,7 @@ describe('cnn snapshots', () => {
   })
 
   it('drops unrelated content off at the end of the article', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.cnn.com/2019/05/30/us/cnnheroes-staci-alonso-noahs-animal-house-pets-domestic-violence/index.html'
     )
@@ -65,7 +68,7 @@ describe('cnn snapshots', () => {
   })
 
   it('likes to do movie reviews too', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.cnn.com/2019/11/15/entertainment/dollface-review/index.html'
     )

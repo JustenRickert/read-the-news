@@ -1,9 +1,11 @@
 const puppeteer = require('puppeteer')
 
-const { runHref } = require('../')
+const { collectArticle } = require('../')
 
-describe('cnn snapshots', () => {
-  jest.setTimeout(15e3)
+const TIMEOUT = 30e3
+
+describe('breitbart snapshots', () => {
+  jest.setTimeout(TIMEOUT)
 
   let browser
   let page
@@ -24,8 +26,16 @@ describe('cnn snapshots', () => {
     await browser.close()
   })
 
+  it('does articles without subheadings', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.breitbart.com/clips/2019/10/11/msnbcs-wallace-on-shep-smiths-fox-news-departure-very-sad-news-for-the-truth-today/'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
   it('does not do ending citations', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.breitbart.com/politics/2019/11/21/watch-david-holmes-refuses-to-say-he-will-be-more-careful-with-communications/'
     )
@@ -33,7 +43,7 @@ describe('cnn snapshots', () => {
   })
 
   it('does articles with weird endings', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.breitbart.com/politics/2019/08/05/kenny-marchant-fourth-texas-republican-not-seek-re-election/'
     )

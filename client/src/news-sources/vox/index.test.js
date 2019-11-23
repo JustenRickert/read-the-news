@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 
-const { runHref } = require('../')
+const { collectArticle } = require('../')
 
 describe('vox media', () => {
   jest.setTimeout(30e3)
@@ -25,7 +25,7 @@ describe('vox media', () => {
   })
 
   it('collects from an article that needs ASIDE and FIGURE tags removed', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.vox.com/science-and-health/2019/11/18/20970604/amazon-rainforest-2019-brazil-burning-deforestation-bolsonaro'
     )
@@ -33,7 +33,7 @@ describe('vox media', () => {
   })
 
   it('skips twitter content [that is ideally quoted in the body of the article itself...]', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.vox.com/science-and-health/2019/11/18/20970633/trump-vaping-ban'
     )
@@ -41,7 +41,7 @@ describe('vox media', () => {
   })
 
   it('Takes out /goods-newsletter/ internal ads from the end', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.vox.com/the-goods/2019/11/18/20966941/thirdlove-bra-pivot-ai-inclusivity-employee'
     )
@@ -49,7 +49,7 @@ describe('vox media', () => {
   })
 
   it('Removes the twitter link to /first-person/ authors', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.vox.com/first-person/2019/11/12/20961357/marquis-jefferson-black-family-heart'
     )
@@ -57,7 +57,7 @@ describe('vox media', () => {
   })
 
   it('quotes `blockquote`s and removes "related" `aside`s', async () => {
-    const result = await runHref(
+    const result = await collectArticle(
       page,
       'https://www.vox.com/2019/11/13/20961074/impeachment-hearings-testimony-live-stream-taylor-kent'
     )
