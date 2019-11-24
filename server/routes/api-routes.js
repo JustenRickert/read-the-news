@@ -50,7 +50,6 @@ router.get('/news-source', (req, res) => {
 router.get('/news-source/:site', (req, res) => {
   models.NewsSource.findOne({ where: { site: req.params.site } })
     .then(results => {
-      console.log(JSON.stringify(results))
       res
         .status(200, { 'Content-Type': 'application/json' })
         .send(JSON.stringify(results))
@@ -61,7 +60,6 @@ router.get('/news-source/:site', (req, res) => {
 })
 
 router.get('/news-source/:site/random/:count', (req, res) => {
-  console.log(req.params)
   models.Article.findAll({
     order: models.sequelize.random(),
     limit: req.params.count || 1,

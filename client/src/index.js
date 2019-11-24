@@ -43,14 +43,13 @@ const runArticle = async (page, store, article, { skipPost }) => {
       store.dispatch(slice.actions.addHeadline(result))
   }
   store.dispatch(slice.actions.updateArticle(result))
-  console.log({ skipPost })
+  console.log()
   if (!skipPost && !result.error) {
     await postArticle(result, { isUpdate: true })
       .then(
         () => (
           console.log('SUCCESS:', result.href),
           console.log(result.title),
-          console.log(),
           slice.actions.markArticleSentToServer(result)
         )
       )
@@ -62,7 +61,10 @@ const runArticle = async (page, store, article, { skipPost }) => {
       )
       .then(store.dispatch)
   }
-  console.log({ ...result, content: result.content.split('\n') })
+  console.log({
+    ...result,
+    content: result.content && result.content.split('\n'),
+  })
 }
 
 const runCollection = async (browser, store, needsContent, options) => {
