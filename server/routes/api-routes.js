@@ -104,7 +104,7 @@ router.post('/news-source/:href', (req, res) => {
   const articleOrArticleUpdate = { site, ...payload }
   models.Article.upsert(articleOrArticleUpdate)
     .then(result => {
-      console.log('Updated', payload.href, result)
+      console.log('Updated', payload.href)
       res.status(200).send('okay')
     })
     .catch(e => {

@@ -105,12 +105,43 @@ Lawyers representing 23 women and their 56 children sought an injunction earlier
 }
 `;
 
-exports[`breitbart snapshots ignores twitter widgets and puts smart quotes around blockquotes 1`] = `
+exports[`breitbart snapshots ignores twitter links at the end 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.breitbart.com/author/warner-todd-huston/",
+      "name": "Warner Todd Huston",
+    },
+  ],
+  "content": "“Have you ever noticed the popularity of white robots? ” CNN exclaimed in its August 1 news article.
+In its tweet, CNN used a photo of a NASA robot manufactured all in white plastics.
+The NASA unit pictured is the R5 Valkyrie which the space agency has slated for work on the surface of Mars.
+However, the automaton built by NASA is not white because of the racism inherent in its engineers, but because of the scientific requirements for the machine’s tasks, such as heat resistance.
+Regardless, CNN insisted that droids in reality and popular science fiction are white because of the racism inherent in human society. “The reason for these shades of technological white may be racism, according to new research,” CNN intoned.
+The article cited a study entitled “Robots And Racism,” conducted by the Human Interface Technology Laboratory in New Zealand. The study insisted that “people perceive physically human-like robots to have a race and therefore apply racial stereotypes to white and black robots,” CNN said.
+“The bias against black robots is a result of bias against African-Americans,” lead researcher Christoph Bartneck insisted. He also told CNN, “It is amazing to see how people who had no prior interaction with robots show racial bias towards them.”
+The researchers were startled by their findings and insisted that the “racialized” robots could lead to problems for robots that “are supposed to function as teachers, friends, or carers.”
+CNN added, “Run a simple Google Image search on the term “robot.” You won’t see a lot of color, as pointed out in the study.”
+“The researchers see this overrepresentation of white robots as potentially harmful to the perception of other races,” CNN exclaimed.
+“Human-shaped robots should represent the diversity of humans,” Bartneck sermonized.
+“Imagine a world in which all Barbie dolls are white. Imagine a world in which all the robots working in Africa or India are white. Further, imagine that these robots take over roles that involve authority. Clearly, this would raise concerns about imperialism and white supremacy,” Bartneck exclaimed. “Robots are not just machines, but they represent humans.”",
+  "href": "https://www.breitbart.com/tech/2019/08/01/cnn-white-robots-are-evidence-of-racism/",
+  "publicationDate": 2019-08-01T12:53:10.000Z,
+  "subheading": "A recent CNN news piece insisted that constructing robots out of white plastics and metals is an example of racism.",
+  "title": "CNN: White Robots Are Evidence of Racism",
+}
+`;
+
+exports[`breitbart snapshots ignores twitter widgets and puts smart quotes around blockquotes and does multiple authors 1`] = `
 Object {
   "authors": Array [
     Object {
       "href": "https://www.breitbart.com/author/ildefonso-ortiz/",
       "name": "Ildefonso Ortiz",
+    },
+    Object {
+      "href": "https://www.breitbart.com/author/brandon-darby/",
+      "name": "Brandon Darby",
     },
   ],
   "content": "The attack took place on Monday when three women from the Lebaron family were driving their 14 children from the town of Bavispe, Sonora, to a rural Mormon community called La Mora. According to Mexico’s SinEmbargo.com.mx, Rhonita Miller Lebaron was driving one of the vehicles with her four children–two six-month-old twins and two ages 8 and 9–when her SUV got a flat tire. Her relatives turned back towards Bavispe to bring a spare.
