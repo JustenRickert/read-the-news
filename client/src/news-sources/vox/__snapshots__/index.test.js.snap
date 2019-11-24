@@ -39,7 +39,7 @@ exports[`vox media Takes out /goods-newsletter/ internal ads from the end 1`] = 
 Object {
   "authors": Array [
     Object {
-      "href": "https://www.vox.com/users/Zoe%20Schiffer",
+      "href": "http://www.vox.com/users/Zoe%20Schiffer",
       "name": "Zoe Schiffer",
     },
   ],

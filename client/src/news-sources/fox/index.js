@@ -102,7 +102,7 @@ const parseTimeAgo = relativeDate => {
 
 const parseDatetime = datetime => {
   if (/(\w+) (\d+)/.test(datetime)) {
-    const date = STATIC_DATE || new Date(datetime)
+    const date = new Date(STATIC_DATE || datetime)
     const currentYear = 1900 + (STATIC_DATE || new Date()).getYear()
     date.setYear(currentYear)
     return date
@@ -111,7 +111,7 @@ const parseDatetime = datetime => {
 }
 
 const parseRelativeDate = unknownTimeFormat => {
-  let date = STATIC_DATE || new Date()
+  let date = STATIC_DATE ? new Date(STATIC_DATE) : new Date()
   const ago = parseTimeAgo(unknownTimeFormat)
   if (ago) {
     switch (ago.type) {
