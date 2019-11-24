@@ -1,6 +1,9 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
+
+const { createPuppeteerWsServer } = require('./puppeteer-server')
+
 dotenv.config()
 
 const db = require('./models')
@@ -18,8 +21,10 @@ app.use(routes)
 
 const PORT = 3001
 
-db.sequelize.sync().then(() => {
-  app.listen(PORT, () => {
+db.sequelize.sync().then(async () => {
+  const server = app.listen(PORT, () => {
     console.log('App now listening on port:', PORT)
   })
+
+  const wsServer = await createPuppeteerWsServer({ port: 3002, server })
 })

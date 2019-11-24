@@ -2,6 +2,7 @@ const assert = require('assert')
 const express = require('express')
 const { pick } = require('../../shared/utils')
 const models = require('../models')
+const modelActions = require('../models/actions')
 const { parseSite, omit } = require('./utils')
 const router = express.Router()
 
@@ -102,15 +103,9 @@ router.post('/news-source/:href', (req, res) => {
   assert(payload.href === req.params.href, '`href`s need to match')
   const site = parseSite(payload)
   const articleOrArticleUpdate = { site, ...payload }
-  models.Article.upsert(articleOrArticleUpdate)
-    .then(result => {
-      console.log('Updated', payload.href)
-      res.status(200).send('okay')
-    })
-    .catch(e => {
-      console.log('ERROR', payload.href, e.stack)
-      res.status(500).send('not sure what happened')
-    })
+  modelActions
+    .upsert(articleOrArticleUpdate)
+    .then(({ statusCode, message }) => res.status(statusCode).send(message))
 })
 
 router.post('/news-source', (req, res) => {
