@@ -50,7 +50,7 @@ describe('The intercept', () => {
     expect(result).toMatchSnapshot()
   })
 
-  https: it('leaves out photograph tags', async () => {
+  it('leaves out photograph tags', async () => {
     const result = await collectArticle(
       page,
       'https://theintercept.com/2018/09/23/everything-is-connected-met-breuer-art-conspiracy/'
