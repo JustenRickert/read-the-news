@@ -14,6 +14,7 @@ module.exports = function(sequelize, DataTypes) {
       content: DataTypes.TEXT(),
       authors: DataTypes.JSONB(),
       publicationDate: DataTypes.DATE(),
+      subheading: DataTypes.TEXT(),
     },
     {
       validate: {

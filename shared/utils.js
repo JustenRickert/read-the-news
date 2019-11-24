@@ -23,6 +23,9 @@ const {
   VOX
 } = require("./constants");
 
+const pick = (o, keys) =>
+  keys.reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {});
+
 const constant = x => () => x;
 
 const cond = matches => x => {
@@ -57,5 +60,6 @@ const parseSite = articleOrHref => {
 };
 
 module.exports = {
+  pick,
   parseSite
 };

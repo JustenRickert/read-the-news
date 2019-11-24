@@ -1,5 +1,7 @@
 const { performance } = require('perf_hooks')
 
+const { pick } = require('../../shared/utils')
+
 const tap = x => (console.log(x), x)
 
 const range = n =>
@@ -69,9 +71,6 @@ const or = (...predicates) => (...args) =>
   predicates.some(predicate => predicate(...args))
 
 const complement = predicate => (...args) => !predicate(...args)
-
-const pick = (o, keys) =>
-  keys.reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {})
 
 const sample = xs => xs[Math.floor(Math.random() * xs.length)]
 

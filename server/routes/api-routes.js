@@ -1,5 +1,6 @@
 const assert = require('assert')
 const express = require('express')
+const { pick } = require('../../shared/utils')
 const models = require('../models')
 const { parseSite, omit } = require('./utils')
 const router = express.Router()
@@ -34,18 +35,16 @@ const {
     .catch(() => console.log(site, 'table already created'))
 })
 
-router.get('/news-source/:site/random', (req, res) => {
-  models.Article.findOne({
-    order: models.sequelize.random(),
-    where: { site: req.params.site },
+router.get('/news-source', (req, res) => {
+  models.NewsSource.findAll({
+    attributes: {
+      exclude: ['createdAt', 'updatedAt'],
+    },
   })
-    .then(result => {
-      if (!result) return res.status(404).send()
-      return res
-        .status(200, { 'Content-Type': 'application/json' })
-        .send(JSON.stringify(result))
+    .then(sources => res.json(sources))
+    .catch(e => {
+      res.status(500).send(e.stack)
     })
-    .catch(e => res.status(500, { 'Content-Type': 'text/plain' }).send(e.stack))
 })
 
 router.get('/news-source/:site', (req, res) => {
@@ -59,6 +58,25 @@ router.get('/news-source/:site', (req, res) => {
     .catch(e => {
       res.status(404, { 'Content-Type': 'text/plain' }).send(e.stack)
     })
+})
+
+router.get('/news-source/:site/random/:count', (req, res) => {
+  console.log(req.params)
+  models.Article.findAll({
+    order: models.sequelize.random(),
+    limit: req.params.count || 1,
+    where: { site: req.params.site },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt', 'site'],
+    },
+  })
+    .then(result => {
+      if (!result) return res.status(404).send()
+      return res
+        .status(200, { 'Content-Type': 'application/json' })
+        .send(JSON.stringify(result))
+    })
+    .catch(e => res.status(500, { 'Content-Type': 'text/plain' }).send(e.stack))
 })
 
 router.get('/news-source/:site/:href', (req, res) => {

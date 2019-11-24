@@ -28,7 +28,7 @@ const {
 } = require('./store')
 const { allArticles } = require('./store/selectors')
 
-const runArticle = async (page, store, article, { skipPost = false }) => {
+const runArticle = async (page, store, article, { skipPost }) => {
   const site = parseSite(article)
   const slice = newsSourceSliceMap[site]
   const result = await collectArticle(page, article).catch(
@@ -43,6 +43,7 @@ const runArticle = async (page, store, article, { skipPost = false }) => {
       store.dispatch(slice.actions.addHeadline(result))
   }
   store.dispatch(slice.actions.updateArticle(result))
+  console.log({ skipPost })
   if (!skipPost && !result.error) {
     await postArticle(result, { isUpdate: true })
       .then(
@@ -75,6 +76,7 @@ const runCollection = async (browser, store, needsContent, options) => {
 
 const createBrowserInstanceAndRunRandomCollection = async (
   store,
+  options = {},
   needsContent = allArticles(
     store.getState(),
     ({ content, sentToServer, sendToServerError }) =>
@@ -82,7 +84,7 @@ const createBrowserInstanceAndRunRandomCollection = async (
   )
 ) => {
   const browser = await puppeteer.launch()
-  await runCollection(browser, store, shuffle(needsContent)).then(() =>
+  await runCollection(browser, store, shuffle(needsContent), options).then(() =>
     browser.close()
   )
 }
@@ -201,6 +203,7 @@ const parseAdditionalArguments = (index, argv) =>
     .slice(index)
     .reduce((options, a) => {
       switch (a) {
+        case '--skip-post':
         case '--skipPost':
           return {
             ...options,
@@ -214,22 +217,26 @@ const command = process.argv[2]
 const run = store => {
   let prom = null
   switch (command) {
-    case 'random-discover':
+    case 'random-discover': {
       const runDiscoverAllTimed = timeFn(createBrowserInstanceAndDiscoverAll)
       prom = runDiscoverAllTimed(store)
       break
-    case 'random-collect':
+    }
+    case 'random-collect': {
+      const additionalArguments = parseAdditionalArguments(3, process.argv)
       const runCollectionTimed = timeFn(
         createBrowserInstanceAndRunRandomCollection
       )
-      prom = runCollectionTimed(store)
+      prom = runCollectionTimed(store, additionalArguments)
       break
-    case 'href':
+    }
+    case 'href': {
       const href = process.argv[3]
       const additionalArguments = parseAdditionalArguments(4, process.argv)
       const runHrefTimed = timeFn(createBrowserInstanceAndRunHref)
       prom = runHrefTimed(store, href, additionalArguments)
       break
+    }
     default:
       console.error("Couldn't understand arguments", command, additionalOptions)
       process.exit(1)
