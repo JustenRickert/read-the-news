@@ -74,8 +74,8 @@ const collect = async (page, href) => {
     .catch(() => undefined)
   const content = await page
     .$eval('article.the-article .entry-content', $article => {
-      let $ps = Array.from($article.childNodes || []).filter($p => {
-        if (/^Breitbart TVVideo Player is loading/.test($article.textContent))
+      let $ps = Array.from($article.children).filter($p => {
+        if (/^breitbart tvvideo player is loading/i.test($p.textContent))
           return false
         if (
           $p.classList &&
@@ -84,7 +84,7 @@ const collect = async (page, href) => {
           )
         )
           return false
-        if (/^Read the full article here.$/.test($p.textContent)) return false
+        if (/^read the full article here.$/i.test($p.textContent)) return false
         if (
           $p.childNodes.length === 1 &&
           ['STRONG', 'EM'].some(tagName => $p.childNodes[0].tagName === tagName)
@@ -93,7 +93,7 @@ const collect = async (page, href) => {
         return true
       })
       // drop while
-      while ($ps[0] && $ps[0].tagName === 'h2') $ps = $ps.slice(1)
+      while ($ps[0] && $ps[0].tagName === 'H2') $ps = $ps.slice(1)
       // drop right while
       while (
         $ps[$ps.length - 1] &&

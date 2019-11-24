@@ -49,4 +49,12 @@ describe('breitbart snapshots', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('does not put the subheading in the article and correctly ignore ad', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.breitbart.com/europe/2019/11/23/court-dutch-govt-does-not-have-repatriate-children-syria/'
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

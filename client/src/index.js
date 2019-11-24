@@ -64,11 +64,11 @@ const runArticle = async (page, store, article, { skipPost = false }) => {
   console.log({ ...result, content: result.content.split('\n') })
 }
 
-const runCollection = async (browser, store, needsContent) => {
+const runCollection = async (browser, store, needsContent, options) => {
   const page = await browser.newPage()
   while (needsContent.length) {
     const article = last(needsContent)
-    await runArticle(page, store, article)
+    await runArticle(page, store, article, options)
     needsContent.pop()
   }
 }
@@ -77,7 +77,8 @@ const createBrowserInstanceAndRunRandomCollection = async (
   store,
   needsContent = allArticles(
     store.getState(),
-    ({ content, sentToServer }) => !content && !sentToServer
+    ({ content, sentToServer, sendToServerError }) =>
+      !content && !sentToServer && !sendToServerError
   )
 ) => {
   const browser = await puppeteer.launch()

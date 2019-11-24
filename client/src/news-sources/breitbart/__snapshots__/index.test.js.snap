@@ -8,8 +8,7 @@ Object {
       "name": "Hannah Bleau",
     },
   ],
-  "content": "Rep. Kenny Marchant (R-TX) announced Monday he will not seek reelection, making him the fourth Republican lawmaker to vacate his seat in the Lone Star State ahead of 2020.
-While Marchant said he will finish his term, he stated that he is looking forward to “returning to Texas to start a new chapter.”
+  "content": "While Marchant said he will finish his term, he stated that he is looking forward to “returning to Texas to start a new chapter.”
 “It is time for me to announce that I will not seek another term as Congressman from the 24th District of Texas,” Marchant announced Monday. “I am looking forward to finishing out my term and then returning to Texas to start a new chapter.”
 Marchant, who was first elected in 2004, won the 24th House District by a relatively narrow margin in 2018– 50.6 percent to Democrat challenger Jan McDowell’s 47.5 percent. The district has been described as “highly competitive”:
 His announcement comes on the heels of announcements from Reps. Pete Olson, Will Hurd, and K. Michael Conaway, all of whom said they will not seek reelection.
@@ -59,8 +58,7 @@ Object {
       "name": "Joel B. Pollak",
     },
   ],
-  "content": "State Department staffer David Holmes refused to promise Congress on Thursday afternoon that he would be more responsible in future with sensitive communications.
-The political officer for the U.S. embassy in Kyiv, Ukraine, was testifying in the last public hearing of the House Intelligence Committee impeachment inquiry. He said that he had overheard a phone conversation at an outdoor restaurant between President Donald Trump and U.S. Ambassador to the E.U. Gordon Sondland in which Trump had mentioned “investigations.”
+  "content": "The political officer for the U.S. embassy in Kyiv, Ukraine, was testifying in the last public hearing of the House Intelligence Committee impeachment inquiry. He said that he had overheard a phone conversation at an outdoor restaurant between President Donald Trump and U.S. Ambassador to the E.U. Gordon Sondland in which Trump had mentioned “investigations.”
 Though he did not take notes of that portion of the call, and had been drinking wine, Holmes said that his memory of the conversation was clear. He shared it with colleagues at the embassy, including Charge d’affaires William Taylor — though Taylor testified last week that he had only learned about the conversation recently.
 In his closed-door deposition last week, Holmes had trouble remembering how many people he had told about the conversation. He admitted, for example, boasting to six friends on vacation about hearing President Trump on the phone call.
 Rep. Jim Jordan (R-OH) could hardly believe it:
@@ -86,5 +84,24 @@ Committee chair Rep. Adam Schiff (D-CA) cut Conaway off. Holmes did not clarify 
   "publicationDate": 2019-11-21T14:25:59.000Z,
   "subheading": "State Department staffer David Holmes refused to promise Congress on Thursday afternoon that he would be more responsible in future with sensitive communications.",
   "title": "Watch: David Holmes Refuses to Say He Will Be More Careful with Communications",
+}
+`;
+
+exports[`breitbart snapshots does not put the subheading in the article 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.breitbart.com/author/breitbart-london-news/",
+      "name": "Breitbart London",
+    },
+  ],
+  "content": "Friday’s decision upheld the government’s appeal against that ruling. Reasons for the decision will be published next month.
+Justice Minister Ferd Grapperhaus has welcomed the decision as supporting the government’s policy of not repatriating women and children from Syria if they went there to join the Islamic State group.
+Grapperhaus says “these women made the choice, with or without children, to travel to IS territory and join a terrorist organisation. The Cabinet will not actively bring them back from the region.”
+Lawyers representing 23 women and their 56 children sought an injunction earlier this month forcing the government to repatriate them.",
+  "href": "https://www.breitbart.com/europe/2019/11/23/court-dutch-govt-does-not-have-repatriate-children-syria/",
+  "publicationDate": 2019-11-23T00:46:51.000Z,
+  "subheading": "THE HAGUE, Netherlands (AP) — A Dutch appeals court has overturned a lower court’s order that the government must attempt to bring home children whose mothers travelled to Syria to join Islamic extremist groups.",
+  "title": "Court: Dutch Govt Does Not Have to Repatriate Children from Syria",
 }
 `;
