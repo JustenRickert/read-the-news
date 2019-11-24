@@ -71,7 +71,8 @@ function App() {
     }
   }, [currentSite]);
 
-  console.log(siteStateRecord[currentSite]);
+  const siteState = siteStateRecord[currentSite];
+  const articles = siteState && siteState.articles;
 
   return (
     <div className="App">
@@ -88,6 +89,16 @@ function App() {
         ))}
       </ul>
       currently {currentSite}
+      {(articles || []).map(article => (
+        <section>
+          <h2>{article.title}</h2>
+          <aside>{article.href}</aside>
+          {article.subheading && <h3 />}
+          {article.content.split("\n").map(p => (
+            <p>{p}</p>
+          ))}
+        </section>
+      ))}
     </div>
   );
 }

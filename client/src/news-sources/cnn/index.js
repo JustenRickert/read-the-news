@@ -39,6 +39,7 @@ const parseAuthorInformation = authors => {
     }
     return [{ href: null, name }]
   }
+  return []
   assert(false, 'Could not get authors information')
 }
 

@@ -219,6 +219,23 @@ const command = process.argv[2]
 const run = store => {
   let prom = null
   switch (command) {
+    case 'clean': {
+      // const articlesToBeCleaned = allArticles(store.getState())
+      const bySiteRecord = bucket(articlesToBeCleaned, article =>
+        parseSite(article)
+      )
+      const updates = Object.entries(bySiteRecord).reduce(
+        (updates, [site, articles]) => {
+          const slice = newsSourceSliceMap[site]
+          // return updates.concat(slice.actions.clearErrors(articles))
+          return updates.concat(slice.actions.markArticleSentToServer(articles))
+        },
+        []
+      )
+      console.log(updates)
+      updates.forEach(store.dispatch)
+      break
+    }
     case 'random-discover': {
       const runDiscoverAllTimed = timeFn(createBrowserInstanceAndDiscoverAll)
       prom = runDiscoverAllTimed(store)
@@ -254,7 +271,7 @@ const store = createStore(
   // applyMiddleware(saveContentMiddleware, logAction)
 )
 
-run(store).then(({ duration }) => {
+timeFn(run)(store).then(({ duration }) => {
   console.log('COMPLETED:', duration)
   if (!SKIP_SAVE) saveStore(store)
 })

@@ -81,11 +81,11 @@ const collect = async (page, href) => {
   const date = await page.$eval('.PostByline-date', date => date.innerText)
   const content = await page
     .$eval('.PostContent', $content =>
-      Array.from($content.childNodes)
-        .filter($section => {
+      Array.from($content.children)
+        .filter($child => {
           if (
             ['img-wrap', 'PhotoGrid'].some(className =>
-              $section.classList.contains(className)
+              $child.classList.contains(className)
             )
           )
             return false
@@ -98,6 +98,7 @@ const collect = async (page, href) => {
           return ps.concat(
             innerPs
               .filter($p => {
+                if ($p.classList.contains('caption')) return false
                 const $subscribeTo = $p.querySelector('.no-underline')
                 if ($subscribeTo && /subscribe/i.test($subscribeTo.textContent))
                   return false
@@ -105,7 +106,7 @@ const collect = async (page, href) => {
                 const $correction = $p.querySelector('strong')
                 if (
                   $correction &&
-                  /^(Correction|Update):/.test($correction.textContent)
+                  /^(Correction|Update):/i.test($correction.textContent)
                 )
                   return false
                 return true
