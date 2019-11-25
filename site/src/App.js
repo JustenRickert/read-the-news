@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
@@ -10,6 +10,41 @@ const unique = (xs, idFn) =>
       uniqueXs.some(ux => idFn(ux) === idFn(x)) ? uniqueXs : uniqueXs.concat(x),
     []
   );
+
+let UNIQUE_ID_COUNTER = 0;
+const uniqueId = () => UNIQUE_ID_COUNTER++;
+
+const noop = () => {};
+
+const useWsConnectionRefState = ({
+  onMessage = noop,
+  onOpen = noop,
+  onClose = noop,
+  onError = noop
+}) => {
+  const ws = useRef(null);
+  useEffect(() => {
+    if (!ws.current) {
+      ws.current = new WebSocket("ws://" + window.location.host);
+    }
+    ws.current.onmessage = onMessage;
+    ws.current.onopen = onOpen;
+    ws.current.onclose = onClose;
+    ws.current.onerror = onError;
+  }, [onMessage, onOpen, onClose, onError]);
+  return [
+    ws.current,
+    ws.current
+      ? message => {
+          console.log(message);
+          const id = uniqueId();
+          ws.current.send(JSON.stringify({ id, message }));
+          return id;
+        }
+      : () => {},
+    ws
+  ];
+};
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -71,6 +106,15 @@ function App() {
     }
   }, [currentSite]);
 
+  const handleRecieveServerMessage = message => {};
+
+  const [ws, wsDispatch] = useWsConnectionRefState({
+    onMessage: console.log,
+    onError: console.log
+  });
+
+  const what = href => wsDispatch({ type: "UPDATE_HREF", href });
+
   const siteState = siteStateRecord[currentSite];
   const articles = siteState && siteState.articles;
 
@@ -91,7 +135,10 @@ function App() {
       currently {currentSite}
       {(articles || []).map(article => (
         <section>
-          <h2>{article.title}</h2>
+          <h2>
+            {article.title}{" "}
+            <button onClick={() => what(article.href)}>Refresh</button>
+          </h2>
           <aside>{article.href}</aside>
           {article.subheading && <h3 />}
           {article.content.split("\n").map(p => (

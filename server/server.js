@@ -26,5 +26,5 @@ db.sequelize.sync().then(async () => {
     console.log('App now listening on port:', PORT)
   })
 
-  const wsServer = await createPuppeteerWsServer({ port: 3002, server })
+  const wsServer = await createPuppeteerWsServer({ server })
 })
