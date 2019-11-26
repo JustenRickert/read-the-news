@@ -220,6 +220,7 @@ const run = store => {
   let prom = null
   switch (command) {
     case 'clean': {
+      prom = Promise.resolve(undefined)
       // const articlesToBeCleaned = allArticles(store.getState())
       const bySiteRecord = bucket(articlesToBeCleaned, article =>
         parseSite(article)

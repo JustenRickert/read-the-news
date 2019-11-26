@@ -1,54 +1,42 @@
 const puppeteer = require('puppeteer')
 const ws = require('ws')
+const { parseSite } = require('../shared/utils')
 const { collectArticle } = require('../client')
 const modelActions = require('./models/actions')
 
-const handleRunArticle = (socket, page, payload, { write = false } = {}) =>
+const handleRunArticle = (socket, page, payload = {}) =>
   collectArticle(page, payload.message)
-    .then(async article => {
-      if (!write) {
-        socket.send(
-          JSON.stringify({
-            id: payload.id,
-            message: { type: 'CLIENT#COLLECT', article },
-          })
-        )
-        return
-      }
-      const result = await modelActions.upsertArticle(article)
-      if (result.statusCode === 200)
-        socket.send(
-          JSON.stringify({
-            id,
-            message: { type: 'UPSERT#SUCCESS', message: article },
-          })
-        )
-      if (result.statusCode === 500)
-        socket.send(
-          JSON.stringify({
-            id: payload.id,
-            message: { type: 'UPSERT#FAIL#DB', message: null },
-          })
-        )
-    })
+    .then(async article =>
+      socket.send(
+        JSON.stringify({
+          id: payload.id,
+          message: {
+            type: 'CLIENT#COLLECT#SUCCESS',
+            site: parseSite(payload.message.href),
+            article,
+          },
+        })
+      )
+    )
     .catch(e => {
       console.error(e.stack)
       socket.send(
         JSON.stringify({
           id,
-          message: { type: 'UPSERT#FAIL#COLLECT', message: null },
+          message: { type: 'CLIENT#COLLECT#FAIL', message: null },
         })
       )
     })
 
 const createPuppeteerWsServer = async ({ port, server }) => {
-  const browser = await puppeteer.launch({ headless: false })
+  const browser = await puppeteer.launch()
   const wsServer = new ws.Server({ port, server })
   wsServer.on('connection', socket => {
     console.info('Total connections:', wsServer.clients.size)
     socket.on('message', async payload => {
       payload = JSON.parse(payload)
-      if (payload.message.type === 'UPDATE_HREF' && payload.message.href) {
+      console.log(payload.message)
+      if (payload.message.type === 'SEND#UPDATE#HREF' && payload.message.href) {
         console.log('TRYING TO UPDATE')
         const page = await browser.newPage()
         await handleRunArticle(socket, page, payload).catch(console.error)

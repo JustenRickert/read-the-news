@@ -20,7 +20,7 @@ const configdb = config.database
 
 const postgresURI =
   'postgres://' + username + ':' + password + '@' + host + ':5432/' + configdb
-const sequelize = new Sequelize(postgresURI)
+const sequelize = new Sequelize(postgresURI, { logging: false })
 
 ;['./news-source.js', './article.js']
   .map(filname => path.join(__dirname, filname))

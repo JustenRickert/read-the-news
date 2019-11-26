@@ -104,7 +104,7 @@ router.post('/news-source/:href', (req, res) => {
   const site = parseSite(payload)
   const articleOrArticleUpdate = { site, ...payload }
   modelActions
-    .upsert(articleOrArticleUpdate)
+    .upsertArticle(articleOrArticleUpdate)
     .then(({ statusCode, message }) => res.status(statusCode).send(message))
 })
 
@@ -119,7 +119,7 @@ router.post('/news-source', (req, res) => {
     })
     .catch(e => {
       console.error(e.stack)
-      console.log('Failed Payload', article)
+      console.log('Failed Payload', article.href)
       res.status(400).send('Bad request')
     })
 })

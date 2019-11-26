@@ -108,7 +108,7 @@ const timeFn = fn => (...args) => {
         'ms'
     else duration = ms.toString().slice(0, 3) + 'ms'
     return {
-      duration,
+      duration: duration || ms + 'ms',
       result,
     }
   })
