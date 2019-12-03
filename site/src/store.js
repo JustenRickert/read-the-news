@@ -10,12 +10,23 @@ const articles = createSlice({
       state[site].articles = [];
       state[site].noArticlesOnServer = true;
     },
-    addArticles(state, action) {
-      const { articles, site } = action.payload;
-      state[site] = {};
-      if (!state[site].articles) state[site].articles = articles;
-      else state[site].articles.push(...articles);
-      state[site].noArticles = false;
+    addArticles(
+      state,
+      {
+        payload: { articles, site }
+      }
+    ) {
+      if (!Array.isArray(articles)) articles = [articles];
+      if (!state[site]) {
+        state[site] = {
+          articles: {},
+          noArticles: true
+        };
+      }
+      articles.forEach(article => {
+        state[site].articles[article.href] = article;
+        state[site].noArticles = false;
+      });
     }
   }
 });

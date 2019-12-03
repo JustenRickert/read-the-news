@@ -114,28 +114,9 @@ const section = createSlice({
   }
 });
 
-const dashboard = createSlice({
-  name: "dashboard",
-  // initialState: {
-  //   dashboards: [],
-  //   hrefRecord: {}
-  // },
-  reducers: {
-    updateHrefRecord(
-      state,
-      {
-        payload: { href, article }
-      }
-    ) {
-      state.hrefRecord[href] = article;
-    }
-  }
-});
-
 const Tabination = ({ children }) => {
   if (!Array.isArray(children)) children = [children];
   const [currentTab, setCurrentTab] = useState(0);
-  console.log(currentTab, children[currentTab]);
   return (
     <div>
       <ul>
@@ -155,11 +136,32 @@ const Tabination = ({ children }) => {
   );
 };
 
+const dashboard = createSlice({
+  name: "dashboard",
+  reducers: {
+    markArticleRecordCollectFailure(
+      state,
+      {
+        payload: { href, message }
+      }
+    ) {
+      state.articleRecord[href] = {
+        href,
+        error: true,
+        message
+      };
+    },
+    updateArticleRecord(state, { payload: article }) {
+      state.articleRecord[article.href] = article;
+    }
+  }
+});
+
 function App() {
   const storeDispatch = useDispatch();
   const [dashboardState, dashboardDispatch] = useReducer(dashboard.reducer, {
     dashboards: [],
-    hrefRecord: {}
+    articleRecord: {}
   });
   const [{ currentSite, currentPage }, sectionDispatch] = useReducer(
     section.reducer,
@@ -187,7 +189,7 @@ function App() {
       currentSite &&
       (!articleRecord[currentSite] ||
         (!articleRecord[currentSite].noArticlesOnServer &&
-          !articleRecord[currentSite].articles.length))
+          articleRecord[currentSite].noArticles))
       // || currentPage > articles[currentSite].articles.length - 2
     )
       fetch(`http://192.168.1.7:3001/api/news-source/${currentSite}/random/5`)
@@ -202,12 +204,30 @@ function App() {
         });
   }, [currentSite, articleRecord[currentSite]]);
 
-  const [ws, wsDispatch] = useWsConnectionRefState({
+  const [ws, wsSend] = useWsConnectionRefState({
     onMessage: payload => {
-      const message = JSON.parse(payload.data).message;
-      switch (message.type) {
+      payload = JSON.parse(payload.data);
+      const message = payload.message;
+      switch (payload.type) {
+        case "CLIENT#COLLECT#FAIL":
+          if (payload.context === "DASHBOARD") {
+            dashboardDispatch(
+              dashboardDispatch.actions.markArticleRecordCollectFailure(message)
+            );
+          }
+          break;
         case "CLIENT#COLLECT#SUCCESS":
-          // updateHrefDraft(message.site, message.article);
+          if (payload.context === "DASHBOARD") {
+            dashboardDispatch(
+              dashboard.actions.updateArticleRecord(message.article)
+            );
+          }
+          storeDispatch(
+            storeActions.addArticles({
+              site: message.site,
+              articles: message.article
+            })
+          );
           break;
       }
     },
@@ -217,16 +237,38 @@ function App() {
   const siteArticleRecord = articleRecord[currentSite];
 
   const handleFetchHrefDataMaybeAsync = href => {
-    console.log(sites, href, sites[href]);
     const site = parseSite(href);
-    const article =
-      articleRecord[site].articles[href] ||
-      fetch(
-        `http://192.168.1.7:3001/news-source/${encodeURIComponent(href)}`
-      ).then(res => res.json());
-    if (isPromise(article)) console.log({ article });
-    else article.then(console.log);
-    dashboardDispatch(dashboard.actions.updateHrefRecord({ href, article }));
+    if (!site)
+      return Promise.resolve({
+        error: true,
+        message: "NO_SUPPORT_FOR_HREF",
+        href
+      });
+    let article = articleRecord[site] && articleRecord[site].articles[href];
+    if (!article) {
+      article = fetch(
+        `http://192.168.1.7:3001/api/news-source/${site}/${encodeURIComponent(
+          href
+        )}`
+      )
+        .then(res => res.json())
+        .then(article => {
+          dashboardDispatch(
+            dashboard.actions.updateHrefRecord({ href, article })
+          );
+          return article;
+        })
+        .catch(() => {
+          wsSend({ type: "SEND#UPDATE#HREF", href, context: "DASHBOARD" });
+          return {
+            error: true,
+            message: "ARTICLE_NOT_FOUND",
+            result: "TRYING_TO_READ"
+          };
+        });
+    } else {
+      article = Promise.resolve(article);
+    }
     return article;
   };
 
@@ -234,8 +276,8 @@ function App() {
     <div className="App">
       <Tabination>
         <Dashboard
-          hrefRecord={dashboardState.hrefRecord}
-          onFetchHrefData={handleFetchHrefDataMaybeAsync}
+          articleRecord={dashboardState.articleRecord}
+          fetchHrefData={handleFetchHrefDataMaybeAsync}
         />
         <div>
           <Section
