@@ -17,7 +17,11 @@ const stateModule = createSlice({
   }
 });
 
-const Dashboard = ({ articleRecord, fetchHrefData }) => {
+const Dashboard = ({
+  articleRecord,
+  articleRecordRecentHistory,
+  fetchHrefContent
+}) => {
   const [state, dispatch] = useReducer(stateModule.reducer, {
     articlesLoading: []
   });
@@ -25,10 +29,16 @@ const Dashboard = ({ articleRecord, fetchHrefData }) => {
 
   const handleFetchHrefData = text => {
     setText("");
-    return fetchHrefData(text).then(message => {
-      if (message.error) {
-        dispatch(stateModule.actions.markLoadingArticle(text));
-        return;
+    return fetchHrefContent(text).then(payload => {
+      if (payload.error) {
+        switch (payload.message) {
+          case "HREF_BAD":
+            dispatch(stateModule.actions.unmarkLoadingArticle(text));
+            break;
+          case "ARTICLE_NOT_FOUND":
+            dispatch(stateModule.actions.markLoadingArticle(text));
+            break;
+        }
       }
     });
   };
@@ -43,7 +53,7 @@ const Dashboard = ({ articleRecord, fetchHrefData }) => {
 
   return (
     <div>
-      <textarea
+      <input
         value={text}
         onKeyDown={e => {
           if (e.key === "Enter") {
@@ -66,8 +76,15 @@ const Dashboard = ({ articleRecord, fetchHrefData }) => {
         <ul>
           {Object.values(articleRecord).map(article => (
             <li>
-              {article.href}
-              {article.error ? ` (${article.message})` : ""}
+              {article.error ? (
+                `ERROR: ${article.message}`
+              ) : (
+                <h3>
+                  <a target="_false" href={article.href}>
+                    {article.title}
+                  </a>
+                </h3>
+              )}
             </li>
           ))}
         </ul>

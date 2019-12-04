@@ -2,7 +2,8 @@ import React, { useReducer } from "react";
 import { useDispatch, Provider } from "react-redux";
 import { createSlice, combineReducers } from "@reduxjs/toolkit";
 
-export default function Pagination({ articles, onChangePage }) {
+export default function Pagination({ articles = {}, onChangePage }) {
+  articles = Object.values(articles);
   const handleNext = () =>
     onChangePage({
       type: "NEXT",

@@ -1,4 +1,3 @@
-import assert from "assert";
 import React, { useReducer, useEffect, useState, useRef } from "react";
 import { createSlice, combineReducers } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +5,12 @@ import throttle from "lodash.throttle";
 import { parseSite } from "shared/utils";
 
 import { actions as storeActions } from "../store";
+
+import {
+  useSites,
+  useLazyGetRandomArticles,
+  useHrefFetchHandles
+} from "./app-connection";
 
 import Article from "./Article";
 import Section from "./Section";
@@ -59,7 +64,7 @@ const useWsConnectionRefState = ({
           ws.current.send(JSON.stringify({ id, message }));
           return id;
         }
-      : () => {},
+      : noop,
     ws
   ];
 };
@@ -116,18 +121,18 @@ const section = createSlice({
 
 const Tabination = ({ children }) => {
   if (!Array.isArray(children)) children = [children];
-  const [currentTab, setCurrentTab] = useState(0);
+  const [tab, setTab] = useState(0);
   return (
     <div>
       <ul>
         {range(children.length).map(i => (
-          <li onClick={() => setCurrentTab(i)} children={`experiment ${i}`} />
+          <li onClick={() => setTab(i)} children={`experiment ${i}`} />
         ))}
       </ul>
       <div>
         {children.map((child, i) => (
           <div
-            style={currentTab !== i ? { display: "none" } : null}
+            style={tab !== i ? { display: "none" } : null}
             children={child}
           />
         ))}
@@ -136,33 +141,8 @@ const Tabination = ({ children }) => {
   );
 };
 
-const dashboard = createSlice({
-  name: "dashboard",
-  reducers: {
-    markArticleRecordCollectFailure(
-      state,
-      {
-        payload: { href, message }
-      }
-    ) {
-      state.articleRecord[href] = {
-        href,
-        error: true,
-        message
-      };
-    },
-    updateArticleRecord(state, { payload: article }) {
-      state.articleRecord[article.href] = article;
-    }
-  }
-});
-
 function App() {
   const storeDispatch = useDispatch();
-  const [dashboardState, dashboardDispatch] = useReducer(dashboard.reducer, {
-    dashboards: [],
-    articleRecord: {}
-  });
   const [{ currentSite, currentPage }, sectionDispatch] = useReducer(
     section.reducer,
     {
@@ -170,39 +150,9 @@ function App() {
       currentPage: 0
     }
   );
+  const dashboardState = useSelector(state => state.dashboard);
   const articleRecord = useSelector(state => state.articles) || {};
   const sites = useSelector(state => state.sites) || {};
-
-  useEffect(() => {
-    fetch(`http://192.168.1.7:3001/api/news-source`)
-      .then(res => res.json())
-      .then(sites => {
-        storeDispatch(storeActions.addSites(sites));
-        sectionDispatch(
-          section.actions.tab(sample(sites.map(({ site }) => site)))
-        );
-      });
-  }, []);
-
-  useEffect(() => {
-    if (
-      currentSite &&
-      (!articleRecord[currentSite] ||
-        (!articleRecord[currentSite].noArticlesOnServer &&
-          articleRecord[currentSite].noArticles))
-      // || currentPage > articles[currentSite].articles.length - 2
-    )
-      fetch(`http://192.168.1.7:3001/api/news-source/${currentSite}/random/5`)
-        .then(res => res.json())
-        .then(articles => {
-          if (!articles.length)
-            storeDispatch(storeActions.markNoArticlesOnServer(currentSite));
-          else
-            storeDispatch(
-              storeActions.addArticles({ site: currentSite, articles })
-            );
-        });
-  }, [currentSite, articleRecord[currentSite]]);
 
   const [ws, wsSend] = useWsConnectionRefState({
     onMessage: payload => {
@@ -211,15 +161,15 @@ function App() {
       switch (payload.type) {
         case "CLIENT#COLLECT#FAIL":
           if (payload.context === "DASHBOARD") {
-            dashboardDispatch(
-              dashboardDispatch.actions.markArticleRecordCollectFailure(message)
+            storeDispatch(
+              storeActions.dashboard.markArticleRecordCollectFailure(message)
             );
           }
           break;
         case "CLIENT#COLLECT#SUCCESS":
           if (payload.context === "DASHBOARD") {
-            dashboardDispatch(
-              dashboard.actions.updateArticleRecord(message.article)
+            storeDispatch(
+              storeActions.dashboard.updateArticleRecord(message.article)
             );
           }
           storeDispatch(
@@ -234,50 +184,46 @@ function App() {
     onError: e => console.log("ERROR", e)
   });
 
-  const siteArticleRecord = articleRecord[currentSite];
-
-  const handleFetchHrefDataMaybeAsync = href => {
-    const site = parseSite(href);
-    if (!site)
-      return Promise.resolve({
-        error: true,
-        message: "NO_SUPPORT_FOR_HREF",
-        href
-      });
-    let article = articleRecord[site] && articleRecord[site].articles[href];
-    if (!article) {
-      article = fetch(
-        `http://192.168.1.7:3001/api/news-source/${site}/${encodeURIComponent(
-          href
-        )}`
-      )
-        .then(res => res.json())
-        .then(article => {
-          dashboardDispatch(
-            dashboard.actions.updateHrefRecord({ href, article })
-          );
-          return article;
-        })
-        .catch(() => {
-          wsSend({ type: "SEND#UPDATE#HREF", href, context: "DASHBOARD" });
-          return {
-            error: true,
-            message: "ARTICLE_NOT_FOUND",
-            result: "TRYING_TO_READ"
-          };
-        });
-    } else {
-      article = Promise.resolve(article);
+  useSites({
+    onNewSites: sites => {
+      storeDispatch(storeActions.addSites(sites));
+      sectionDispatch(
+        section.actions.tab(sample(sites.map(({ site }) => site)))
+      );
     }
-    return article;
-  };
+  });
+
+  useLazyGetRandomArticles({
+    articleRecord,
+    currentPage,
+    currentSite,
+    onNoArticlesOnServer: payload => {
+      storeDispatch(storeActions.markNoArticlesOnServer(payload));
+    },
+    onNewArticles: payload => {
+      storeDispatch(storeActions.addArticles(payload));
+    }
+  });
+
+  const { fetchHrefContent } = useHrefFetchHandles({
+    articleRecord,
+    onReceiveArticle: article => {
+      storeDispatch(storeActions.dashboard.updateArticleRecord(article));
+    },
+    wsSend
+  });
+
+  const handleFetchHrefDataAsync = fetchHrefContent;
+
+  const siteArticleRecord = articleRecord[currentSite];
 
   return (
     <div className="App">
       <Tabination>
         <Dashboard
+          articleRecordRecentHistory={dashboardState.articleRecordRecentHistory}
           articleRecord={dashboardState.articleRecord}
-          fetchHrefData={handleFetchHrefDataMaybeAsync}
+          fetchHrefContent={handleFetchHrefDataAsync}
         />
         <div>
           <Section
@@ -286,7 +232,8 @@ function App() {
           />
           <Article
             article={
-              siteArticleRecord && siteArticleRecord.articles[currentPage]
+              siteArticleRecord &&
+              Object.values(siteArticleRecord.articles)[currentPage]
             }
           />
           <Pagination

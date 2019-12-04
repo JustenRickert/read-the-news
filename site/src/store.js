@@ -1,4 +1,35 @@
-import { createSlice, combineReducers, createStore } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  combineReducers,
+  createStore,
+  applyMiddleware
+} from "@reduxjs/toolkit";
+import debounce from "lodash.debounce";
+
+const dashboard = createSlice({
+  name: "dashboard",
+  initialState: {
+    dashboards: [],
+    articleRecord: {}
+  },
+  reducers: {
+    markArticleRecordCollectFailure(
+      state,
+      {
+        payload: { href, message }
+      }
+    ) {
+      state.articleRecord[href] = {
+        href,
+        error: true,
+        message
+      };
+    },
+    updateArticleRecord(state, { payload: article }) {
+      state.articleRecord[article.href] = article;
+    }
+  }
+});
 
 const articles = createSlice({
   name: "articleRecord",
@@ -7,7 +38,7 @@ const articles = createSlice({
     markNoArticlesOnServer(state, action) {
       const site = action.payload;
       state[site] = {};
-      state[site].articles = [];
+      state[site].articles = {};
       state[site].noArticlesOnServer = true;
     },
     addArticles(
@@ -44,13 +75,40 @@ const sites = createSlice({
   }
 });
 
+const locationPath = "STORE_STATE";
+
+const loadState = () => {
+  const data = localStorage.getItem(locationPath);
+  return data && JSON.parse(data);
+};
+
+const saveState = store => {
+  localStorage.setItem(locationPath, JSON.stringify(store.getState()));
+};
+
+const throttledSave = debounce(saveState, 5000);
+
+const save = store => next => action => {
+  throttledSave(store);
+  return next(action);
+};
+
+const preloadedState = loadState() || undefined;
+
 const store = createStore(
-  combineReducers({ articles: articles.reducer, sites: sites.reducer })
+  combineReducers({
+    articles: articles.reducer,
+    sites: sites.reducer,
+    dashboard: dashboard.reducer
+  }),
+  preloadedState,
+  applyMiddleware(save)
 );
 
 const actions = {
   ...articles.actions,
-  ...sites.actions
+  ...sites.actions,
+  dashboard: dashboard.actions
 };
 
 export { actions, store };
