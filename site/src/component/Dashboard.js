@@ -30,6 +30,7 @@ const Dashboard = ({
   const handleFetchHrefData = text => {
     setText("");
     return fetchHrefContent(text).then(payload => {
+      if (!payload) return;
       if (payload.error) {
         switch (payload.message) {
           case "HREF_BAD":

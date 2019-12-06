@@ -2,7 +2,6 @@ import React, { useReducer, useEffect, useRef } from "react";
 import { createSlice, combineReducers } from "@reduxjs/toolkit";
 
 export default function Section({ sites, onChangeSection }) {
-  console.log(sites);
   return (
     <ul>
       {Object.keys(sites).map(site => (

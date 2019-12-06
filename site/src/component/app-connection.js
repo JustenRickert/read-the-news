@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { parseSite } from "shared/utils";
 
 export const useLazyGetRandomArticles = ({
@@ -52,9 +52,8 @@ export const useHrefFetchHandles = ({
   onReceiveArticle,
   wsSend
 }) => {
-  let handleFetchHrefContentAsync = () => {};
-  useEffect(() => {
-    handleFetchHrefContentAsync = href => {
+  const handleFetchHrefContentAsync = useCallback(
+    href => {
       const site = parseSite(href);
       if (!site)
         return Promise.resolve({
@@ -86,7 +85,8 @@ export const useHrefFetchHandles = ({
         onReceiveArticle(article);
       }
       return Promise.resolve(article);
-    };
-  }, [wsSend, articleRecord, onReceiveArticle]);
+    },
+    [articleRecord, onReceiveArticle, wsSend]
+  );
   return { fetchHrefContent: handleFetchHrefContentAsync };
 };

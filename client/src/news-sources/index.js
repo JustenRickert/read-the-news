@@ -5,7 +5,7 @@ const { unique } = require('../utils')
 const newsSourceModule = name => require(`./${name}`)
 
 const collectArticle = (page, article) => {
-  if ('href' in article) article = article.href
+  if (typeof article === 'object' && 'href' in article) article = article.href
   const site = parseSite(article)
   const { collect } = newsSourceModule(site)
   return collect(page, article)

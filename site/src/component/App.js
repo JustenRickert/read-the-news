@@ -75,6 +75,28 @@ const clamp = (low, high, n) => {
   return n;
 };
 
+const Tabination = ({ children }) => {
+  if (!Array.isArray(children)) children = [children];
+  const [tab, setTab] = useState(0);
+  return (
+    <div>
+      <ul>
+        {range(children.length).map(i => (
+          <li onClick={() => setTab(i)} children={`experiment ${i}`} />
+        ))}
+      </ul>
+      <div>
+        {children.map((child, i) => (
+          <div
+            style={tab !== i ? { display: "none" } : null}
+            children={child}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const clampPage = (n, length) => clamp(0, length - 1, n);
 
 const section = createSlice({
@@ -119,30 +141,12 @@ const section = createSlice({
   }
 });
 
-const Tabination = ({ children }) => {
-  if (!Array.isArray(children)) children = [children];
-  const [tab, setTab] = useState(0);
-  return (
-    <div>
-      <ul>
-        {range(children.length).map(i => (
-          <li onClick={() => setTab(i)} children={`experiment ${i}`} />
-        ))}
-      </ul>
-      <div>
-        {children.map((child, i) => (
-          <div
-            style={tab !== i ? { display: "none" } : null}
-            children={child}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
 function App() {
   const storeDispatch = useDispatch();
+  const dashboardState = useSelector(state => state.dashboard);
+  const articleRecord = useSelector(state => state.articles) || {};
+  const sites = useSelector(state => state.sites) || {};
+
   const [{ currentSite, currentPage }, sectionDispatch] = useReducer(
     section.reducer,
     {
@@ -150,9 +154,6 @@ function App() {
       currentPage: 0
     }
   );
-  const dashboardState = useSelector(state => state.dashboard);
-  const articleRecord = useSelector(state => state.articles) || {};
-  const sites = useSelector(state => state.sites) || {};
 
   const [ws, wsSend] = useWsConnectionRefState({
     onMessage: payload => {
@@ -213,8 +214,6 @@ function App() {
     wsSend
   });
 
-  const handleFetchHrefDataAsync = fetchHrefContent;
-
   const siteArticleRecord = articleRecord[currentSite];
 
   return (
@@ -223,7 +222,7 @@ function App() {
         <Dashboard
           articleRecordRecentHistory={dashboardState.articleRecordRecentHistory}
           articleRecord={dashboardState.articleRecord}
-          fetchHrefContent={handleFetchHrefDataAsync}
+          fetchHrefContent={fetchHrefContent}
         />
         <div>
           <Section

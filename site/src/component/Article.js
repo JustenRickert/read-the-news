@@ -1,7 +1,6 @@
 import React from "react";
 
 export default function Article({ article }) {
-  console.log({ article });
   if (!article) {
     return "No content";
   }
