@@ -49,7 +49,7 @@ const useWsConnectionRefState = ({
   const ws = useRef(null);
   useEffect(() => {
     if (!ws.current) {
-      ws.current = new WebSocket("ws://" + "192.168.1.7:3001");
+      ws.current = new WebSocket("ws://" + location.hostname + ":3001");
     }
     ws.current.onmessage = onMessage;
     ws.current.onopen = onOpen;
