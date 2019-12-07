@@ -9,7 +9,7 @@ import { actions as storeActions } from "../store";
 import {
   useSites,
   useLazyGetRandomArticles,
-  useHrefFetchHandles
+  useDashboardHandles
 } from "./app-connection";
 
 import Article from "./Article";
@@ -206,10 +206,22 @@ function App() {
     }
   });
 
-  const { fetchHrefContent } = useHrefFetchHandles({
+  const { handleHrefContent } = useDashboardHandles({
     articleRecord,
     onReceiveArticle: article => {
       storeDispatch(storeActions.dashboard.updateArticleRecord(article));
+    },
+    onReceiveSentiment: ({ error, href, sentiment }) => {
+      if (error) {
+        return;
+        console.log(error);
+      }
+      storeDispatch(
+        storeActions.dashboard.addSentimentForArticle({
+          href,
+          sentiment
+        })
+      );
     },
     wsSend
   });
@@ -219,11 +231,7 @@ function App() {
   return (
     <div className="App">
       <Tabination>
-        <Dashboard
-          articleRecordRecentHistory={dashboardState.articleRecordRecentHistory}
-          articleRecord={dashboardState.articleRecord}
-          fetchHrefContent={fetchHrefContent}
-        />
+        <Dashboard {...dashboardState} onFetchHrefContent={handleHrefContent} />
         <div>
           <Section
             sites={sites}

@@ -47,9 +47,18 @@ export const useSites = ({ onNewSites }) => {
   }, []);
 };
 
-export const useHrefFetchHandles = ({
+const getSentiment = href =>
+  fetch(`http://192.168.1.7:3001/api/sentiment/${encodeURIComponent(href)}`)
+    .then(res => res.json())
+    .catch(e => {
+      console.error(e.stack);
+      return { error: true, message: e.stack };
+    });
+
+export const useDashboardHandles = ({
   articleRecord,
   onReceiveArticle,
+  onReceiveSentiment,
   wsSend
 }) => {
   const handleFetchHrefContentAsync = useCallback(
@@ -71,6 +80,9 @@ export const useHrefFetchHandles = ({
           .then(res => res.json())
           .then(article => {
             onReceiveArticle(article);
+            getSentiment(href).then(sentiment =>
+              onReceiveSentiment({ sentiment, href })
+            );
             return article;
           })
           .catch(() => {
@@ -83,10 +95,13 @@ export const useHrefFetchHandles = ({
           });
       } else {
         onReceiveArticle(article);
+        getSentiment(href).then(sentiment =>
+          onReceiveSentiment({ href, sentiment })
+        );
       }
       return Promise.resolve(article);
     },
     [articleRecord, onReceiveArticle, wsSend]
   );
-  return { fetchHrefContent: handleFetchHrefContentAsync };
+  return { handleHrefContent: handleFetchHrefContentAsync };
 };

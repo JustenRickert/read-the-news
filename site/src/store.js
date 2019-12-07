@@ -1,3 +1,4 @@
+import assert from "assert";
 import {
   createSlice,
   combineReducers,
@@ -10,9 +11,19 @@ const dashboard = createSlice({
   name: "dashboard",
   initialState: {
     dashboards: [],
+    sentimentRecord: {},
     articleRecord: {}
   },
   reducers: {
+    addSentimentForArticle(
+      state,
+      {
+        payload: { href, sentiment }
+      }
+    ) {
+      if (!state.sentimentRecord) state.sentimentRecord = {};
+      state.sentimentRecord[href] = sentiment;
+    },
     markArticleRecordCollectFailure(
       state,
       {

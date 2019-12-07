@@ -6,7 +6,7 @@ const modelActions = require('./models/actions')
 
 const handleRunArticle = (socket, page, payload = {}) =>
   collectArticle(page, payload.message)
-    .then(async article =>
+    .then(async article => {
       socket.send(
         JSON.stringify({
           id: payload.id,
@@ -18,7 +18,8 @@ const handleRunArticle = (socket, page, payload = {}) =>
           },
         })
       )
-    )
+      modelActions.createArticle(article)
+    })
     .catch(e => {
       console.error(e.stack)
       socket.send(
