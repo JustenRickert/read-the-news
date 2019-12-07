@@ -18,7 +18,7 @@ export const useLazyGetRandomArticles = ({
           siteArticles.noArticles ||
           currentPage + 2 > Object.values(siteArticles.articles).length))
     ) {
-      fetch(`http://192.168.1.7:3001/api/news-source/${currentSite}/random/5`)
+      fetch(`/api/news-source/${currentSite}/random/5`)
         .then(res => res.json())
         .then(articles => {
           if (!articles.length) {
@@ -39,7 +39,7 @@ export const useLazyGetRandomArticles = ({
 
 export const useSites = ({ onNewSites }) => {
   useEffect(() => {
-    fetch(`http://192.168.1.7:3001/api/news-source`)
+    fetch(`/api/news-source`)
       .then(res => res.json())
       .then(sites => {
         onNewSites(sites);
@@ -48,7 +48,7 @@ export const useSites = ({ onNewSites }) => {
 };
 
 const getSentiment = href =>
-  fetch(`http://192.168.1.7:3001/api/sentiment/${encodeURIComponent(href)}`)
+  fetch(`/api/sentiment/${encodeURIComponent(href)}`)
     .then(res => res.json())
     .catch(e => {
       console.error(e.stack);
@@ -72,11 +72,7 @@ export const useDashboardHandles = ({
         });
       let article = articleRecord[site] && articleRecord[site].articles[href];
       if (!article) {
-        article = fetch(
-          `http://192.168.1.7:3001/api/news-source/${site}/${encodeURIComponent(
-            href
-          )}`
-        )
+        article = fetch(`/news-source/${site}/${encodeURIComponent(href)}`)
           .then(res => res.json())
           .then(article => {
             onReceiveArticle(article);
