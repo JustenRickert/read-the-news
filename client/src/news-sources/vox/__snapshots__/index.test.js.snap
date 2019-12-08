@@ -39,7 +39,7 @@ exports[`vox media Takes out /goods-newsletter/ internal ads from the end 1`] = 
 Object {
   "authors": Array [
     Object {
-      "href": "https://www.vox.com/users/Zoe%20Schiffer",
+      "href": "http://www.vox.com/users/Zoe%20Schiffer",
       "name": "Zoe Schiffer",
     },
   ],
@@ -171,6 +171,38 @@ But it’s tremendously difficult to actually remove a president from office. It
   "publicationDate": 2019-11-19T03:17:01.000Z,
   "subheading": "Democrats have a full slate of witnesses for this week.",
   "title": "Impeachment hearings schedule",
+}
+`;
+
+exports[`vox media skips "Listen to today, explained" ads 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.vox.com/authors/alex-ward",
+      "name": "Alex Ward",
+    },
+  ],
+  "content": "President Donald Trump walked up to a White House podium on Wednesday to deliver news he was lifting sanctions on Turkey imposed just last week for agreeing to a ceasefire in Syria. But what he really did was lay out the until-now elusive “Trump doctrine”: Only fight in wars in which the US has a clear national interest and path to victory; otherwise, let others fend for themselves.
+Trump’s aversion to military intervention, particularly in the Middle East, is no secret. And while he has ended zero wars and ramped up America’s involvement in other wars, it’s clearer than ever that the president doesn’t want to deploy American troops or spend more taxpayer money in foreign conflicts unless it mainly benefits the United States.
+After trashing foreign policy experts who pushed for further involvement in Syria, Trump said, “I am committed to pursuing a different course, one that leads to victory for America.”
+“As a candidate for president, I made clear that we needed a new approach to American foreign policy, one guided not by ideology but by experience, history, and a realistic understanding of the world,” he continued. “When we commit American troops to battle, we must do so only when a vital national interest is at stake and when we have a clear objective, a plan for victory, and a path out of conflict.”
+“Our whole basis has to be the right plan, and then we will only win,” he said. “Nobody can beat us.”
+In other words, the US will not engage in military conflict unless the US knows it can win outright and can then leave. For those who say American troops and firepower could help stabilize troubled hotspots like Syria, the president believes that’s not Washington’s job — it’s the locals’ burden to bear.
+“The job of our military is not to police the world,” Trump said. “Other nations must step up and do their fair share — that hasn’t taken place.”
+That’s about as clear a distillation of Trump’s worldview yet. He’s discussed bits and pieces of his thinking for years, but never quite as coherently as his Syria announcement. It’s possible that when historians look for text to neatly encapsulate Trump’s foreign policy theory, they’ll turn to this White House address.
+How Syria fits the “Trump doctrine”
+Foreign policy experts are obsessed with a president’s so-called doctrine. And since the authority to conduct foreign policy lies almost entirely in the Oval Office, it’s only natural that people want to know how the president views the world.
+President Harry Truman, for example, famously believed that it was America’s duty to offer political, military, and economic assistance to democratic nations threatened by communists. A rise in communism would “undermine the foundations of international peace and hence the security of the United States,” Truman said during a March 1947 speech about giving aid to the Greek and Turkish governments. The US should “support free peoples who are resisting attempted subjugation by armed minorities or by outside pressures.”
+That worldview couldn’t be further from Trump’s, who doesn’t believe the US should offer any help — military, economic, or otherwise — unless it benefits the American people most. His Syria policy is case in point.
+Trump’s argument is that the US gains nothing from having troops in northern Syria, so he plans to withdraw them all — except for a select few who will guard the country’s oil fields and keep watch over ISIS, too. It doesn’t bother him that authoritarian nations, mainly Russia, Iran, and Syria’s Assad regime, will gain more power inside Syria because of America’s exit.
+And he doesn’t seem to care much about standing by allies, like the Syrian Kurdish fighters who helped relieve ISIS of its so-called caliphate, preferring to let them fend for themselves in a dangerous neighborhood.
+There’s merit to some of those points, but it’s unclear if Trump wrestled with their implications. For one, how does the US withdrawal benefit America as other nations step in to fill the void? It’s likely Trump thinks not spending more money and expending blood is enough of a victory. And it’s not completely clear whether Trump wanted out because Syria is a mess or because it’s not of major strategic import to the US — or perhaps both.
+What is clear is that in the instances where Trump sends more troops into harm’s way — like the 1,800 deployed to Saudi Arabia this month to defend it against Iranian attacks — there’s a calculation that something’s in it for the US. American service members will help protect Saudi oil fields that are vital to the world energy market, and they will only do so because Trump says Riyadh is paying for that protection.
+Which means that the United States under Trump is — more than ever — a country in it for itself. It’s not out to promote or protect democracy, stand by all allies and partners, or keep bad situations from getting worse. The White House will only care about, well, America first. In that way, at least, the Trump doctrine has been in front of us the whole time.",
+  "href": "https://www.vox.com/world/2019/10/23/20928769/trymp-syria-turkey-doctrine",
+  "publicationDate": 2019-10-23T23:10:00.000Z,
+  "subheading": "Trump: Only fight in wars in which the US has a clear national interest and path to victory; otherwise, let others fend for themselves.",
+  "title": "Trump’s latest Syria announcement is the clearest articulation of his foreign policy doctrine",
 }
 `;
 

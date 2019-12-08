@@ -74,4 +74,12 @@ describe('cnn snapshots', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('gets weird author scenarios like where there isnt any', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.cnn.com/2019/11/19/politics/devin-nunes-opening-remarks-november-19-impeachment-hearing/index.html'
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

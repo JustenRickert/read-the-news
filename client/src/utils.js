@@ -1,5 +1,7 @@
 const { performance } = require('perf_hooks')
 
+const { pick } = require('../../shared/utils')
+
 const tap = x => (console.log(x), x)
 
 const range = n =>
@@ -70,9 +72,6 @@ const or = (...predicates) => (...args) =>
 
 const complement = predicate => (...args) => !predicate(...args)
 
-const pick = (o, keys) =>
-  keys.reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {})
-
 const sample = xs => xs[Math.floor(Math.random() * xs.length)]
 
 const unique = (xs, idFn) =>
@@ -109,7 +108,7 @@ const timeFn = fn => (...args) => {
         'ms'
     else duration = ms.toString().slice(0, 3) + 'ms'
     return {
-      duration,
+      duration: duration || ms + 'ms',
       result,
     }
   })

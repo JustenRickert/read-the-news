@@ -60,12 +60,12 @@ const collect = async (page, href) => {
     '.the-article header h1',
     title => title.textContent
   )
-  const authors = await page.$eval('address a[href^="/author"]', l => [
-    {
-      href: l.href,
-      name: l.textContent,
-    },
-  ])
+  const authors = await page.$$eval('address a[href^="/author"]', $ls =>
+    $ls.map($l => ({
+      href: $l.href,
+      name: $l.textContent,
+    }))
+  )
   const publicationDate = await page
     .$eval('time[datetime]', time => time.dateTime)
     .then(datetime => new Date(datetime))
@@ -75,8 +75,16 @@ const collect = async (page, href) => {
   const content = await page
     .$eval('article.the-article .entry-content', $article => {
       let $ps = Array.from($article.children).filter($p => {
-        if (/^breitbart tvvideo player is loading/i.test($p.textContent))
+        if (
+          ['FIGURE', 'TWITTER_WIDGET', 'STYLE', 'DIV'].some(
+            tagName => $p.tagName === tagName
+          )
+        )
           return false
+        // if ($p.tagName === 'DIV') return false
+        // if ($p.tagName === 'STYLE') return false
+        // if ($p.tagName === 'FIGURE') return false
+        // if ($p.tagName === 'TWITTER-WIDGET') return false
         if (
           $p.classList &&
           ['wp-caption-text', 'rmoreabt'].some(className =>
@@ -97,18 +105,26 @@ const collect = async (page, href) => {
       // drop right while
       while (
         $ps[$ps.length - 1] &&
-        $ps[$ps.length - 1].childNodes &&
-        Array.from($ps[$ps.length - 1].childNodes).every(node =>
-          ['EM', 'A'].some(tagName => node.tagName === tagName)
-        )
+        Array.from($ps[$ps.length - 1].children).every($node =>
+          ['I', 'EM', 'A'].some(tagName => $node.tagName === tagName)
+        ) &&
+        $ps[$ps.length - 1].querySelector('a[href]')
       )
         $ps = $ps.slice(0, -1)
-      return $ps.map($p => $p.textContent)
+      return $ps.map($p => {
+        if ($p.tagName === 'BLOCKQUOTE') {
+          const innerContents = $p.textContent
+            .trim()
+            .split('\n')
+            .map(p => `“${p}`)
+          return `${innerContents.join('\n')}”`
+        }
+        return $p.textContent.trim()
+      })
     })
     .then(ps =>
       stripInnerContents(
         ps
-          .map(p => p.trim())
           .filter(Boolean)
           .filter(
             not(
@@ -119,8 +135,8 @@ const collect = async (page, href) => {
               )
             )
           ),
-        p => /^Breitbart TV$/.test(p),
-        p => /^click to play$/.test(p)
+        p => /^Breitbart TV$/i.test(p),
+        p => /^click to play$/i.test(p)
       )
     )
     .then(ps => ps.join('\n'))

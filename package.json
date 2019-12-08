@@ -1,0 +1,22 @@
+{
+  "name": "read-the-news",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustenRickert/read-the-news.git"
+  },
+  "author": "jsasz <justenrickert@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JustenRickert/read-the-news/issues"
+  },
+  "homepage": "https://github.com/JustenRickert/read-the-news#readme",
+  "devDependencies": {
+    "create-react-app": "^3.2.0"
+  }
+}

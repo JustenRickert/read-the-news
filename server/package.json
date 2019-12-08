@@ -1,46 +1,46 @@
 {
-	  "name": "read-the-news",
-	  "version": "0.0.1",
-	  "description": "## How to run me",
-	  "main": "server.js",
-	  "dependencies": {
-		    "cors": "^2.8.5",
-		    "dotenv": "^8.2.0",
-		    "express": "^4.17.1",
-		    "fs": "^0.0.1-security",
-		    "path": "^0.12.7",
-		    "pg": "^7.12.1",
-		    "sequelize": "^5.21.2"
-	  },
-    "devDependencies": {
-		    "nodemon": "^1.19.4",
-		    "husky": "^3.0.9"
-    },
-	  "husky": {
-		    "precommit": [
-			      "prettier --write",
-			      "git add"
-		    ]
-	  },
-	  "devDependencies": {},
-	  "prettier": {
-		    "trailingComma": "es5",
-		    "tabWidth": 2,
-		    "semi": false,
-		    "singleQuote": true
-	  },
-	  "scripts": {
-		    "test": "echo \"Error: no test specified\" && exit 1",
-		    "start": "node server.js"
-	  },
-	  "repository": {
-		    "type": "git",
-		    "url": "git+https://github.com/JustenRickert/read-the-news.git"
-	  },
-	  "author": "",
-	  "license": "ISC",
-	  "bugs": {
-		    "url": "https://github.com/JustenRickert/read-the-news/issues"
-	  },
-	  "homepage": "https://github.com/JustenRickert/read-the-news#readme"
+	"name": "read-the-news-server",
+	"version": "0.0.1",
+	"description": "## How to run me",
+	"main": "server.js",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"fs": "^0.0.1-security",
+		"path": "^0.12.7",
+		"pg": "^7.12.1",
+		"puppeteer": "^2.0.0",
+		"read-the-news-client": "file:../client",
+		"sentiment": "^5.0.2",
+		"sequelize": "^5.21.2",
+		"ws": "^7.2.0"
+	},
+	"devDependencies": {},
+	"husky": {
+		"precommit": [
+			"prettier --write",
+			"git add"
+		]
+	},
+	"prettier": {
+		"trailingComma": "es5",
+		"tabWidth": 2,
+		"semi": false,
+		"singleQuote": true
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/JustenRickert/read-the-news.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/JustenRickert/read-the-news/issues"
+	},
+	"homepage": "https://github.com/JustenRickert/read-the-news#readme"
 }

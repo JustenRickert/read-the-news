@@ -63,4 +63,12 @@ describe('vox media', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('skips "Listen to today, explained" ads', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.vox.com/world/2019/10/23/20928769/trymp-syria-turkey-doctrine'
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

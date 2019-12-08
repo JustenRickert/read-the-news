@@ -57,4 +57,20 @@ describe('breitbart snapshots', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('ignores twitter widgets and puts smart quotes around blockquotes and does multiple authors', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.breitbart.com/border/2019/11/05/narco-terror-10-u-s-women-children-murdered-by-cartel-gunmen-near-new-mexico-border/'
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  it('ignores twitter links at the end', async () => {
+    const result = await collectArticle(
+      page,
+      'https://www.breitbart.com/tech/2019/08/01/cnn-white-robots-are-evidence-of-racism/'
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

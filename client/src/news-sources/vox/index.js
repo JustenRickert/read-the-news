@@ -91,16 +91,11 @@ const collect = async (page, href) => {
           return node.textContent
         })
     })
-    // .then(content =>
-    //   dropRightWhile(
-    //     content.map(c => c.trim()).filter(Boolean),
-    //     or(
-    //       p => /Listen if you like/.test(p),
-    //       p =>
-    //         /You can find this video and all of Vox’s videos on YouTube/.test(p)
-    //     )
-    //   ).map(p => p.replace(/\n+/g, '\n').replace(/\s+/g, ' '))
-    // )
+    .then(ps => {
+      const index = ps.findIndex(p => /Listen to today, explained/i.test(p))
+      if (index > -1) return ps.slice(0, index)
+      return ps
+    })
     .then(ps =>
       ps
         .map(p => p.trim())

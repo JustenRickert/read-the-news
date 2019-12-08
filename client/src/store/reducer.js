@@ -15,7 +15,13 @@ const addHeadline = (state, action) => {
     {},
     state,
     uniqueActions.reduce((updates, u) => {
-      assert(u.href, 'Update must contain `href`')
+      try {
+        assert(u.href, 'Update must contain `href`')
+      } catch (e) {
+        console.log(u)
+        console.error(e)
+        return
+      }
       if (state[u.href]) return updates
       assert(!state[u.href], 'Article cannot be overwritten by a new headline')
       Object.assign(updates, { [u.href]: pick(u, ['href', 'title']) })
@@ -62,13 +68,17 @@ const updateArticle = (state, action) => {
   if (!Array.isArray(payload)) payload = [payload]
   payload.forEach(update => {
     const slice = state[update.href]
+    if (!slice) {
+      console.error('\nERROR: State not found. Payload not a valid href maybe?')
+      console.log('UPDATE:', update)
+      return
+    }
     if (update.error) {
       if (update.error.message) console.error(update.error.message)
       slice.error = true
       return
     }
     try {
-      assert(slice, '\nState not found. Payload not a valid href maybe?')
       assertValidArticle(update, slice)
     } catch (e) {
       console.error(e)

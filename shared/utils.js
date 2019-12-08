@@ -23,6 +23,9 @@ const {
   VOX
 } = require("./constants");
 
+const pick = (o, keys) =>
+  keys.reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {});
+
 const constant = x => () => x;
 
 const cond = matches => x => {
@@ -40,14 +43,7 @@ const parseSiteConditionalFn = cond([
   [isTheNationHref, constant(THE_NATION)],
   [isTheInterceptHref, constant(THE_INTERCEPT)],
   [isViceHref, constant(VICE)],
-  [isVoxHref, constant(VOX)],
-  [
-    constant(true),
-    article => {
-      console.error("href:", article);
-      throw new Error("Could not parse href");
-    }
-  ]
+  [isVoxHref, constant(VOX)]
 ]);
 
 const parseSite = articleOrHref => {
@@ -57,5 +53,6 @@ const parseSite = articleOrHref => {
 };
 
 module.exports = {
+  pick,
   parseSite
 };
