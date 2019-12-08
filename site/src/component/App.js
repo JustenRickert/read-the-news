@@ -150,7 +150,6 @@ const section = createSlice({
 
 function App() {
   const storeDispatch = useDispatch();
-  const dashboardState = useSelector(state => state.dashboard);
   const articleRecord = useSelector(state => state.articles) || {};
   const sites = useSelector(state => state.sites) || {};
 
@@ -239,7 +238,6 @@ function App() {
     <div className="App">
       <Tabination>
         <Dashboard
-          {...dashboardState}
           onFetchHrefContent={handleHrefContent}
           onFetchSentiment={handleSentiment}
         />

@@ -1,6 +1,8 @@
 import React, { useReducer, useState, useEffect } from "react";
 import { createSlice, combineReducers } from "@reduxjs/toolkit";
-import { parseSite } from "shared/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { parseSite } from "read-the-news-shared/utils";
+import { actions as storeActions } from "../store";
 
 const noop = () => {};
 
@@ -15,6 +17,9 @@ const bucket = (o, idFn) =>
 const stateModule = createSlice({
   name: "dashboard#state",
   reducers: {
+    peekDashboard(state, { payload: dashboard }) {
+      state.peekingDashboard = dashboard;
+    },
     unmarkLoadingSentiment: (state, { payload: payloadHrefs }) => {
       if (!Array.isArray(payloadHrefs)) payloadHrefs = [payloadHrefs];
       payloadHrefs.forEach(href => {
@@ -36,22 +41,41 @@ const stateModule = createSlice({
   }
 });
 
-const Dashboard = ({
-  articleRecord,
-  sentimentRecord = {},
-  onFetchHrefContent,
-  onFetchSentiment
-}) => {
-  const [state, dispatch] = useReducer(stateModule.reducer, {
+const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
+  const storeDispatch = useDispatch();
+  const {
+    currentDashboard: { value: currentDashboard },
+    sentimentRecord,
+    savedDashboards
+  } = useSelector(state => state.dashboard);
+  const [state, stateDispatch] = useReducer(stateModule.reducer, {
     articlesLoading: {},
-    sentimentsLoading: {}
+    sentimentsLoading: {},
+    peekingDashboard: null
   });
   const [text, setText] = useState("");
 
+  const handleSwitchDashboard = dashboard => {
+    stateDispatch(stateModule.actions.peekDashboard(null));
+    storeDispatch(storeActions.dashboard.returnToSavedDashboard(dashboard));
+  };
+
+  const handlePeekDashboard = dashboard => {
+    stateDispatch(stateModule.actions.peekDashboard(dashboard));
+  };
+
+  const handleSaveDashboard = () => {
+    storeDispatch(storeActions.dashboard.saveDashboard());
+  };
+
+  const handleRemoveArticleFromDashboard = article => {
+    storeDispatch(storeActions.dashboard.removeArticles(article));
+  };
+
   const handleFetchSentiment = href => {
-    dispatch(stateModule.actions.markLoadingSentiment(href));
+    stateDispatch(stateModule.actions.markLoadingSentiment(href));
     onFetchSentiment(href).then(() => {
-      dispatch(stateModule.actions.unmarkLoadingSentiment(href));
+      stateDispatch(stateModule.actions.unmarkLoadingSentiment(href));
     });
   };
 
@@ -64,10 +88,10 @@ const Dashboard = ({
       if (payload.error) {
         switch (payload.message) {
           case "HREF_BAD":
-            dispatch(stateModule.actions.unmarkLoadingArticle(text));
+            stateDispatch(stateModule.actions.unmarkLoadingArticle(text));
             break;
           case "ARTICLE_NOT_FOUND":
-            dispatch(stateModule.actions.markLoadingArticle(text));
+            stateDispatch(stateModule.actions.markLoadingArticle(text));
             break;
         }
         return payload;
@@ -79,22 +103,23 @@ const Dashboard = ({
   };
 
   useEffect(() => {
-    Object.values(articleRecord)
+    Object.values(currentDashboard)
       .filter(
         article =>
           !sentimentRecord[article.href] &&
           !state.sentimentsLoading[article.href]
       )
       .forEach(({ href }) => handleFetchSentiment(href));
-    dispatch(
+    stateDispatch(
       stateModule.actions.unmarkLoadingArticle(
-        Object.values(articleRecord).map(({ href }) => href)
+        Object.values(currentDashboard).map(({ href }) => href)
       )
     );
-  }, [articleRecord, sentimentRecord, state.sentimentsLoading]);
+  }, [currentDashboard, sentimentRecord, state.sentimentsLoading]);
 
-  const articleSiteBucket = bucket(articleRecord, article =>
-    parseSite(article.href)
+  const dashboardArticleBucket = bucket(
+    state.peekingDashboard ? state.peekingDashboard.value : currentDashboard,
+    article => parseSite(article.href)
   );
 
   return (
@@ -119,39 +144,93 @@ const Dashboard = ({
             ))}
         </ul>
       </section>
-      <section>
-        Received
+      {!state.peekingDashboard ? (
         <ul>
-          {Object.entries(articleSiteBucket).map(([site, articles]) => {
-            return (
-              <li>
-                <h3 children={site} />
-                <ul>
-                  {articles.map(article => (
-                    <h4>
-                      <a target="_false" href={article.href}>
-                        {article.title}
-                      </a>
-                      <div>
-                        <SentimentDashboard
-                          href={article.href}
-                          sentimentRecord={sentimentRecord}
-                        />
-                      </div>
-                    </h4>
-                  ))}
-                </ul>
-              </li>
-            );
-          })}
+          {savedDashboards.map((dashboard, i) => (
+            <li
+              onClick={() => handlePeekDashboard(dashboard)}
+              children={"dashboard " + i}
+            />
+          ))}
         </ul>
-      </section>
+      ) : (
+        <div>
+          <button
+            onClick={() => handlePeekDashboard(null)}
+            children="stop peeking"
+          />
+          <button
+            onClick={() => handleSwitchDashboard(state.peekingDashboard)}
+            children="switch to dashboard"
+          />
+        </div>
+      )}
+      <ViewDashboards
+        isPeeking={Boolean(state.peekingDashboard)}
+        handleSaveDashboard={handleSaveDashboard}
+        handleRemoveArticleFromDashboard={handleRemoveArticleFromDashboard}
+        dashboardArticleBucket={dashboardArticleBucket}
+        sentimentRecord={sentimentRecord}
+      />
     </div>
   );
 };
 
 const take = (n, xs) => xs.slice(0, n);
 const takeRight = (n, xs) => xs.slice(xs.length - n);
+
+const ViewDashboards = ({
+  isPeeking,
+  handleSaveDashboard,
+  handleRemoveArticleFromDashboard,
+  dashboardArticleBucket,
+  sentimentRecord
+}) => {
+  return (
+    <section>
+      {isPeeking && "Peeking..."}{" "}
+      {!isPeeking && (
+        <button onClick={handleSaveDashboard}>Save dashboard</button>
+      )}
+      <ul>
+        {Object.entries(dashboardArticleBucket).map(([site, articles]) => {
+          return (
+            <li>
+              <h3 children={site} />
+              <ul>
+                {articles.map(article => (
+                  <h4>
+                    <a target="_false" href={article.href}>
+                      {article.title}
+                    </a>
+                    {!isPeeking && (
+                      <>
+                        {" "}
+                        <button
+                          onClick={() =>
+                            handleRemoveArticleFromDashboard(article)
+                          }
+                        >
+                          Remove from dashboard
+                        </button>
+                      </>
+                    )}
+                    <div>
+                      <SentimentDashboard
+                        href={article.href}
+                        sentimentRecord={sentimentRecord}
+                      />
+                    </div>
+                  </h4>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+};
 
 const SentimentDashboard = ({ sentimentRecord, href }) => {
   const sentiment = sentimentRecord[href];

@@ -6,15 +6,40 @@ import {
   applyMiddleware
 } from "@reduxjs/toolkit";
 import debounce from "lodash.debounce";
+import { parseSite } from "read-the-news-shared/utils";
+import uuid from "uuid/v4";
 
 const dashboard = createSlice({
   name: "dashboard",
   initialState: {
-    dashboards: [],
-    sentimentRecord: {},
-    articleRecord: {}
+    currentDashboard: {
+      id: uuid(),
+      value: {}
+    },
+    savedDashboards: [],
+    sentimentRecord: {}
   },
   reducers: {
+    saveDashboard(state) {
+      state.savedDashboards.push(state.currentDashboard);
+      state.currentDashboard = {
+        id: uuid(),
+        value: {}
+      };
+    },
+    returnToSavedDashboard(state, { payload: dashboard }) {
+      state.savedDashboards = state.savedDashboards.filter(
+        sd => sd.id !== dashboard.id
+      );
+      state.currentDashboard = dashboard;
+    },
+    removeArticles(state, { payload: articles }) {
+      if (!Array.isArray(articles)) articles = [articles];
+      articles.forEach(article => {
+        const site = parseSite(article);
+        delete state.currentDashboard.value[article.href];
+      });
+    },
     addSentimentForArticle(
       state,
       {
@@ -30,14 +55,14 @@ const dashboard = createSlice({
         payload: { href, message }
       }
     ) {
-      state.articleRecord[href] = {
+      state.currentDashboard.value[href] = {
         href,
         error: true,
         message
       };
     },
     updateArticleRecord(state, { payload: article }) {
-      state.articleRecord[article.href] = article;
+      state.currentDashboard.value[article.href] = article;
     }
   }
 });
