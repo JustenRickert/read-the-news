@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const throttle = require('lodash.throttle')
-const { createStore, applyMiddleware, combineReducers } = require('redux')
+const { combineReducers } = require('@reduxjs/toolkit')
 
 const {
   dataStoreFilename,
@@ -29,7 +29,15 @@ const ensureDir = filepath => {
   }
 }
 
-ensureDir(dataStoreFilename)
+const saveStore = store => {
+  ensureDir(dataStoreFilename)
+  console.log('Saving store data')
+  fs.writeFileSync(
+    dataStoreFilename,
+    JSON.stringify(store.getState(), null, 2),
+    'utf-8'
+  )
+}
 
 // const logAction = () => next => action => {
 //   console.log(action);
@@ -53,7 +61,7 @@ ensureDir(dataStoreFilename)
 //   return result;
 // };
 
-const initialState = () => {
+const loadFileState = () => {
   if (!fs.existsSync(dataStoreFilename)) return undefined
   const result = fs.readFileSync(dataStoreFilename, 'utf-8')
   return JSON.parse(result)
@@ -70,37 +78,37 @@ const theNation = createNewsSourceSlice(THE_NATION)
 const vice = createNewsSourceSlice(VICE)
 const vox = createNewsSourceSlice(VOX)
 
-const reducer = combineReducers({
-  [BREITBART]: breitbart.reducer,
-  [CNN]: cnn.reducer,
-  [DEMOCRACY_NOW]: democracyNow.reducer,
-  [FOX]: fox.reducer,
-  [NBC]: nbc.reducer,
-  [NPR]: npr.reducer,
-  [THE_INTERCEPT]: theIntercept.reducer,
-  [THE_NATION]: theNation.reducer,
-  [VICE]: vice.reducer,
-  [VOX]: vox.reducer,
-})
+const slices = [
+  breitbart,
+  cnn,
+  democracyNow,
+  fox,
+  nbc,
+  npr,
+  theIntercept,
+  theNation,
+  vice,
+  vox,
+]
 
-const store = createStore(
-  reducer,
-  initialState()
-  // applyMiddleware(saveContentMiddleware, logAction)
+const newsSourceSliceMap = slices.reduce(
+  (sliceMap, slice) => Object.assign(sliceMap, { [slice.name]: slice }),
+  {}
 )
 
-const saveStore = () => {
-  console.log('Saving store data')
-  fs.writeFileSync(
-    dataStoreFilename,
-    JSON.stringify(store.getState(), null, 2),
-    'utf-8'
+const reducer = combineReducers(
+  slices.reduce(
+    (reducerMap, slice) =>
+      Object.assign(reducerMap, { [slice.name]: slice.reducer }),
+    {}
   )
-}
+)
 
 module.exports = {
-  store,
+  newsSourceSliceMap,
+  reducer,
   saveStore,
+  loadFileState,
 
   breitbart,
   cnn,

@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Npr snapshots does a weird npr ad better than I can 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": null,
+      "name": "NPR Staff",
+    },
+  ],
+  "content": "Wednesday's Democratic presidential debate in Atlanta took place in the middle of a flurry of impeachment hearings and less than three months away from the first primary votes.
+The hearings, particularly the watershed testimony given by Ambassador Gordon Sondland on Wednesdy, came up first. Health care was not far behind.
+Ten candidates qualified for this month's debate, hosted by MSNBC and The Washington Post. Those candidates were:
+Former Vice President Joe Biden; New Jersey Sen. Cory Booker; South Bend, Ind., Mayor Pete Buttigieg; Hawaii Rep. Tulsi Gabbard; California Sen. Kamala Harris; Minnesota Sen. Amy Klobuchar; Vermont Sen. Bernie Sanders; businessman Tom Steyer; Massachusetts Sen. Elizabeth Warren; and entrepreneur Andrew Yang.
+The field has shifted since the candidates were on stage together in October: former Texas Rep. Beto O'Rourke has dropped out. Former Massachusetts Gov. Deval Patrick has jumped in (though he will not be on the stage Wednesday), and former New York Mayor Michael Bloomberg is mulling his next move.",
+  "href": "https://www.npr.org/2019/11/20/779405142/democratic-debate-live-fact-check-analysis-of-novembers-face-off",
+  "publicationDate": "Wed Nov 20 2019 19:33:00 GMT-0600 (Central Standard Time)",
+  "title": "Democratic Debate: Live Fact Check, Analysis Of November's Faceoff",
+}
+`;
+
+exports[`Npr snapshots does cool articles about science 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.npr.org/people/279612138/geoff-brumfiel",
+      "name": "GEOFF BRUMFIEL",
+    },
+  ],
+  "content": "Fifty years ago, astronaut Pete Conrad stepped out of the lunar module onto the surface of the moon.
+His first words were: \\"Whoopie! Man, that may have been a small one for Neil, but that's a long one for me.\\"
+Conrad, who stood at just 5 feet 6 inches tall, was only the third human to set foot on the lunar surface.  He did it on November 19, 1969, just four months after Neil Armstrong and Buzz Aldrin made the first lunar landing. However, unlike Armstrong and Aldrin, Conrad and fellow astronaut Alan Bean are not household names.
+Their mission, Apollo 12, remains largely unknown, according to Teasel Muir-Harmony, the curator of the Apollo Collection at the Smithsonian National Air and Space Museum in Washington, D.C.  And it's a shame, because it was, frankly, a really fun trip, she says.
+\\"This crew was hilarious,\\" Muir-Harmony says. \\"They were really entertaining.\\"
+Apollo 12 got off to an inauspicious start. There were thunderstorms on the day of the launch, and the rocket was actually struck by lightning — twice — as it ascended skyward. \\"That led to electrical problem that shut down a lot of the controls,\\" she says.
+Fortunately the rocket kept flying, and with the help of Mission Control, the astronauts were able to restore power to all of their systems.
+\\"Think we need to do a little more all-weather testing,\\" Conrad said wryly as the Saturn V rocket shot into orbit.
+That was the dramatic beginning of what turned into kind of a goofy road trip. Pete Conrad, the mission commander, brought up a tape deck (as commander, he also set the playlist: Dusty Springfield, Elvis, and some classic country).
+He and fellow astronauts Bean and Richard Gordon had all met as pilots in the Navy.
+\\"These guys were all friends, they all knew each other before they became Apollo astronauts,\\" Muir-Harmony says.
+If Apollo 11 was about proving it was possible to land on the moon, Apollo 12 was about doing it better. \\"The major focus of Apollo 12 was the pinpoint landing,\\" Muir-Harmony says. Conrad was \\"considered one of the best pilots, if not the best pilot of the Apollo astronauts,\\" she says.
+He nailed the landing, on the edge of a crater and just 600 feet from a robotic probe known as Surveyor III. As part of their planned activities, the astronauts later visited the spacecraft, the only time humans have gone to poke a robotic probe sent ahead of them.
+Conrad first words as he stepped onto the surface were actually part of a bet with a journalist, Muir-Harmony says. She had asked Conrad whether the U.S. government had dictated Neil Armstrong's first words. \\"And he made a bet (I think it's about a $500 bet) saying, 'No, we can say whatever we want. We're not being told what to say by the government.'\\"
+That was not the only gag on Apollo 12. The astronauts' cuff checklists, small binder guides strapped to their arms, contained silly cartoons and several nude Playboy models that were slipped in by the backup crew. The nudes were accompanied by instructions such as: \\"Survey - her activity.\\"
+Muir-Harmony says the astronauts kept that joke to themselves. Even at the time, the crude gag probably wouldn't have gone over well with either conservative America or the burgeoning women's movement. And it says a lot about gender in the space program at the time: \\"The role of women in space was seen as entertainment or pleasure as opposed to an equal colleague,\\" she says.
+Archival transcripts of the mission reveal Conrad did a lot of merry singing as he bounced along the lunar surface: \\"Dum dum, dum dum,\\" he sang, according to official transcripts of the mission. \\"Boy, do I like to run up here. This is neat!\\"
+\\"It is fun,\\" agreed Bean.
+Unfortunately, there's very little footage of the astronaut's antics. Shortly after landing, Bean accidentally pointed the lunar surface TV camera directly at the Sun, frying its circuitry. The lack of images may be one reason that the mission is not as well remembered as some of the others, Muir-Harmony says.
+Conrad and Bean lifted off on November 20. Conrad let Bean drive the lunar module a little bit, even though he wasn't supposed to. They returned to Earth and made a perfect landing in the Pacific.
+Although they received the same honors as the Apollo 11 crew, things were different. The Apollo 12 astronauts had dinner with President Richard Nixon at the White House,  Muir-Harmony says. \\"But they could tell that Nixon's focus was elsewhere,\\"
+The president was trying to negotiate an arms control treaty with the Soviets. Meanwhile, in Vietnam things kept getting worse. On the second day the astronauts were on the moon, pictures emerged of a massacre at a town called My Lai.
+Muir-Harmony believes this is the real reason Apollo 12 never got much attention. \\"It's hard to feel optimistic and excited and focused on exploration when these horrible atrocities are happening on earth,\\" she says.
+But for what it's worth, the astronauts had a pretty good time.",
+  "href": "https://www.npr.org/2019/11/19/780602012/50-years-ago-americans-made-the-2nd-moon-landing-why-doesnt-anyone-remember",
+  "publicationDate": "Tue Nov 19 2019 10:14:00 GMT-0600 (Central Standard Time)",
+  "title": "50 Years Ago, Americans Made The 2nd Moon Landing... Why Doesn't Anyone Remember?",
+}
+`;
+
+exports[`Npr snapshots gets ending author citation note 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.npr.org/people/706642854/lily-meyer",
+      "name": "LILY MEYER",
+    },
+  ],
+  "content": "In Nicole Krauss's 2017 novel Forest Dark, an Israeli scholar asks a Jewish-American writer, \\"'You think your writing belongs to you?'\\" The writer, whose name is Nicole, responds, \\"'Who else?'\\" and the professor shoots back, \\"'To the Jews.'\\" This scene springs from Krauss's own life. Like the fictional Nicole, Krauss struggles often against readers' desire for her to speak not for herself, but — somehow — for her entire religion.
+The Israeli writer Zeruya Shalev, a longtime friend of Krauss's, faces perhaps an even more difficult challenge abroad. Her work has been translated into 21 languages, and she tells me, whenever she encounters readers from outside Israel, they ask her to explain her infinitely complex country. \\"I've gotten used to so many symbolic interpretations of my work,\\" she told me. \\"Every fighting couple becomes a manifestation of the Israeli-Palestinian conflict.\\"
+But Israel has fighting couples like any other country, and Shalev is committed to representing ordinary Israeli lives. Her most recent novel, Pain, translated by Sondra Silverston, shuns broad interpretations. The protagonist, Iris, survives a suicide bombing, but Shalev refuses to politicize this trauma. Iris's injuries lead only to self-discovery, not to political allegory or to blame. Shalev refuses to make Iris's story symbolic, much as Krauss, in Forest Dark, refuses to write a novel that belongs \\"[to] the Jews.
+In September, I interviewed Krauss and Shalev over email about Pain, Forest Dark, and the difficulties of defying readers' expectations about representations of Israel and Jewishness. Our conversation, which has been edited and condensed, is below.
+Both Pain and Forest Dark take the Israeli-Palestinian conflict as explicit backdrop — mentioned often, but not made central. Was that a political choice, an artistic one, or both?
+Zeruya Shalev: It was an artistic choice to structure Pain on the tension between the private and the political. While we think about politics as something that penetrates individual lives, in Pain the political narrative is woven into the family dynamics. Iris survives a suicide bombing, which a clear political scenario, but it becomes personal to Iris's family. Even under extreme national circumstances, Iris, her husband, and her children blame themselves rather than the suicide bomber, the prime minister or the Palestinians for what happened to Iris. Politics gets subsumed into the family dynamic and becomes an almost private event, like a birth or a wedding.
+Nicole Krauss: Israel is the setting of a large part of Forest Dark, and just as it is impossible not to acknowledge the sea in Tel Aviv, it would be impossible to write about a country without acknowledging that which places the most powerful pressure on its psyche. I don't think of this as either a political or artistic choice; it's simply what the subject demanded in order to write about it authentically. All novels are, in their way, an act of resistance, since they insist on the importance and uniqueness of the individual life, and refuse to give in to the mass generalities on which governments and economies depend. If this book is political, it's only in that way.
+In Forest Dark, an elderly scholar named Eliezer Friedman tells the character Nicole that both her writing and Kafka's writing belong to the Jews as a whole. Have you encountered that pressure? What about pressure to represent Israel?
+ZS: I think the idea that the writing of one Jew belongs to all Jews has more impact on Jewish writers in the diaspora than in Israel. For Israeli writers, Jewishness might be less meaningful than being Israeli, or might get replaced by Israeli-ness. So I haven't encountered this pressure at home, but abroad, I've been asked so many times: Why don't you write about Israeli politics? About the Israeli-Palestinian conflict? It seems that wherever you go, your country follows you like a shadow.
+NK: Yes! That [conversation between Nicole and Eliezer], which is blackly funny in the book, wouldn't be if it weren't so accurate. I admit that I insist on having it both ways: As a writer, I feel lucky to have been born into a tradition — cultural, intellectual, emotional, artistic — as rich as Jewishness, and at the same time I refuse to be beholden to it, or to have to represent it in any way. There is little that matters more to me than my freedom and independence, artistic and otherwise. But I accept that once a book is put out into the world, it will be read, interpreted, and used by its readers as they see fit. I can agree or disagree, but by then the book is no longer mine; it's been given away to anyone else who cares to read it and invest themselves in it. And I do feel very grateful that my Jewish readers seem to care and feel attached to my books.
+Both Iris and Nicole's husbands are devoted to knowledge and intellectual mastery. They make \\"a holiness out of knowing.\\" How do you, as writers, work against that impulse and push yourselves into the unknown?
+ZS: For me, knowing play a small role in the writing process. Writing is all about discovery. It is my own journey into the unknown, no less than my characters' journey. Knowing and creating are almost opposite for me. In order to create, I must leave ample space for the unknown. It turns the writing process into an adventure. When I started Pain, I knew I wanted to create a dramatic encounter between Iris and the love of her youth. But other than that, I had no idea how it would develop. I learn the plot through getting to know my characters as I write them.
+NK: Years of writing novels in an instinctive, improvisatory way — without a plan, let alone a destination — taught me something about the value of sustaining uncertainty. Of asking questions, rather than pursuing answers. About the discoveries, epiphanies, and surprises one arrives at in this way, and the wonder that follows. After a while, it begins to move from a practice in one's writing and reading to a practice in one's own life, I think.
+Both novels wrestle with old stories — in fact, Pain ends with Iris saying, \\"'It's an old story.'\\" How do you create new from old?
+ZS: Creating new from old is to a large extent the story of our lives. We are born anew into an \\"old\\" narrative, as humans and as writers. In Pain, I tried to examine the mythological power of old stories on new experiences. Iris's new reading of her own old story gives it – as well as her future – a new meaning.
+NK: Everything is an old story, even what we think of as the \\"self\\" is just a narrative that our parents began telling when we were born, of which we take up authorship. One of the questions in Forest Dark is to what degree we are willing to break or alter that narrative when it grows too constraining, to expand it to give ourselves greater authenticity and freedom.",
+  "href": "https://www.npr.org/2019/11/16/779475558/nicole-krauss-and-zeruya-shalev-on-israel-jewishness-and-defying-reader-expectat",
+  "publicationDate": "Sat Nov 16 2019 09:00:00 GMT-0600 (Central Standard Time)",
+  "title": "Nicole Krauss And Zeruya Shalev On Israel, Jewishness And Defying Reader Expectations",
+}
+`;
+
+exports[`Npr snapshots it handles list items 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.npr.org/people/432862355/colin-dwyer",
+      "name": "COLIN DWYER",
+    },
+  ],
+  "content": "Updated at 10:04 p.m. ET
+More than 1,700 books began the autumn with a chance at winning a National Book Award. Now, after a swanky ceremony Wednesday night in Manhattan, the folks behind just five of those books have each emerged with a trophy, a purse of $10,000 and the right to slap that precious gold medallion on the front cover of their work.
+The winners of the 70th annual National Book Awards are:
+Fiction: Susan Choi's Trust Exercise
+Nonfiction: Sarah M. Broom's The Yellow House
+Poetry: Arthur Sze's Sight Lines
+Translated literature: Baron Wenckheim's Homecoming, by László Krasznahorkai and translator Ottilie Mulzet
+Young people's literature: Martin W. Sandler's 1919: The Year That Changed America
+As Broom reminded the attendees in her moving acceptance speech, the night was not just about the writers themselves, though. It was also about the people who supported them — like Broom's mother.
+\\"As a child, I watched her every move, seeing her eyes fall upon every word everywhere — encountered in the grocery store, on a bus, pamphlets, the package labels, my high school textbooks,\\" Broom said, voice quavering.
+\\"She was always wolfing down words, insatiable — which is how I learned the ways in which words were a kind of sustenance, could be a beautiful relief or a greatest assault.\\"
+Wednesday night's winners were also joined — in a more tangible way — by a couple of honorees whose names were released earlier by the National Book Foundation.
+Oren J. Teicher, chief executive at the American Booksellers Association, won this year's Literarian Award — a prize handed out for service to the wider literary community. And Edmund White won the medal for Distinguished Contribution to American Letters, the National Book Awards' version of a lifetime achievement award.
+The 79-year-old White, a trailblazing gay writer, has enjoyed a vast and varied life on the page, tackling biography, fiction, memoir and plenty that trod the unstable boundaries in between. It's partly that versatility that attracted the National Book Foundation to his work, according to a statement from David Steinberger, the chairman of the foundation's board of directors.
+Director John Waters, who has enjoyed an attention-grabbing career in his own right, explained it a bit differently on stage before handing White his award.
+\\"Edmund White helped start the Gay Men's Health Crisis in 1982. He's an AIDS activist, an AIDS survivor and he still loves sex,\\" Waters said. \\"He's written so many top-notch memoirs that My Struggle seems stingy in the details department. He's pissed off Susan Sontag and Gore Vidal, and the world is a better place for it.\\"
+White himself explained that the path he forged was rarely easy.
+\\"When I started submitting novels in the pre-Stonewall 1960s, my gay subject matter was offensive — especially since I didn't didn't write about hustlers or criminals or drag queens, but rather about the middle-class guy sharing an office with you. The familiar is more threatening than the exotic,\\" he recalled. \\"Years later, various editors would tell me that they'd been moved by my submissions but hadn't dared accept them lest their colleagues think they themselves were gay.\\"
+\\"To go from being the most maligned to a highly lauded writer in a mere half-century is a stunning is astonishing indeed,\\" he added.
+Of course, it would not be a National Book Awards ceremony without a rousing defense of literature's place in society and its possibilities. For that, let's turn to LeVar Burton, former host of Reading Rainbow and the evening's emcee.
+\\"My mother graduated from college at the age of 17, the first person in her family to go to college. For me to be a well-known literary advocate in this nation, a place where only a scant few generations ago it would have been illegal for me to read — it's no small thing,\\" Burton said in his opening monologue.
+Because, as he added, \\"it is the stories that we tell each other that define who we are, why we're here, what our mission is in life. It is storytelling that holds our civilization together.\\"
+The Finalists
+Fiction
+Susan Choi, Trust Exercise
+Kali Fajardo-Anstine, Sabrina & Corina: Stories
+Marlon James, Black Leopard, Red Wolf
+Laila Lalami, The Other Americans
+Julia Phillips, Disappearing Earth
+Nonfiction
+Sarah M. Broom, The Yellow House
+Tressie McMillan Cottom, Thick: And Other Essays
+Carolyn Forché, What You Have Heard is True: A Memoir of Witness and Resistance
+David Treuer, The Heartbeat of Wounded Knee: Native America from 1890 to the Present
+Albert Woodfox with Leslie George, Solitary
+Poetry
+Jericho Brown, The Tradition
+Toi Derricotte, \\"I\\": New and Selected Poems
+Ilya Kaminsky, Deaf Republic
+Carmen Giménez Smith, Be Recorder
+Arthur Sze, Sight Lines
+Translated literature
+Khaled Khalifa, Death Is Hard Work Translated from Arabic by Leri Price
+László Krasznahorkai, Baron Wenckheim's Homecoming Translated from Hungarian by Ottilie Mulzet
+Scholastique Mukasonga, The Barefoot Woman Translated from French by Jordan Stump
+Yoko Ogawa, The Memory Police Translated from Japanese by Stephen Snyder
+Pajtim Statovci, Crossing Translated from Finnish by David Hackston
+Young people's literature
+Akwaeke Emezi, Pet
+Jason Reynolds, Look Both Ways: A Tale Told in Ten Blocks
+Randy Ribay, Patron Saints of Nothing
+Laura Ruby, Thirteen Doorways, Wolves Behind Them All
+Martin W. Sandler, 1919: The Year That Changed America",
+  "href": "https://www.npr.org/2019/11/20/781353829/national-book-awards-handed-to-susan-choi-arthur-sze-and-more",
+  "publicationDate": "Wed Nov 20 2019 20:42:00 GMT-0600 (Central Standard Time)",
+  "title": "National Book Awards Handed To Susan Choi, Arthur Sze And More",
+}
+`;
+
+exports[`Npr snapshots removes weird #comments and \`bucketwrap\`s 1`] = `
+Object {
+  "authors": Array [
+    Object {
+      "href": "https://www.npr.org/people/542834285/philip-ewing",
+      "name": "PHILIP EWING",
+    },
+  ],
+  "content": "President Trump, Vice President Pence, Secretary of State Mike Pompeo and much of officialdom was \\"in the loop\\" throughout the Ukraine affair, a key witness told Congress on Wednesday in watershed testimony.
+Gordon Sondland, the U.S. ambassador to the European Union, rejected the idea that he was part of any back channel or shadow effort.
+He said he conferred with the State Department and the National Security Council all this year as he and other envoys worked to try to get concessions for Trump from Ukrainian President Volodymyr Zelenskiy.
+Precisely what concessions — now known to be investigations into Trump's political rival — weren't clear in real time, Sondland said.
+Here were some of the key lessons from the day.
+1. No one understands the story the same way
+For example, although the ambassador said that eventually, it became clear to him that Ukrainian commitments were the key that would unlock a meeting with Trump and — eventually, roughly $391 million in U.S. assistance — Sondland also said he didn't realize the target was former Vice President Joe Biden and his son Hunter.
+Only within the past few months, when evidence emerged including the White House record of Trump's phone call on July 25 with Zelenskiy, did Sondland tie the phrase often used, \\"Burisma,\\" which is a reference to the Ukrainian company that paid Hunter Biden, to Trump and the election.
+\\"It was always 'Burisma' to me, and I didn't know about the connection between Burisma and Biden,\\" he said.
+2. There are credibility questions
+Impeachment inquisitors in both parties were dubious about that claim and other aspects of Sondland's testimony.
+The ambassador said that he's \\"not a note-taker\\" and that he often relies on others' records.
+Sondland already has revised the deposition he gave behind closed doors in an earlier phase of this inquiry, and questioners on Wednesday pressed him about what he called gaps in his recollection or whether he was stating a fact or making an inference.
+But Sondland also said the White House and the State Department won't release some documents and other materials to his attorneys — a theme that chimed with Democrats' complaint about what they've called obstruction by Trump.
+One question raised Wednesday was whether the hearing would move the needle with the Trump administration and prompt it to begin releasing records related to Sondland or other witnesses in the impeachment case.
+3. Sondland said Trump never outlined a quid pro quo
+Sondland, rare among the players in the drama, has the ability to talk directly to Trump — and did on about 20 occasions, he said.
+Sondland called Trump on his mobile phone from a restaurant in Kyiv, for example, and the president asked him in that conversations about the \\"investigations\\" he wanted the Ukrainians to launch.
+But Trump himself never explicitly spelled out the crux of the Ukraine affair, Sondland said — never said that if the Ukrainians made the public statements the American side requested, there would be a White House meeting and the release of the assistance appropriated by Congress.
+Sondland told members of Congress that he and others inferred that was what was behind the U.S. policy. So the ambassador delivered that crucial message to a Ukrainian counterpart in Poland: Zelenskiy would need to make an announcement in order to move ahead with U.S. engagement.
+Sondland did confer with Pompeo, Trump's lawyer Rudy Giuliani, diplomatic colleagues and others, he said. But in an exchange with Republican counsel Steve Castor, the ambassador gave the answer on which Republicans can preserve the foundation for a continued defense of Trump:
+\\"Did the president ever tell you personally about any preconditions for anything?\\" Castor asked.
+\\"No,\\" Sondland said.
+4. Testimony raises questions about political heat for others
+Pence and Pompeo haven't figured heavily in the Ukraine affair since it took over much of the agenda in Washington.
+But an earlier understanding of the story as a \\"shadow\\" or back-channel conduit from Trump via Giuliani, Sondland and other \\"three amigos\\" was exploded by Sondland's account on Wednesday.
+The ambassador plotted diplomatic strategy directly with Pompeo, Sondland testified. For example, Sondland asked whether he should try to arrange contact between Trump and Zelenskiy in Poland when the American president was scheduled to travel there.
+Sondland could prime Zelenskiy about the need to tell Trump that once his \\"justice folks\\" were operating, they would move ahead with investigations, the ambassador wrote.
+\\"Yes,\\" Pompeo responded, according to an email that Sondland produced — although Trump never made the trip.
+Instead, Pence did — and Sondland said he conferred with him about the U.S. aid for Ukraine that had been frozen by the White House.
+\\"I mentioned to Vice President Pence before the meetings with the Ukrainians that I had concerns that the delay had become tied to the issue of investigations,\\" Sondland said.
+Continued Sondland: \\"I recall mentioning that before the Zelenskiy meeting. During the actual meeting, President Zelenskiy raised the issue of security assistance directly with Vice President Pence, and the vice president said that he would speak to President Trump about it.\\"
+Sondland told members of Congress that Pence \\"nodded\\" but otherwise didn't respond.
+All the codes and euphemisms complicate the story, however. Pence's office said on Wednesday that the vice president never had a conversation about \\"investigating the Bidens, Burisma, or the conditional release of financial aid.\\"
+But Sondland said he never had the full picture himself, and in his testimony, he said he got the impression that Pence followed what was taking place.
+\\"He didn't say, 'Gordon, what are you talking about'?\\" asked Democratic counsel Daniel Goldman. \\"He didn't say, 'What investigations?' \\"
+Responded Sondland: \\"No, he did not.\\"
+5. Sondland could mark a shift in the Ukraine affair
+History may record that Wednesday divided the Ukraine affair into \\"before\\" and \\"after\\" phases — Sondland's testimony verified so many facts from earlier witnesses and expanded so much public understanding that the saga appears likely to evolve once more.
+The way the Ukraine affair plays out in Washington may shift from factual questions about what happened to more political ones about whether what took place was appropriate.
+Republicans and Democrats both have been laying the groundwork for that for some time, each emphasizing different aspects of the case.
+Republicans argue that, in the final analysis, there was no wrongdoing. The White House released the assistance for Ukraine, and Zelenskiy did not launch the investigations that Trump wanted. Although Trump's supporters haven't unanimously endorsed his actions, nearly all Republicans agree that the president does not deserve to be impeached.
+Democrats argue that Trump was caught in the act and say the Ukraine affair is the story about attempted \\"bribery\\" — Trump conditioned official actions on concessions he hoped would benefit him personally, in Democrats' telling.
+Democrats control this phase of the process. After one more public hearing scheduled for Thursday with two more witnesses, action could move to the House Judiciary Committee, which would be responsible for handling potential articles of impeachment and sending them for a vote in the full House.
+House Speaker Nancy Pelosi, D-Calif, and other leaders have suggested that isn't certain and that impeachment would depend on the outcome of the investigation.
+One question raised by Sondland's testimony on Wednesday was whether it might satisfy her and rank-and-file members enough to commit.
+Impeachment in the House would trigger a trial for Trump in the Senate, and Senate Majority Leader Mitch McConnell, R-Ky., answered questions about that on Tuesday.
+There won't be enough votes, he said, to remove the president from office.",
+  "href": "https://www.npr.org/2019/11/20/781259322/key-takeaways-from-gordon-sondlands-watershed-impeachment-hearing",
+  "publicationDate": "Wed Nov 20 2019 15:03:00 GMT-0600 (Central Standard Time)",
+  "title": "Key Takeaways From Gordon Sondland's Watershed Impeachment Hearing",
+}
+`;

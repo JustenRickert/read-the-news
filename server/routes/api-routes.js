@@ -81,6 +81,22 @@ router.get('/news-source/:site/:href', (req, res) => {
     })
 })
 
+router.post('/news-source/:href', (req, res) => {
+  const payload = req.body
+  assert(payload.href === req.params.href, '`href`s need to match')
+  const site = parseSite(payload)
+  const articleOrArticleUpdate = { site, ...payload }
+  models.Article.upsert(articleOrArticleUpdate)
+    .then(result => {
+      console.log('Updated', payload.href, result)
+      res.status(200).send('okay')
+    })
+    .catch(e => {
+      console.log('ERROR', payload.href, e.stack)
+      res.status(500).send('not sure what happened')
+    })
+})
+
 router.post('/news-source', (req, res) => {
   const payload = req.body
   const site = parseSite(payload)

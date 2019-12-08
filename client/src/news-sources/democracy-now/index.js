@@ -1,7 +1,5 @@
 const assert = require('assert')
 
-const { democracyNow } = require('../../store')
-
 /**
  * TODO DemocracyNow isn't a news source in the same way as other websites.
  * Other news sources aggregate their content from a variety of sources.
@@ -27,5 +25,4 @@ const collect = (page, needsContent) => {
 module.exports = {
   discover,
   collect,
-  slice: democracyNow,
 }

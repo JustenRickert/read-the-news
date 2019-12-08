@@ -1,7 +1,6 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, nbc } = require('../../store/index')
 const { NBC } = require('../../constant')
 const {
   complement,
@@ -88,10 +87,15 @@ const parseAuthors = text => {
   assert(result, 'Cannot parse author')
 }
 
-const articleContent = async page => {
+const collect = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval(
     '[data-test="article-hero__headline"]',
     el => el.innerText
+  )
+  const subheading = await page.$eval(
+    '.articleDek',
+    subheading => subheading.textContent
   )
   const authors = await page
     .$eval('[data-test="byline"]', el => el.innerText)
@@ -100,7 +104,15 @@ const articleContent = async page => {
     .$eval('[data-test="timestamp__datePublished"]', el => el.dateTime)
     .then(datetime => new Date(datetime).toString())
   const content = await page
-    .$$eval('.endmarkEnabled', els => els.map(el => el.innerText))
+    .$eval('.article-body__content', $content =>
+      Array.from($content.childNodes)
+        .filter(
+          $el =>
+            $el.classList.contains('endmarkEnabled') || $el.className === ''
+        )
+        .map($el => $el.textContent.trim())
+        .filter(Boolean)
+    )
     .then(paragraphs =>
       [maybeReplaceLocation(paragraphs[0], '')].concat(paragraphs.slice(1))
     )
@@ -108,57 +120,14 @@ const articleContent = async page => {
   return {
     href: page.url(),
     title,
+    subheading,
     authors,
     publicationDate,
     content,
   }
 }
 
-const articlesWithoutContent = state =>
-  Object.values(state[NBC]).filter(
-    headline => !headline.content && !headline.error
-  )
-
-const collect = (page, needsContent) =>
-  sequentiallyMap(shuffle(needsContent), async headline => {
-    const { error } = await page
-      .goto(headline.href)
-      .then(() => ({ error: false }))
-      .catch(e => {
-        console.log(headline.href)
-        console.error(e)
-        return { error: true }
-      })
-    if (error) return
-    console.log('Looking at', headline.href)
-    return articleContent(page).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  }).then(articles => articles.filter(Boolean))
-
-const run = async puppeteerBrowser => {
-  const page = await puppeteerBrowser.newPage()
-  await page.setDefaultTimeout(100e3)
-
-  const headlines = await discover(page)
-  store.dispatch(nbc.addHeadline(headlines))
-
-  const needsContent = nbc.selectArticlesWithoutContent(store.getState())
-  console.log('searching thru', needsContent.length)
-  await collect(page, needsContent)
-    .then(nbc.updateArticle)
-    .then(store.dispatch)
-    .catch(console.error)
-
-  await page.close()
-}
 module.exports = {
   discover,
   collect,
-  slice: nbc,
-  run,
 }

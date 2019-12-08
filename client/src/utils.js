@@ -9,6 +9,8 @@ const range = n =>
 
 const map = (xs, fn) => xs.map(fn)
 
+const last = xs => xs[xs.length - 1]
+
 const sequentiallyDoTimes = async (n, fn) =>
   range(n).reduce(p => p.then(fn), Promise.resolve(null))
 
@@ -123,8 +125,20 @@ const dropRightWhile = (xs, predicate) => {
   return xs
 }
 
+const take = (count, xs) => xs.slice(0, count)
+
+const drop = (count, xs) => xs.slice(count)
+
+const bucket = (xs, id) =>
+  xs.reduce(
+    (record, x) =>
+      Object.assign(record, { [id(x)]: (record[id(x)] || []).concat(x) }),
+    {}
+  )
+
 module.exports = {
   and,
+  bucket,
   complement,
   difference,
   dropRightWhile,
@@ -137,6 +151,7 @@ module.exports = {
   sample,
   sequentiallyDoTimes,
   sequentiallyDoWhile,
+  last,
   sequentiallyForEach,
   sequentiallyMap,
   sequentiallyReduce,

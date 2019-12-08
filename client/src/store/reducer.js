@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { createSlice } = require('redux-starter-kit')
+const { createSlice } = require('@reduxjs/toolkit')
 const { pick, unique } = require('../utils')
 
 const { assertValidArticle } = require('../../../shared/data-assertions')
@@ -16,11 +16,9 @@ const addHeadline = (state, action) => {
     state,
     uniqueActions.reduce((updates, u) => {
       assert(u.href, 'Update must contain `href`')
-      // TODO consider getting rid of early return
       if (state[u.href]) return updates
       assert(!state[u.href], 'Article cannot be overwritten by a new headline')
       Object.assign(updates, { [u.href]: pick(u, ['href', 'title']) })
-      console.log('Added article', u.href, u.title || '[Title required]')
       return updates
     }, {})
   )
@@ -33,7 +31,7 @@ const markArticleErrorWhenSentToServer = (state, action) => {
     try {
       assert(update.href, 'Need `href` to mark error when sending')
     } catch (e) {
-      console.log('UPDATE', update)
+      console.log('ERROR: SENT TO SERVER ERROR UPDATE:', update)
       throw e
     }
     const slice = state[update.href]
@@ -50,7 +48,7 @@ const markArticleSentToServer = (state, action) => {
       assert(slice, '`slice[href]` not found in data')
       assert(update.href, 'Need `href` to mark sent')
     } catch (e) {
-      console.log('UPDATE', update)
+      console.log('ERROR: SENT TO SERVER UPDATE:', update)
       return
     }
     slice.sentToServer = true
@@ -70,7 +68,7 @@ const updateArticle = (state, action) => {
       return
     }
     try {
-      assert(slice, 'State not found. Payload not a valid href maybe?')
+      assert(slice, '\nState not found. Payload not a valid href maybe?')
       assertValidArticle(update, slice)
     } catch (e) {
       console.error(e)
@@ -81,7 +79,6 @@ const updateArticle = (state, action) => {
     slice.publicationDate = update.publicationDate
     slice.authors = update.authors
     if (update.title) slice.title = update.title
-    console.log('Updated article', update.title || slice.title || update.href)
   })
 }
 
@@ -107,6 +104,8 @@ const createNewsSourceSlice = newsSource => {
 
   slice.select = {}
 
+  slice.select.articles = state => Object.values(state[newsSource])
+
   slice.select.articlesWithoutContent = state =>
     Object.values(state[newsSource]).filter(
       article => !article.content && !article.error && !article.sentToServer
@@ -114,6 +113,11 @@ const createNewsSourceSlice = newsSource => {
 
   slice.select.articlesWithErrors = state =>
     Object.values(state[newsSource]).filter(article => article.error)
+
+  slice.select.articlesOnServer = state =>
+    Object.values(state[newsSource]).filter(
+      article => !article.sentToServer || !article.sendToServerError
+    )
 
   slice.select.articlesOkayForServer = state =>
     Object.values(state[newsSource]).filter(
