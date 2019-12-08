@@ -1,8 +1,6 @@
 const assert = require('assert')
 const shuffle = require('lodash.shuffle')
 
-const { store, saveStore, fox } = require('../../store')
-
 const { FOX } = require('../../constant')
 const {
   and,
@@ -27,6 +25,11 @@ const {
   isFoxUsSectionHref,
   isFoxUsArticleHref,
 } = require('./fox-utils')
+
+const IS_DEV = process.env.NODE_ENV === 'test' || undefined
+const STATIC_DATE =
+  IS_DEV &&
+  new Date('Thu Nov 21 2019 20:32:01 GMT-0600 (Central Standard Time)')
 
 const FOX_URL = 'https://www.foxnews.com/'
 
@@ -59,23 +62,33 @@ const discover = async page => {
 const articleParagraphs = async page =>
   page.$$eval('.article-body > p', articles =>
     articles
-      .filter(article => {
+      .filter($article => {
+        if (
+          $article.querySelector('strong') &&
+          /^WATCH:/.test($article.textContent)
+        )
+          return false
         // These are ads that link to fox news articles unrelated to the current
         // article. They seem to be generated with a random order, which is
         // annoying...
-        return ![['strong', 'a'], ['a', 'strong'], ['u', 'strong', 'a']].some(
-          selectorOrder => article.querySelector(selectorOrder.join(' '))
-        )
-      })
-      // Filter out the "so-and-so contributed to this story" that appears
-      // sometimes
-      .filter(
-        article =>
-          ![/<i>.*<\/i>/, /<em>.*<\/em>/].some(surroundingTag =>
-            surroundingTag.test(article.innerHTML)
+        if (
+          [['strong', 'a'], ['a', 'strong'], ['u', 'strong', 'a']].some(
+            selectorOrder => $article.querySelector(selectorOrder.join(' '))
           )
-      )
-      .map(article => article.innerText)
+        )
+          return false
+        // Filter out the "so-and-so contributed to this story" that appears
+        // sometimes
+        if (
+          [/<i>.*<\/i>/, /<em>.*<\/em>/].some(surroundingTag =>
+            surroundingTag.test($article.innerHTML)
+          )
+        )
+          return false
+        return true
+      })
+      .map($article => $article.textContent.trim())
+      .filter(Boolean)
   )
 
 const parseTimeAgo = relativeDate => {
@@ -89,8 +102,8 @@ const parseTimeAgo = relativeDate => {
 
 const parseDatetime = datetime => {
   if (/(\w+) (\d+)/.test(datetime)) {
-    const date = new Date(datetime)
-    const currentYear = 1900 + new Date().getYear()
+    const date = STATIC_DATE || new Date(datetime)
+    const currentYear = 1900 + (STATIC_DATE || new Date()).getYear()
     date.setYear(currentYear)
     return date
   }
@@ -98,7 +111,7 @@ const parseDatetime = datetime => {
 }
 
 const parseRelativeDate = unknownTimeFormat => {
-  let date = new Date()
+  let date = STATIC_DATE || new Date()
   const ago = parseTimeAgo(unknownTimeFormat)
   if (ago) {
     switch (ago.type) {
@@ -121,7 +134,8 @@ const parseRelativeDate = unknownTimeFormat => {
   return date.toString()
 }
 
-const articleContent = async (page, headline) => {
+const collect = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval(
     'header .headline',
     headline => headline.innerText
@@ -139,7 +153,7 @@ const articleContent = async (page, headline) => {
     time.innerHTML.trim()
   )
   return {
-    href: headline.href,
+    href,
     authors,
     title,
     content: content.join('\n'),
@@ -147,45 +161,7 @@ const articleContent = async (page, headline) => {
   }
 }
 
-const collect = (page, needsContent) =>
-  sequentiallyMap(shuffle(needsContent), async article => {
-    const pageResult = await page
-      .goto(article.href)
-      .then(() => ({ error: false }))
-      .catch(e => {
-        console.log(article.href, 'failed to load')
-        return { error: true, msg: e.stack }
-      })
-    if (pageResult.error) return
-    return articleContent(page, article).catch(
-      e => (
-        console.error(article.href),
-        console.error(e),
-        { href: article.href, error: true }
-      )
-    )
-  }).then(articles => articles.filter(Boolean))
-
-const run = async puppeteerBrowser => {
-  const page = await puppeteerBrowser.newPage()
-
-  await page.goto(FOX_URL)
-  const headlines = await discover(page)
-  store.dispatch(fox.addHeadline(headlines))
-  saveStore(store)
-
-  const needsContent = fox.selectArticlesWithoutContent(store.getState())
-  console.log('Searching thru', needsContent.length, 'articles')
-  await collect(page, needsContent)
-    .then(fox.updateArticle)
-    .then(store.dispatch)
-    .catch(console.error)
-
-  await page.close()
-}
-
 module.exports = {
   discover,
   collect,
-  slice: fox,
 }

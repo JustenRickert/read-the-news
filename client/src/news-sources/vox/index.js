@@ -1,5 +1,4 @@
 const assert = require('assert')
-const { store, vox } = require('../../store')
 const {
   sequentiallyMap,
   unique,
@@ -52,8 +51,8 @@ const discover = page =>
     return headlines
   })
 
-const collectArticle = async (page, headline) => {
-  await page.goto(headline.href)
+const collect = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval('.c-page-title', title => title.textContent)
   const authors = await page.$eval('[data-analytics-link="author-name"]', l => [
     { href: l.href, name: l.textContent },
@@ -61,63 +60,64 @@ const collectArticle = async (page, headline) => {
   const publicationDate = await page
     .$eval('time[data-ui="timestamp"]', time => time.dateTime)
     .then(datestamp => new Date(datestamp))
+  const subheading = await page.$eval(
+    '.c-entry-summary',
+    summary => summary.textContent
+  )
   const content = await page
     .$eval('.c-entry-content', contentContainer => {
-      const childNodes = Array.from(contentContainer.childNodes)
-      const hrIndexes = childNodes.reduce(
-        (hrIndexes, node, i) =>
-          node.tagName === 'HR' ? hrIndexes.concat(i) : hrIndexes,
-        []
-      )
-      // TODO This strategy fucking blows. There's gotta be a better way
-      switch (hrIndexes.length) {
-        case 0:
-          return childNodes.map(c => c.textContent)
-        case 1:
-          return childNodes.slice(0, hrIndexes[0]).map(c => c.textContent)
-        case 2:
-          return childNodes
-            .slice(hrIndexes[0] + 1, hrIndexes[1])
-            .map(c => c.textContent)
-        default:
-          throw new Error('case not handled ' + hrIndexes.length)
-      }
+      const isInnerAd = href => /\/goods-newsletter\/?$/.test(href)
+
+      return Array.from(contentContainer.childNodes)
+        .filter(node => {
+          if (
+            ['ASIDE', 'FIGURE', 'DIV'].some(tagName => node.tagName === tagName)
+          )
+            return false
+          const innerA = node.querySelector && node.querySelector('a')
+          if (innerA) {
+            if (isInnerAd(innerA.href)) return false
+            const innerEM = innerA.querySelector('em')
+            if (
+              innerEM &&
+              innerEM.textContent.toLowerCase().includes('twitter')
+            )
+              return false
+          }
+          return true
+        })
+        .map(node => {
+          if (node.tagName === 'BLOCKQUOTE') return `“${node.textContent}”`
+          return node.textContent
+        })
     })
-    .then(content =>
-      dropRightWhile(
-        content.map(c => c.trim()).filter(Boolean),
-        or(
-          p => /Listen if you like/.test(p),
-          p =>
-            /You can find this video and all of Vox’s videos on YouTube/.test(p)
-        )
-      )
-        .join('\n')
-        .replace(/\n+/g, '\n')
-        .replace(/\s+/g, ' ')
+    // .then(content =>
+    //   dropRightWhile(
+    //     content.map(c => c.trim()).filter(Boolean),
+    //     or(
+    //       p => /Listen if you like/.test(p),
+    //       p =>
+    //         /You can find this video and all of Vox’s videos on YouTube/.test(p)
+    //     )
+    //   ).map(p => p.replace(/\n+/g, '\n').replace(/\s+/g, ' '))
+    // )
+    .then(ps =>
+      ps
+        .map(p => p.trim())
+        .filter(Boolean)
+        .map(p => p.replace(/\n+/g, '\n').replace(/\s+/g, ' '))
     )
   return {
-    href: headline.href,
+    href,
     title,
+    subheading,
     authors,
     publicationDate,
-    content,
+    content: content.join('\n'),
   }
 }
-
-const collect = (page, needsContent) =>
-  sequentiallyMap(needsContent.slice(1), headline =>
-    collectArticle(page, headline).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  )
 
 module.exports = {
   discover,
   collect,
-  slice: vox,
 }

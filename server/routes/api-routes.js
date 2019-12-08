@@ -34,8 +34,21 @@ const {
     .catch(() => console.log(site, 'table already created'))
 })
 
+router.get('/news-source/:site/random', (req, res) => {
+  models.Article.findOne({
+    order: models.sequelize.random(),
+    where: { site: req.params.site },
+  })
+    .then(result => {
+      if (!result) return res.status(404).send()
+      return res
+        .status(200, { 'Content-Type': 'application/json' })
+        .send(JSON.stringify(result))
+    })
+    .catch(e => res.status(500, { 'Content-Type': 'text/plain' }).send(e.stack))
+})
+
 router.get('/news-source/:site', (req, res) => {
-  console.log(req.params)
   models.NewsSource.findOne({ where: { site: req.params.site } })
     .then(results => {
       console.log(JSON.stringify(results))
@@ -65,6 +78,22 @@ router.get('/news-source/:site/:href', (req, res) => {
     .catch(e => {
       console.error(e)
       res.status(500).send()
+    })
+})
+
+router.post('/news-source/:href', (req, res) => {
+  const payload = req.body
+  assert(payload.href === req.params.href, '`href`s need to match')
+  const site = parseSite(payload)
+  const articleOrArticleUpdate = { site, ...payload }
+  models.Article.upsert(articleOrArticleUpdate)
+    .then(result => {
+      console.log('Updated', payload.href, result)
+      res.status(200).send('okay')
+    })
+    .catch(e => {
+      console.log('ERROR', payload.href, e.stack)
+      res.status(500).send('not sure what happened')
     })
 })
 

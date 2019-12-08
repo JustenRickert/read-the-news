@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 
 const { collectArticle } = require('../')
 
-describe('nbc snapshots', () => {
+describe('fox snapshots', () => {
   jest.setTimeout(30e3)
 
   let browser
@@ -24,34 +24,34 @@ describe('nbc snapshots', () => {
     await browser.close()
   })
 
-  it('gets multiple authors', async () => {
+  it('gets it good on a first pager', async () => {
     const result = await collectArticle(
       page,
-      'https://www.nbcnews.com/news/us-news/two-u-s-service-members-killed-helicopter-crash-afghanistan-n1086486'
+      'https://www.foxnews.com/politics/impeachment-articles-senate-trial-republicans'
     )
     expect(result).toMatchSnapshot()
   })
 
-  it('gets subheadings', async () => {
+  it('does gutfield fuuuu', async () => {
     const result = await collectArticle(
       page,
-      'https://www.nbcnews.com/business/business-news/wework-lays-2-400-employees-n1088521'
+      'https://www.foxnews.com/opinion/gutfeld-on-last-nights-debate'
     )
     expect(result).toMatchSnapshot()
   })
 
-  it('does articles on white supremecism on nbc that have a random "Why?" in the middle', async () => {
+  it('does dates statically when running in test', async () => {
     const result = await collectArticle(
       page,
-      'https://www.nbcnews.com/think/opinion/syracuse-suspends-fraternities-racism-greek-system-s-prejudice-national-problem-ncna1087111'
+      'https://www.foxnews.com/politics/trump-administration-begins-sending-migrants-to-guatemala-as-part-of-safe-third-country-agreement'
     )
     expect(result).toMatchSnapshot()
   })
 
-  it('gets articles on Zuckbaby', async () => {
+  it('gets rid of ^WATCH: type advertisements', async () => {
     const result = await collectArticle(
       page,
-      'https://www.nbcnews.com/tech/tech-news/trump-hosted-zuckerberg-undisclosed-dinner-white-house-october-n1087986'
+      'https://www.foxbusiness.com/markets/charles-schwab-buying-td-ameritrade-for-26b'
     )
     expect(result).toMatchSnapshot()
   })

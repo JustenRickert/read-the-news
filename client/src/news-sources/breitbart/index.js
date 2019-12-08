@@ -1,6 +1,5 @@
 const shuffle = require('lodash.shuffle')
 
-const { breitbart } = require('../../store')
 const { isBreitbartHref } = require('../../../../shared/predicates')
 const {
   range,
@@ -55,8 +54,8 @@ const stripInnerContents = (contents, beginningPredicate, endingPredicate) => {
   return returnContents
 }
 
-const collectPage = async (page, headline) => {
-  await page.goto(headline.href)
+const collect = async (page, href) => {
+  await page.goto(href)
   const title = await page.$eval(
     '.the-article header h1',
     title => title.textContent
@@ -70,28 +69,42 @@ const collectPage = async (page, headline) => {
   const publicationDate = await page
     .$eval('time[datetime]', time => time.dateTime)
     .then(datetime => new Date(datetime))
+  const subheading = await page
+    .$eval('.entry-content h2', $subheading => $subheading.textContent)
+    .catch(() => undefined)
   const content = await page
-    .$$eval('article.the-article p', ps =>
-      ps
-        .filter(
-          p =>
-            !['wp-caption-text', 'rmoreabt'].some(className =>
-              p.classList.contains(className)
-            )
-        )
-        .filter(p => {
-          if (/^Read the full article here.$/.test(p)) return false
-          if (
-            p.childNodes.length === 1 &&
-            ['STRONG', 'EM'].some(
-              tagName => p.childNodes[0].tagName === tagName
-            )
+    .$eval('article.the-article .entry-content', $article => {
+      let $ps = Array.from($article.children).filter($p => {
+        if (/^breitbart tvvideo player is loading/i.test($p.textContent))
+          return false
+        if (
+          $p.classList &&
+          ['wp-caption-text', 'rmoreabt'].some(className =>
+            $p.classList.contains(className)
           )
-            return false
-          return true
-        })
-        .map(p => p.textContent)
-    )
+        )
+          return false
+        if (/^read the full article here.$/i.test($p.textContent)) return false
+        if (
+          $p.childNodes.length === 1 &&
+          ['STRONG', 'EM'].some(tagName => $p.childNodes[0].tagName === tagName)
+        )
+          return false
+        return true
+      })
+      // drop while
+      while ($ps[0] && $ps[0].tagName === 'H2') $ps = $ps.slice(1)
+      // drop right while
+      while (
+        $ps[$ps.length - 1] &&
+        $ps[$ps.length - 1].childNodes &&
+        Array.from($ps[$ps.length - 1].childNodes).every(node =>
+          ['EM', 'A'].some(tagName => node.tagName === tagName)
+        )
+      )
+        $ps = $ps.slice(0, -1)
+      return $ps.map($p => $p.textContent)
+    })
     .then(ps =>
       stripInnerContents(
         ps
@@ -112,27 +125,16 @@ const collectPage = async (page, headline) => {
     )
     .then(ps => ps.join('\n'))
   return {
-    href: headline.href,
+    href,
     title,
+    subheading,
     content,
     publicationDate,
     authors,
   }
 }
 
-const collect = async (page, needsContent) =>
-  sequentiallyMap(needsContent, headline =>
-    collectPage(page, headline).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  )
-
 module.exports = {
   collect,
   discover,
-  slice: breitbart,
 }

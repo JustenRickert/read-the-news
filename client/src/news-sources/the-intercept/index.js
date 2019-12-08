@@ -1,5 +1,4 @@
 const assert = require('assert')
-const { store, theIntercept } = require('../../store')
 const {
   partitionGroups,
   sequentiallyMap,
@@ -67,37 +66,59 @@ const parseDate = date => {
   )
 }
 
-const articleCollect = async (page, headline) => {
-  await page.goto(headline.href)
-  const title = await page.$eval('.Post-title', title => title.textContent)
-  const authors = await page.$eval('.PostByline-link', byline => {
-    const name = byline.querySelector('[itemprop="name"]').textContent
-    const href = byline.href
-    return [
-      {
-        name,
-        href,
-      },
-    ]
-  })
+const collect = async (page, href) => {
+  await page.goto(href)
+  const title = await page.$eval('h1', title => title.textContent)
+
+  const authors = await page.$$eval(
+    '.PostByline-names .PostByline-link',
+    $bylines =>
+      $bylines.map($by => ({
+        href: $by.href,
+        name: $by.textContent,
+      }))
+  )
   const date = await page.$eval('.PostByline-date', date => date.innerText)
   const content = await page
-    .$$eval('.PostContent div p', posts =>
-      posts
-        .reduce((contents, post) => {
-          if (post.classList.contains('caption')) contents
-          return contents.concat(post.textContent)
+    .$eval('.PostContent', $content =>
+      Array.from($content.childNodes)
+        .filter($section => {
+          if (
+            ['img-wrap', 'PhotoGrid'].some(className =>
+              $section.classList.contains(className)
+            )
+          )
+            return false
+          return true
+        })
+        .reduce((ps, $section) => {
+          const $chapter = $section.querySelector('.chapter')
+          if ($chapter) return ps.concat($chapter.textContent)
+          const innerPs = Array.from($section.querySelectorAll('p') || [])
+          return ps.concat(
+            innerPs
+              .filter($p => {
+                const $subscribeTo = $p.querySelector('.no-underline')
+                if ($subscribeTo && /subscribe/i.test($subscribeTo.textContent))
+                  return false
+                if (/^<em>.*<\/em>$/.test($p.innerHTML)) return false
+                const $correction = $p.querySelector('strong')
+                if (
+                  $correction &&
+                  /^(Correction|Update):/.test($correction.textContent)
+                )
+                  return false
+                return true
+              })
+              .map($p => $p.textContent)
+          )
         }, [])
+        .map(p => p.trim())
         .filter(Boolean)
     )
-    .then(paragraphs =>
-      dropRightWhile(paragraphs.filter(Boolean), paragraph =>
-        paragraph.startsWith('Updated:')
-      ).join('\n')
-    )
-  if (content.endsWith('Transcript coming soon.')) return undefined
+    .then(paragraphs => paragraphs.join('\n'))
   return {
-    href: headline.href,
+    href,
     title,
     authors,
     publicationDate: parseDate(date),
@@ -105,19 +126,7 @@ const articleCollect = async (page, headline) => {
   }
 }
 
-const collect = (page, needsContent) =>
-  sequentiallyMap(needsContent, headline =>
-    articleCollect(page, headline).catch(
-      e => (
-        console.error(headline.href),
-        console.error(e),
-        { href: headline.href, error: true }
-      )
-    )
-  ).then(articles => articles.filter(Boolean))
-
 module.exports = {
-  slice: theIntercept,
   discover,
   collect,
 }
