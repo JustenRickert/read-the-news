@@ -1,6 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { parseSite } from "shared/utils";
 
+const IS_DEV = process.env.NODE_ENV === "development";
+
+const ORIGIN = IS_DEV
+  ? window.location.protocol + "//" + window.location.hostname + ":3001"
+  : "";
+
 export const useLazyGetRandomArticles = ({
   articleRecord,
   currentPage,
@@ -18,7 +24,7 @@ export const useLazyGetRandomArticles = ({
           siteArticles.noArticles ||
           currentPage + 2 > Object.values(siteArticles.articles).length))
     ) {
-      fetch(`/api/news-source/${currentSite}/random/5`)
+      fetch(`${ORIGIN}/api/news-source/${currentSite}/random/5`)
         .then(res => res.json())
         .then(articles => {
           if (!articles.length) {
@@ -39,7 +45,7 @@ export const useLazyGetRandomArticles = ({
 
 export const useSites = ({ onNewSites }) => {
   useEffect(() => {
-    fetch(`/api/news-source`)
+    fetch(`${ORIGIN}/api/news-source`)
       .then(res => res.json())
       .then(sites => {
         onNewSites(sites);
@@ -48,7 +54,7 @@ export const useSites = ({ onNewSites }) => {
 };
 
 const getSentiment = href =>
-  fetch(`/api/sentiment/${encodeURIComponent(href)}`)
+  fetch(`${ORIGIN}/api/sentiment/${encodeURIComponent(href)}`)
     .then(res => res.json())
     .catch(e => {
       console.error(e.stack);
@@ -61,6 +67,12 @@ export const useDashboardHandles = ({
   onReceiveSentiment,
   wsSend
 }) => {
+  const handleFetchSentimentAsync = useCallback(href => {
+    const site = parseSite(href);
+    return getSentiment(href).then(sentiment =>
+      onReceiveSentiment({ sentiment, href })
+    );
+  });
   const handleFetchHrefContentAsync = useCallback(
     href => {
       const site = parseSite(href);
@@ -72,13 +84,12 @@ export const useDashboardHandles = ({
         });
       let article = articleRecord[site] && articleRecord[site].articles[href];
       if (!article) {
-        article = fetch(`/news-source/${site}/${encodeURIComponent(href)}`)
+        article = fetch(
+          `${ORIGIN}/api/news-source/${site}/${encodeURIComponent(href)}`
+        )
           .then(res => res.json())
           .then(article => {
             onReceiveArticle(article);
-            getSentiment(href).then(sentiment =>
-              onReceiveSentiment({ sentiment, href })
-            );
             return article;
           })
           .catch(() => {
@@ -91,13 +102,13 @@ export const useDashboardHandles = ({
           });
       } else {
         onReceiveArticle(article);
-        getSentiment(href).then(sentiment =>
-          onReceiveSentiment({ href, sentiment })
-        );
       }
       return Promise.resolve(article);
     },
     [articleRecord, onReceiveArticle, wsSend]
   );
-  return { handleHrefContent: handleFetchHrefContentAsync };
+  return {
+    handleHrefContent: handleFetchHrefContentAsync,
+    handleSentiment: handleFetchSentimentAsync
+  };
 };

@@ -18,6 +18,8 @@ import Pagination from "./Pagination";
 import Dashboard from "./Dashboard";
 import "./App.css";
 
+const IS_DEV = process.env.NODE_ENV === "development";
+
 const range = n =>
   Array(n)
     .fill(undefined)
@@ -49,7 +51,12 @@ const useWsConnectionRefState = ({
   const ws = useRef(null);
   useEffect(() => {
     if (!ws.current) {
-      ws.current = new WebSocket("ws://" + location.hostname + ":3001");
+      ws.current = new WebSocket(
+        "ws://" +
+          window.location.hostname +
+          ":" +
+          (IS_DEV ? 3001 : window.location.port)
+      );
     }
     ws.current.onmessage = onMessage;
     ws.current.onopen = onOpen;
@@ -206,7 +213,7 @@ function App() {
     }
   });
 
-  const { handleHrefContent } = useDashboardHandles({
+  const { handleHrefContent, handleSentiment } = useDashboardHandles({
     articleRecord,
     onReceiveArticle: article => {
       storeDispatch(storeActions.dashboard.updateArticleRecord(article));
@@ -231,7 +238,11 @@ function App() {
   return (
     <div className="App">
       <Tabination>
-        <Dashboard {...dashboardState} onFetchHrefContent={handleHrefContent} />
+        <Dashboard
+          {...dashboardState}
+          onFetchHrefContent={handleHrefContent}
+          onFetchSentiment={handleSentiment}
+        />
         <div>
           <Section
             sites={sites}

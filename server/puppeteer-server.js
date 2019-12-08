@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer')
 const ws = require('ws')
 const { parseSite } = require('../shared/utils')
-const { collectArticle } = require('../client')
+const { collectArticle } = require('read-the-news-client')
 const modelActions = require('./models/actions')
 
 const handleRunArticle = (socket, page, payload = {}) =>

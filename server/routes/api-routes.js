@@ -89,12 +89,8 @@ router.get('/news-source/:site/:href', (req, res) => {
     .then(result => {
       if (!result) return res.status(404).send()
       return res
-        .status(200, { 'Content-Type': 'application/json' })
-        .send(
-          JSON.stringify(
-            omit(result.dataValues, ['createdAt', 'updatedAt', 'site'])
-          )
-        )
+        .status(200)
+        .json(omit(result.dataValues, ['createdAt', 'updatedAt', 'site']))
     })
     .catch(e => {
       console.error(e)

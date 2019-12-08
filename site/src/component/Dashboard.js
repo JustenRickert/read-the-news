@@ -18,13 +18,13 @@ const stateModule = createSlice({
     unmarkLoadingSentiment: (state, { payload: payloadHrefs }) => {
       if (!Array.isArray(payloadHrefs)) payloadHrefs = [payloadHrefs];
       payloadHrefs.forEach(href => {
-        delete state.sentimentsLoading[href];
+        state.sentimentsLoading[href] = false;
       });
     },
     unmarkLoadingArticle: (state, { payload: payloadHrefs }) => {
       if (!Array.isArray(payloadHrefs)) payloadHrefs = [payloadHrefs];
       payloadHrefs.forEach(href => {
-        delete state.articlesLoading[href];
+        state.articlesLoading[href] = false;
       });
     },
     markLoadingArticle: (state, { payload: href }) => {
@@ -39,14 +39,21 @@ const stateModule = createSlice({
 const Dashboard = ({
   articleRecord,
   sentimentRecord = {},
-  articleRecordRecentHistory,
-  onFetchHrefContent
+  onFetchHrefContent,
+  onFetchSentiment
 }) => {
   const [state, dispatch] = useReducer(stateModule.reducer, {
     articlesLoading: {},
     sentimentsLoading: {}
   });
   const [text, setText] = useState("");
+
+  const handleFetchSentiment = href => {
+    dispatch(stateModule.actions.markLoadingSentiment(href));
+    onFetchSentiment(href).then(() => {
+      dispatch(stateModule.actions.unmarkLoadingSentiment(href));
+    });
+  };
 
   const handleFetchHrefData = text => {
     setText("");
@@ -66,30 +73,25 @@ const Dashboard = ({
         return payload;
       }
       if (!sentimentRecord[payload.href]) {
-        dispatch(stateModule.actions.markLoadingSentiment(payload.href));
         return { error: true, message: "LOADING_SENTIMENT" };
       }
     });
   };
 
   useEffect(() => {
-    Object.values(articleRecord).forEach(article => {
-      if (
-        !sentimentRecord[article.href] &&
-        !state.sentimentsLoading[article.href]
-      ) {
-        handleFetchHrefData(article.href).then(({ error }) => {
-          if (error) return;
-          dispatch(stateModule.actions.unmarkLoadingSentiment(article.href));
-        });
-      }
-    });
+    Object.values(articleRecord)
+      .filter(
+        article =>
+          !sentimentRecord[article.href] &&
+          !state.sentimentsLoading[article.href]
+      )
+      .forEach(({ href }) => handleFetchSentiment(href));
     dispatch(
       stateModule.actions.unmarkLoadingArticle(
         Object.values(articleRecord).map(({ href }) => href)
       )
     );
-  }, [articleRecord]);
+  }, [articleRecord, sentimentRecord, state.sentimentsLoading]);
 
   const articleSiteBucket = bucket(articleRecord, article =>
     parseSite(article.href)
@@ -110,9 +112,11 @@ const Dashboard = ({
       <section>
         Loading
         <ul>
-          {Object.keys(state.articlesLoading).map(href => (
-            <li>{href}</li>
-          ))}
+          {Object.entries(state.articlesLoading)
+            .filter(([, loading]) => loading)
+            .map(([href]) => (
+              <li>{href}</li>
+            ))}
         </ul>
       </section>
       <section>
