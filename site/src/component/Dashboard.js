@@ -74,9 +74,10 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
 
   const handleFetchSentiment = href => {
     stateDispatch(stateModule.actions.markLoadingSentiment(href));
-    onFetchSentiment(href).then(() => {
+    const unmarkLoading = () => {
       stateDispatch(stateModule.actions.unmarkLoadingSentiment(href));
-    });
+    };
+    onFetchSentiment(href).then(unmarkLoading, unmarkLoading);
   };
 
   const handleFetchHrefData = text => {

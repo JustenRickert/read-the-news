@@ -9,23 +9,27 @@ import debounce from "lodash.debounce";
 import { parseSite } from "read-the-news-shared/utils";
 import uuid from "uuid/v4";
 
+const stubDashboard = () => ({
+  id: uuid(),
+  createdDate: Date(),
+  updatedDate: null,
+  value: {}
+});
+
 const dashboard = createSlice({
   name: "dashboard",
   initialState: {
-    currentDashboard: {
-      id: uuid(),
-      value: {}
-    },
+    currentDashboard: stubDashboard(),
     savedDashboards: [],
     sentimentRecord: {}
   },
   reducers: {
     saveDashboard(state) {
-      state.savedDashboards.push(state.currentDashboard);
-      state.currentDashboard = {
-        id: uuid(),
-        value: {}
-      };
+      state.savedDashboards.push({
+        ...state.currentDashboard,
+        updatedDate: Date()
+      });
+      state.currentDashboard = stubDashboard();
     },
     returnToSavedDashboard(state, { payload: dashboard }) {
       state.savedDashboards = state.savedDashboards.filter(
