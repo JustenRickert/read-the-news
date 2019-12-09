@@ -12,18 +12,27 @@ import uuid from "uuid/v4";
 const stubDashboard = () => ({
   id: uuid(),
   createdDate: Date(),
-  updatedDate: null,
+  updatedDate: Date(),
   value: {}
 });
 
 const dashboard = createSlice({
   name: "dashboard",
   initialState: {
+    onlineDashboards: {
+      savedDashboards: {}
+    },
     currentDashboard: stubDashboard(),
     savedDashboards: [],
     sentimentRecord: {}
   },
   reducers: {
+    updateOnlineSavedDashboards(state, { payload: savedDashboards }) {
+      Object.assign(state.onlineDashboards.savedDashboards, savedDashboards);
+      savedDashboards.forEach(dashboard => {
+        state.onlineDashboards.savedDashboards[dashboard.id] = dashboard;
+      });
+    },
     saveDashboard(state) {
       state.savedDashboards.push({
         ...state.currentDashboard,

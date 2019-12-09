@@ -1,11 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { parseSite } from "shared/utils";
-
-const IS_DEV = process.env.NODE_ENV === "development";
-
-const ORIGIN = IS_DEV
-  ? window.location.protocol + "//" + window.location.hostname + ":3001"
-  : "";
+import { IS_DEV, ORIGIN } from "./constants";
 
 export const useLazyGetRandomArticles = ({
   articleRecord,

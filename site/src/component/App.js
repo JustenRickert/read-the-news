@@ -55,7 +55,8 @@ const useWsConnectionRefState = ({
         "ws://" +
           window.location.hostname +
           ":" +
-          (IS_DEV ? 3001 : window.location.port)
+          (IS_DEV ? 3001 : window.location.port) +
+          "/ws-puppeteer"
       );
     }
     ws.current.onmessage = onMessage;

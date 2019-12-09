@@ -35,10 +35,11 @@ const handleRunArticle = (socket, page, payload = {}) =>
       )
     })
 
-const createPuppeteerWsServer = async ({ port, server }) => {
+const createPuppeteerWsServer = async wsServerOptions => {
   const browser = await puppeteer.launch()
-  const wsServer = new ws.Server({ port, server })
+  const wsServer = new ws.Server(wsServerOptions)
   wsServer.on('connection', socket => {
+    console.log('CONNECTED')
     socket.on('message', async payload => {
       payload = JSON.parse(payload)
       if (payload.message.type === 'SEND#UPDATE#HREF' && payload.message.href) {

@@ -3,6 +3,7 @@ import { createSlice, combineReducers } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { parseSite } from "read-the-news-shared/utils";
 import { actions as storeActions } from "../store";
+import { useDashboardWsRefState } from "./dashboard-connection";
 
 const noop = () => {};
 
@@ -54,6 +55,15 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
     peekingDashboard: null
   });
   const [text, setText] = useState("");
+
+  const [ws, wsSend] = useDashboardWsRefState({
+    onMessage: message => {
+      console.log({ wsMessage: message });
+    }
+    // onOpen: message => () => {}
+    // onClose,
+    // onError,
+  });
 
   const handleSwitchDashboard = dashboard => {
     stateDispatch(stateModule.actions.peekDashboard(null));
@@ -177,9 +187,6 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
   );
 };
 
-const take = (n, xs) => xs.slice(0, n);
-const takeRight = (n, xs) => xs.slice(xs.length - n);
-
 const ViewDashboards = ({
   isPeeking,
   handleSaveDashboard,
@@ -232,6 +239,9 @@ const ViewDashboards = ({
     </section>
   );
 };
+
+const take = (n, xs) => xs.slice(0, n);
+const takeRight = (n, xs) => xs.slice(xs.length - n);
 
 const SentimentDashboard = ({ sentimentRecord, href }) => {
   const sentiment = sentimentRecord[href];

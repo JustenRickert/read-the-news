@@ -2,8 +2,6 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 
-const { createPuppeteerWsServer } = require('./puppeteer-server')
-
 dotenv.config()
 
 const db = require('./models')
@@ -26,5 +24,30 @@ db.sequelize.sync().then(async () => {
     console.log('App now listening on port:', PORT)
   })
 
-  const wsServer = await createPuppeteerWsServer({ server })
+  const { createPuppeteerWsServer } = require('./puppeteer-server')
+  const { createDashboardWsServer } = require('./dashboard-server')
+
+  const puppeteerServer = await createPuppeteerWsServer({
+    noServer: true,
+  })
+
+  const dashboardServer = await createDashboardWsServer({
+    noServer: true,
+  })
+
+  server.on('upgrade', (request, socket, head) => {
+    const pathname = request.url.slice(1)
+    switch (pathname) {
+      case 'ws-dashboard':
+        dashboardServer.handleUpgrade(request, socket, head, ws => {
+          dashboardServer.emit('connection', ws, request)
+        })
+        break
+      case 'ws-puppeteer':
+        puppeteerServer.handleUpgrade(request, socket, head, ws => {
+          puppeteerServer.emit('connection', ws, request)
+        })
+        break
+    }
+  })
 })
