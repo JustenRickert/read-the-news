@@ -144,7 +144,7 @@ const save = store => next => action => {
 
 const preloadedState = loadState() || undefined;
 
-const store = createStore(
+export const store = createStore(
   combineReducers({
     articles: articles.reducer,
     sites: sites.reducer,
@@ -154,10 +154,8 @@ const store = createStore(
   applyMiddleware(save)
 );
 
-const actions = {
+export const actions = {
   ...articles.actions,
   ...sites.actions,
   dashboard: dashboard.actions
 };
-
-export { actions, store };

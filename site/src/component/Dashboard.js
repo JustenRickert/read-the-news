@@ -4,16 +4,90 @@ import { useDispatch, useSelector } from "react-redux";
 import { parseSite } from "read-the-news-shared/utils";
 import { actions as storeActions } from "../store";
 import { useDashboardWsRefState } from "./dashboard-connection";
+import throttle from "lodash.throttle";
 
-const noop = () => {};
+import { Radar } from "./Graph";
+import { take, takeRight, noop, bucket } from "./utils";
 
-const bucket = (o, idFn) =>
-  Object.values(o).reduce((bucket, v) => {
-    const id = idFn(v);
-    if (bucket[id]) bucket[id].push(v);
-    else bucket[id] = [v];
-    return bucket;
-  }, {});
+const ViewDashboards = ({
+  isPeeking,
+  handleSaveDashboard,
+  handleRemoveArticleFromDashboard,
+  dashboardArticleBucket,
+  sentimentRecord
+}) => {
+  return (
+    <section>
+      {isPeeking && "Peeking..."}{" "}
+      {!isPeeking && (
+        <button onClick={handleSaveDashboard}>Save dashboard</button>
+      )}
+      <ul>
+        {Object.entries(dashboardArticleBucket).map(([site, articles]) => {
+          return (
+            <li>
+              <h3 children={site} />
+              <ul>
+                {articles.map(article => (
+                  <h4>
+                    <a target="_false" href={article.href}>
+                      {article.title}
+                    </a>
+                    {!isPeeking && (
+                      <>
+                        {" "}
+                        <button
+                          onClick={() =>
+                            handleRemoveArticleFromDashboard(article)
+                          }
+                        >
+                          Remove from dashboard
+                        </button>
+                      </>
+                    )}
+                    <div>
+                      <SentimentDashboard
+                        href={article.href}
+                        sentimentRecord={sentimentRecord}
+                      />
+                    </div>
+                  </h4>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+};
+
+const SentimentDashboard = ({ sentimentRecord, href }) => {
+  const sentiment = sentimentRecord[href];
+  if (!sentiment) return null;
+  const positiveWords = take(5, sentiment.words);
+  const negativeWords = takeRight(5, sentiment.words);
+  return (
+    <ul>
+      <li>
+        score: {sentiment.score} ({sentiment.comparative.toFixed(3)})
+      </li>
+      <li>length: {sentiment.length || "unknown"} words</li>
+      <li>
+        (+)words:{" "}
+        {positiveWords
+          .map(({ word, count, score }) => `${word} (${count * score})`)
+          .join(", ")}
+      </li>
+      <li>
+        (-)words:{" "}
+        {negativeWords
+          .map(({ word, count, score }) => `${word} (${count * score})`)
+          .join(", ")}
+      </li>
+    </ul>
+  );
+};
 
 const stateModule = createSlice({
   name: "dashboard#state",
@@ -58,12 +132,19 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
 
   const [ws, wsSend] = useDashboardWsRefState({
     onMessage: message => {
-      console.log({ wsMessage: message });
+      console.log({ received: true, wsMessage: message });
     }
     // onOpen: message => () => {}
     // onClose,
     // onError,
   });
+
+  const handlePushDashboardOnline = dashboard => {
+    wsSend({
+      type: "UPDATE",
+      dashboard
+    });
+  };
 
   const handleSwitchDashboard = dashboard => {
     stateDispatch(stateModule.actions.peekDashboard(null));
@@ -126,7 +207,12 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
         Object.values(currentDashboard).map(({ href }) => href)
       )
     );
-  }, [currentDashboard, sentimentRecord, state.sentimentsLoading]);
+  }, [
+    currentDashboard,
+    handleFetchSentiment,
+    sentimentRecord,
+    state.sentimentsLoading
+  ]);
 
   const dashboardArticleBucket = bucket(
     state.peekingDashboard ? state.peekingDashboard.value : currentDashboard,
@@ -158,10 +244,13 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
       {!state.peekingDashboard ? (
         <ul>
           {savedDashboards.map((dashboard, i) => (
-            <li
-              onClick={() => handlePeekDashboard(dashboard)}
-              children={"dashboard " + i}
-            />
+            <li onClick={() => handlePeekDashboard(dashboard)}>
+              dashboard {i}{" "}
+              <button
+                onClick={() => handlePushDashboardOnline(dashboard)}
+                children="Save online"
+              />
+            </li>
           ))}
         </ul>
       ) : (
@@ -176,6 +265,14 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
           />
         </div>
       )}
+      <Radar
+        dashboard={
+          state.peekingDashboard
+            ? state.peekingDashboard.value
+            : currentDashboard
+        }
+        sentimentRecord={sentimentRecord}
+      />
       <ViewDashboards
         isPeeking={Boolean(state.peekingDashboard)}
         handleSaveDashboard={handleSaveDashboard}
@@ -184,89 +281,6 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
         sentimentRecord={sentimentRecord}
       />
     </div>
-  );
-};
-
-const ViewDashboards = ({
-  isPeeking,
-  handleSaveDashboard,
-  handleRemoveArticleFromDashboard,
-  dashboardArticleBucket,
-  sentimentRecord
-}) => {
-  return (
-    <section>
-      {isPeeking && "Peeking..."}{" "}
-      {!isPeeking && (
-        <button onClick={handleSaveDashboard}>Save dashboard</button>
-      )}
-      <ul>
-        {Object.entries(dashboardArticleBucket).map(([site, articles]) => {
-          return (
-            <li>
-              <h3 children={site} />
-              <ul>
-                {articles.map(article => (
-                  <h4>
-                    <a target="_false" href={article.href}>
-                      {article.title}
-                    </a>
-                    {!isPeeking && (
-                      <>
-                        {" "}
-                        <button
-                          onClick={() =>
-                            handleRemoveArticleFromDashboard(article)
-                          }
-                        >
-                          Remove from dashboard
-                        </button>
-                      </>
-                    )}
-                    <div>
-                      <SentimentDashboard
-                        href={article.href}
-                        sentimentRecord={sentimentRecord}
-                      />
-                    </div>
-                  </h4>
-                ))}
-              </ul>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-};
-
-const take = (n, xs) => xs.slice(0, n);
-const takeRight = (n, xs) => xs.slice(xs.length - n);
-
-const SentimentDashboard = ({ sentimentRecord, href }) => {
-  const sentiment = sentimentRecord[href];
-  if (!sentiment) return null;
-  const positiveWords = take(5, sentiment.words);
-  const negativeWords = takeRight(5, sentiment.words);
-  return (
-    <ul>
-      <li>
-        score: {sentiment.score} ({sentiment.comparative.toFixed(3)})
-      </li>
-      <li>length: {sentiment.length || "unknown"} words</li>
-      <li>
-        (+)words:{" "}
-        {positiveWords
-          .map(({ word, count, score }) => `${word} (${count * score})`)
-          .join(", ")}
-      </li>
-      <li>
-        (-)words:{" "}
-        {negativeWords
-          .map(({ word, count, score }) => `${word} (${count * score})`)
-          .join(", ")}
-      </li>
-    </ul>
   );
 };
 

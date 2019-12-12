@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef } from "react";
+import React from "react";
 import { createSlice, combineReducers } from "@reduxjs/toolkit";
 
 export default function Section({ sites, onChangeSection }) {

@@ -1,13 +1,8 @@
 const { performance } = require('perf_hooks')
 
-const { pick } = require('../../shared/utils')
+const { pick, zip, range } = require('../../shared/utils')
 
 const tap = x => (console.log(x), x)
-
-const range = n =>
-  Array(n)
-    .fill(undefined)
-    .map((_, i) => i)
 
 const map = (xs, fn) => xs.map(fn)
 
@@ -80,11 +75,6 @@ const unique = (xs, idFn) =>
       uniqueXs.some(ux => idFn(ux) === idFn(x)) ? uniqueXs : uniqueXs.concat(x),
     []
   )
-
-const zip = xss => {
-  const minLength = Math.min(...xss.map(xs => xs.length))
-  return range(minLength).map(i => xss.map(xs => xs[i]))
-}
 
 const timeFn = fn => (...args) => {
   const start = performance.now()

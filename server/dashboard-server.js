@@ -12,16 +12,13 @@ const savedDashboards = createSlice({
     dashboards: {},
   },
   reducers: {
-    upsertDashboard(
-      state,
-      {
-        payload: { dashboard },
-      }
-    ) {
+    upsertDashboard(state, { payload: dashboard }) {
       if (!Array.isArray(dashboard)) dashboard = [dashboard]
-      console.log(dashboard)
       dashboard.forEach(d => {
-        state.dashboards[dashboard.id] = d
+        state.dashboards[d.id] = {
+          ...d,
+          value: Object.keys(dashboards.values),
+        }
       })
     },
   },
@@ -36,20 +33,27 @@ const onlineDashboard = createStore(
 const createDashboardWsServer = wsServerOptions => {
   const wsServer = new ws.Server(wsServerOptions)
   const { getState, dispatch } = onlineDashboard
+  const sockets = []
   wsServer.on('connection', socket => {
+    sockets.push(socket)
     const {
       savedDashboards: { dashboards },
     } = getState()
+    console.log('CONNECTING')
     socket.send(JSON.stringify({ type: 'INIT', payload: dashboards }))
     socket.on('message', payload => {
       const action = JSON.parse(payload).message
       if (action.type === 'UPDATE') {
-        store.dispatch(savedDashboards.actions.upsertDashboard(action))
+        dispatch(savedDashboards.actions.upsertDashboard(action.dashboard))
+        sockets
+          .filter(s => s !== socket)
+          .forEach(otherSocket => {
+            console.loG('SENDING TO OTHER SOCKETS')
+            otherSocket.send(JSON.stringify(action))
+          })
       }
-      console.log({ payload })
     })
   })
-  console.log(getState())
   return wsServer
 }
 

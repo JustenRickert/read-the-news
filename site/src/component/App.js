@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useState, useRef } from "react";
-import { createSlice, combineReducers } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import throttle from "lodash.throttle";
 import { parseSite } from "shared/utils";
@@ -201,17 +201,17 @@ function App() {
     }
   });
 
-  useLazyGetRandomArticles({
-    articleRecord,
-    currentPage,
-    currentSite,
-    onNoArticlesOnServer: payload => {
-      storeDispatch(storeActions.markNoArticlesOnServer(payload));
-    },
-    onNewArticles: payload => {
-      storeDispatch(storeActions.addArticles(payload));
-    }
-  });
+  // useLazyGetRandomArticles({
+  //   articleRecord,
+  //   currentPage,
+  //   currentSite,
+  //   onNoArticlesOnServer: payload => {
+  //     storeDispatch(storeActions.markNoArticlesOnServer(payload));
+  //   },
+  //   onNewArticles: payload => {
+  //     storeDispatch(storeActions.addArticles(payload));
+  //   }
+  // });
 
   const { handleHrefContent, handleSentiment } = useDashboardHandles({
     articleRecord,
@@ -239,6 +239,7 @@ function App() {
     <div className="App">
       <Tabination>
         <Dashboard
+          articleRecord={articleRecord}
           onFetchHrefContent={handleHrefContent}
           onFetchSentiment={handleSentiment}
         />

@@ -52,7 +52,19 @@ const parseSite = articleOrHref => {
   return parseSiteConditionalFn(articleOrHref);
 };
 
+const range = n =>
+  Array(n)
+    .fill(undefined)
+    .map((_, i) => i);
+
+const zip = (...xss) => {
+  const minLength = Math.min(...xss.map(xs => xs.length));
+  return range(minLength).map(i => xss.map(xs => xs[i]));
+};
+
 module.exports = {
   pick,
-  parseSite
+  parseSite,
+  range,
+  zip
 };

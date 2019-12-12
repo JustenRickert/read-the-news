@@ -2,41 +2,45 @@ import { useEffect, useState, useCallback } from "react";
 import { parseSite } from "shared/utils";
 import { IS_DEV, ORIGIN } from "./constants";
 
-export const useLazyGetRandomArticles = ({
-  articleRecord,
-  currentPage,
-  currentSite,
-  onNoArticlesOnServer,
-  onNewArticles
-}) => {
-  useEffect(() => {
-    const siteArticles = currentSite && articleRecord[currentSite];
-    if (
-      !siteArticles ||
-      (siteArticles &&
-        !siteArticles.noArticlesOnServer &&
-        (!Object.values(siteArticles).length ||
-          siteArticles.noArticles ||
-          currentPage + 2 > Object.values(siteArticles.articles).length))
-    ) {
-      fetch(`${ORIGIN}/api/news-source/${currentSite}/random/5`)
-        .then(res => res.json())
-        .then(articles => {
-          if (!articles.length) {
-            onNoArticlesOnServer(currentSite);
-          } else {
-            onNewArticles({ site: currentSite, articles });
-          }
-        });
-    }
-  }, [
-    currentSite,
-    currentPage,
-    articleRecord[currentSite],
-    onNoArticlesOnServer,
-    onNewArticles
-  ]);
-};
+// export const useLazyGetRandomArticles = ({
+//   articleRecord,
+//   currentPage,
+//   currentSite,
+//   onNoArticlesOnServer,
+//   onNewArticles
+// }) => {
+//   useEffect(() => {
+//     const siteArticles = currentSite && articleRecord[currentSite];
+//     if (
+//       !siteArticles ||
+//       (siteArticles &&
+//         !siteArticles.noArticlesOnServer &&
+//         (!Object.values(siteArticles).length ||
+//           siteArticles.noArticles ||
+//           currentPage + 2 > Object.values(siteArticles.articles).length))
+//     ) {
+//       fetch(`${ORIGIN}/api/news-source/${currentSite}/random/5`)
+//         .then(res => res.json())
+//         .then(articles => {
+//           if (!articles.length) {
+//             onNoArticlesOnServer(currentSite);
+//           } else {
+//             onNewArticles({ site: currentSite, articles });
+//           }
+//         })
+//         .catch(e => {
+//           console.error("ERROR with /random endpoint:", e);
+//           onNoArticlesOnServer(currentSite);
+//         });
+//     }
+//   }, [
+//     currentSite,
+//     currentPage,
+//     onNoArticlesOnServer,
+//     onNewArticles,
+//     articleRecord
+//   ]);
+// };
 
 export const useSites = ({ onNewSites }) => {
   useEffect(() => {
