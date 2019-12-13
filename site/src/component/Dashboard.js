@@ -125,7 +125,7 @@ const stateModule = createSlice({
 const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
   const storeDispatch = useDispatch();
   const {
-    currentDashboard: { value: currentDashboard },
+    currentDashboard: { value: currentDashboard } = {},
     sentimentRecord,
     savedDashboards
   } = useSelector(state => state.dashboard);
