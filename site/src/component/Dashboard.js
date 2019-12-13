@@ -221,7 +221,9 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
   ]);
 
   const dashboardArticleBucket = bucket(
-    state.peekingDashboard ? state.peekingDashboard.value : currentDashboard,
+    state.peekingDashboard
+      ? state.peekingDashboard.value || {}
+      : currentDashboard,
     article => parseSite(article.href)
   );
 
