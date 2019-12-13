@@ -13,7 +13,7 @@ export const bucket = (o, idFn) =>
   }, {});
 
 export const bucketEntries = (o, idFn) =>
-  Object.entries(o).reduce((bucket, entry) => {
+  Object.entries(o || {}).reduce((bucket, entry) => {
     const id = idFn(entry);
     if (bucket[id]) bucket[id].push(entry);
     else bucket[id] = [entry];
