@@ -6,7 +6,7 @@ import {
   applyMiddleware
 } from "@reduxjs/toolkit";
 import debounce from "lodash.debounce";
-import { parseSite } from "read-the-news-shared/utils";
+import { parseSite, omit } from "read-the-news-shared/utils";
 import uuid from "uuid/v4";
 
 const stubDashboard = () => ({
@@ -50,7 +50,9 @@ const dashboard = createSlice({
       if (!Array.isArray(articles)) articles = [articles];
       articles.forEach(article => {
         const site = parseSite(article);
-        delete state.currentDashboard.value[article.href];
+        state.currentDashboard.value = omit(state.currentDashboard.value, [
+          article.href
+        ]);
       });
     },
     addSentimentForArticle(

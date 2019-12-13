@@ -10,7 +10,7 @@ const {
   isTheNationHref,
 } = require('../../shared/predicates')
 
-const { parseSite } = require('../../shared/utils')
+const { parseSite, omit } = require('../../shared/utils')
 
 const {
   BREITBART,
@@ -23,11 +23,6 @@ const {
   VICE,
   VOX,
 } = require('../../shared/constants')
-
-const omit = (o, keys) =>
-  Object.keys(o)
-    .filter(key => !keys.includes(key))
-    .reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {})
 
 module.exports = {
   parseSite,

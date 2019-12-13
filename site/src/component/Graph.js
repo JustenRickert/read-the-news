@@ -3,9 +3,40 @@ import { useSelector } from "react-redux";
 import Chart from "chart.js";
 import { parseSite, zip } from "shared/utils";
 
-import { bucketEntries, bucket } from "./utils";
+import { bucketEntries, bucket, mapValues, flatten } from "./utils";
 
-const COLORS = ["yellow", "red", "green", "blue"];
+const toRgb = (color, alpha = 1) => {
+  let r;
+  let g;
+  let b;
+  switch (color) {
+    case "yellow":
+      r = 255;
+      g = 255;
+      break;
+    case "red":
+      r = 255;
+      break;
+    case "green":
+      g = 255;
+      break;
+    case "blue":
+      b = 255;
+      break;
+    case "orange":
+      r = 255;
+      g = 128;
+      break;
+    default:
+      throw new Error();
+  }
+  return `rgb(${r || 0}, ${g || 0}, ${b || 0}, ${alpha})`;
+};
+
+const COLORS = ["red", "green", "blue", "yellow", "orange"].map(color => ({
+  borderColor: toRgb(color),
+  backgroundColor: toRgb(color, 0.2)
+}));
 
 const METRICS = ["score", "comparative", "length"];
 
@@ -42,26 +73,30 @@ const makeDatasets = (sentimentRecord, dashboard) => {
     );
     return {
       label: site,
-      backgroundColor: COLORS[i],
+      ...COLORS[i],
       metricLowerbound,
       metricUpperbound,
       sentimentAverages,
       articles,
       sentiments: articles.map(article => sentimentRecord[article.href]),
-      data: sentimentAveragesNormalized
+      data: [...sentimentAveragesNormalized, articles.length]
     };
   });
 };
 
-const options = {
+const radarOptions = {
+  animation: {
+    duration: 0
+  },
   tooltips: {
     callbacks: {
       title: function(items, data) {
-        const site = data.datasets[items[0].datasetIndex].label;
-        return `${site} (${data.labels[items[0].index]})`;
+        const sites = items.map(item => data.datasets[item.datasetIndex].label);
+        return `${sites.join(", ")} (${data.labels[items[0].index]})`;
       },
       label: function(item, data) {
         const point = data.datasets[item.datasetIndex];
+        if (data.labels[item.index] === "count") return point.data[item.index];
         const percent = data.datasets[item.datasetIndex].data[item.index];
         return `${point.sentimentAverages[item.index].toFixed(2)} (${(
           100 * percent
@@ -78,20 +113,20 @@ const options = {
 };
 
 export const Radar = ({ dashboard, sentimentRecord }) => {
+  const radar = useRef(null);
   const chart = useRef(null);
   const siteRecord = useSelector(state => state.sites);
   const articleSiteRecord = useSelector(state => state.articles);
   useEffect(() => {
-    const context = document.getElementById("radar");
-    if (!chart.current) {
+    if (!chart.current && radar.current) {
       const datasets = makeDatasets(sentimentRecord, dashboard);
-      chart.current = new Chart(context, {
+      chart.current = new Chart(radar.current, {
         type: "radar",
         data: {
-          labels: METRICS,
+          labels: [...METRICS, "count"],
           datasets
         },
-        options
+        radarOptions
       });
       return;
     }
@@ -108,9 +143,94 @@ export const Radar = ({ dashboard, sentimentRecord }) => {
       chart.current.update();
     }
   }, [articleSiteRecord, dashboard, sentimentRecord]);
-  return (
-    <div>
-      <canvas id="radar" />
-    </div>
+  return <canvas ref={radar} id="radar" />;
+};
+
+const makeTimelineDatasets = (dashboard, sentimentRecord) => {
+  const siteArticlesRecord = bucket(dashboard, article =>
+    parseSite(article.href)
   );
+  return Object.entries(
+    mapValues(siteArticlesRecord, articles =>
+      articles.map(article => ({
+        article,
+        sentiment: sentimentRecord[article.href]
+      }))
+    )
+  ).map(([site, articleData], i) => ({
+    label: site,
+    ...COLORS[i],
+    pointRadius: 10,
+    articleData,
+    data: articleData.map(({ article, sentiment }) => ({
+      x: new Date(article.publicationDate),
+      y: sentiment.score
+    }))
+  }));
+};
+
+const timelineOptions = {
+  scales: {
+    xAxes: [
+      {
+        type: "time",
+        time: {
+          unit: "day"
+        }
+      }
+    ]
+  },
+  animation: {
+    duration: 0
+  },
+  tooltips: {
+    callbacks: {
+      title: (items, data) => {
+        const datasets = items.map(item => data.datasets[item.datasetIndex]);
+        return datasets.map(ds => ds.label).join(" ");
+      },
+      label: (item, data) => {
+        const datapoint = data.datasets[item.datasetIndex].data[item.index];
+        const score = datapoint.y;
+        return [
+          `${score} ${score === 1 ? "point" : "points"},`,
+          new Date(datapoint.x).toDateString()
+        ].join(" ");
+      },
+      afterLabel: (item, data) => {
+        const datapoint =
+          data.datasets[item.datasetIndex].articleData[item.index];
+        return datapoint.article.title;
+      }
+    }
+  }
+};
+
+export const Timeline = ({ dashboard, sentimentRecord }) => {
+  const timeline = useRef(null);
+  const chart = useRef(null);
+  useEffect(() => {
+    if (!chart.current && timeline.current) {
+      chart.current = Chart.Scatter(timeline.current, {
+        options: timelineOptions,
+        data: {
+          datasets: makeTimelineDatasets(dashboard, sentimentRecord)
+        }
+      });
+      chart.current.update();
+    }
+    if (
+      chart.current &&
+      flatten(Object.values(dashboard)).every(
+        article => sentimentRecord[article.href]
+      )
+    ) {
+      chart.current.data.datasets = makeTimelineDatasets(
+        dashboard,
+        sentimentRecord
+      );
+      chart.current.update();
+    }
+  }, [dashboard, sentimentRecord]);
+  return <canvas ref={timeline} id="timeline" />;
 };

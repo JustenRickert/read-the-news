@@ -62,9 +62,15 @@ const zip = (...xss) => {
   return range(minLength).map(i => xss.map(xs => xs[i]));
 };
 
+const omit = (o, keys) =>
+  Object.keys(o)
+    .filter(key => !keys.includes(key))
+    .reduce((acc, key) => Object.assign(acc, { [key]: o[key] }), {});
+
 module.exports = {
   pick,
   parseSite,
   range,
-  zip
+  zip,
+  omit
 };

@@ -6,7 +6,7 @@ import { actions as storeActions } from "../store";
 import { useDashboardWsRefState } from "./dashboard-connection";
 import throttle from "lodash.throttle";
 
-import { Radar } from "./Graph";
+import { Radar, Timeline } from "./Graph";
 import { take, takeRight, noop, bucket } from "./utils";
 
 const ViewDashboards = ({
@@ -23,40 +23,46 @@ const ViewDashboards = ({
         <button onClick={handleSaveDashboard}>Save dashboard</button>
       )}
       <ul>
-        {Object.entries(dashboardArticleBucket).map(([site, articles]) => {
-          return (
-            <li>
-              <h3 children={site} />
-              <ul>
-                {articles.map(article => (
-                  <h4>
-                    <a target="_false" href={article.href}>
-                      {article.title}
-                    </a>
-                    {!isPeeking && (
-                      <>
-                        {" "}
-                        <button
-                          onClick={() =>
-                            handleRemoveArticleFromDashboard(article)
-                          }
-                        >
-                          Remove from dashboard
-                        </button>
-                      </>
-                    )}
-                    <div>
-                      <SentimentDashboard
-                        href={article.href}
-                        sentimentRecord={sentimentRecord}
-                      />
-                    </div>
-                  </h4>
-                ))}
-              </ul>
-            </li>
-          );
-        })}
+        {Object.entries(dashboardArticleBucket)
+          .sort(([lSite], [rSite]) => lSite > rSite)
+          .map(([site, articles]) => {
+            return (
+              <li>
+                <h3 children={site} />
+                <ul>
+                  {articles
+                    .slice()
+                    .sort((a1, a2) => a1.title < a2.title)
+                    .map(article => (
+                      <h4>
+                        <a target="_false" href={article.href}>
+                          {article.title}
+                        </a>
+                        ({new Date(article.publicationDate).toDateString()})
+                        {!isPeeking && (
+                          <>
+                            {" "}
+                            <button
+                              onClick={() =>
+                                handleRemoveArticleFromDashboard(article)
+                              }
+                            >
+                              Remove from dashboard
+                            </button>
+                          </>
+                        )}
+                        <div>
+                          <SentimentDashboard
+                            href={article.href}
+                            sentimentRecord={sentimentRecord}
+                          />
+                        </div>
+                      </h4>
+                    ))}
+                </ul>
+              </li>
+            );
+          })}
       </ul>
     </section>
   );
@@ -219,6 +225,10 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
     article => parseSite(article.href)
   );
 
+  const graphDashboard = state.peekingDashboard
+    ? state.peekingDashboard.value
+    : currentDashboard;
+
   return (
     <div>
       <input
@@ -265,14 +275,8 @@ const Dashboard = ({ onFetchHrefContent, onFetchSentiment }) => {
           />
         </div>
       )}
-      <Radar
-        dashboard={
-          state.peekingDashboard
-            ? state.peekingDashboard.value
-            : currentDashboard
-        }
-        sentimentRecord={sentimentRecord}
-      />
+      <Timeline dashboard={graphDashboard} sentimentRecord={sentimentRecord} />
+      <Radar dashboard={graphDashboard} sentimentRecord={sentimentRecord} />
       <ViewDashboards
         isPeeking={Boolean(state.peekingDashboard)}
         handleSaveDashboard={handleSaveDashboard}

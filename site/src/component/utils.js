@@ -19,3 +19,11 @@ export const bucketEntries = (o, idFn) =>
     else bucket[id] = [entry];
     return bucket;
   });
+
+export const mapValues = (o, valueFn) =>
+  Object.entries(o).reduce(
+    (acc, [key, value]) => Object.assign(acc, { [key]: valueFn(value) }),
+    {}
+  );
+
+export const flatten = xss => xss.reduce((ys, xs) => ys.concat(xs), []);
