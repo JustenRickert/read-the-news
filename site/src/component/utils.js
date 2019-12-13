@@ -5,7 +5,7 @@ export const takeRight = (n, xs) => xs.slice(xs.length - n);
 export const noop = () => {};
 
 export const bucket = (o, idFn) =>
-  Object.values(o).reduce((bucket, v) => {
+  Object.values(o || {}).reduce((bucket, v) => {
     const id = idFn(v);
     if (bucket[id]) bucket[id].push(v);
     else bucket[id] = [v];
